@@ -482,7 +482,7 @@ public class VisitasRecepSalidasDetalle extends mx.linkom.caseta_grupokap.Menu {
                 }else{
                     nombre_foto1.setText(ja6.getString(4)+":");
 
-                    storageReference.child("caseta/"+ja4.getString(3))
+                    storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(3))
                             .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
                         @Override
@@ -511,7 +511,7 @@ public class VisitasRecepSalidasDetalle extends mx.linkom.caseta_grupokap.Menu {
                 }else{
                     nombre_foto2.setText(ja6.getString(6)+":");
 
-                    storageReference.child("caseta/"+ja4.getString(4))
+                    storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(4))
                             .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
                         @Override
@@ -539,7 +539,7 @@ public class VisitasRecepSalidasDetalle extends mx.linkom.caseta_grupokap.Menu {
                 }else{
                     nombre_foto3.setText(ja6.getString(8)+":");
 
-                    storageReference.child("caseta/"+ja4.getString(5))
+                    storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(5))
                             .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
                         @Override
@@ -605,7 +605,7 @@ public class VisitasRecepSalidasDetalle extends mx.linkom.caseta_grupokap.Menu {
                         }else{
                             nombre_foto1.setText(ja6.getString(4)+":");
 
-                            storageReference.child("caseta/"+ja4.getString(3))
+                            storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(3))
                                     .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
                                 @Override
@@ -634,7 +634,7 @@ public class VisitasRecepSalidasDetalle extends mx.linkom.caseta_grupokap.Menu {
                         }else{
                             nombre_foto2.setText(ja6.getString(6)+":");
 
-                            storageReference.child("caseta/"+ja4.getString(4))
+                            storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(4))
                                     .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
                                 @Override
@@ -662,7 +662,7 @@ public class VisitasRecepSalidasDetalle extends mx.linkom.caseta_grupokap.Menu {
                         }else{
                             nombre_foto3.setText(ja6.getString(8)+":");
 
-                            storageReference.child("caseta/"+ja4.getString(5))
+                            storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(5))
                                     .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
                                 @Override

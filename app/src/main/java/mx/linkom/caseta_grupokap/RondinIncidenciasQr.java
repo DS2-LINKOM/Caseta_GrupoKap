@@ -481,7 +481,7 @@ public class RondinIncidenciasQr extends Menu {
 
     public void upload1() {
         StorageReference mountainImagesRef = null;
-        mountainImagesRef = storageReference.child("incidencias/app"+numero_aletorio+numero_aletorio3+".png");
+        mountainImagesRef = storageReference.child(Conf.getPin()+"/incidencias/app"+numero_aletorio+numero_aletorio3+".png");
 
         final UploadTask uploadTask = mountainImagesRef.putFile(uri_img);
 
@@ -516,7 +516,7 @@ public class RondinIncidenciasQr extends Menu {
     public void upload2() {
 
         StorageReference mountainImagesRef2 = null;
-        mountainImagesRef2 = storageReference.child("incidencias/app"+numero_aletorio2+numero_aletorio+".png");
+        mountainImagesRef2 = storageReference.child(Conf.getPin()+"/incidencias/app"+numero_aletorio2+numero_aletorio+".png");
 
         final UploadTask uploadTask = mountainImagesRef2.putFile(uri_img2);
 
@@ -552,7 +552,7 @@ public class RondinIncidenciasQr extends Menu {
     }
     public void upload3() {
         StorageReference mountainImagesRef3 = null;
-        mountainImagesRef3 = storageReference.child("incidencias/app"+numero_aletorio3+numero_aletorio2+".png");
+        mountainImagesRef3 = storageReference.child(Conf.getPin()+"/incidencias/app"+numero_aletorio3+numero_aletorio2+".png");
 
         final UploadTask uploadTask = mountainImagesRef3.putFile(uri_img3);
 
