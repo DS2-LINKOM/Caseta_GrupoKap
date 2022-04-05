@@ -483,7 +483,7 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
     public void upload1(final String resp){
 
         StorageReference mountainImagesRef = null;
-        mountainImagesRef = storageReference.child(Conf.getPin()+"/correspondencia/app"+dia+mes+anio+"-"+numero_aletorio+".png");
+        mountainImagesRef = storageReference.child(Conf.getPin()+"correspondencia/app"+dia+mes+anio+"-"+numero_aletorio+".png");
 
         UploadTask uploadTask = mountainImagesRef.putFile(uri_img);
 
