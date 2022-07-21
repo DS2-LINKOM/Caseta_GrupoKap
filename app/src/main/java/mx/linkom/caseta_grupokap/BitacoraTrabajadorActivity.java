@@ -70,12 +70,13 @@ public class BitacoraTrabajadorActivity extends mx.linkom.caseta_grupokap.Menu {
 
             @Override
             public void onResponse(String response) {
+
                 response = response.replace("][",",");
                 if (response.length()>0){
                     try {
 
                         ja1 = new JSONArray(response);
-                        Dtl(ja1.getString(0));
+                        ValidarQR();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -104,57 +105,19 @@ public class BitacoraTrabajadorActivity extends mx.linkom.caseta_grupokap.Menu {
 
 
 
-    public void Dtl(final String id_traba){
-        String url = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/tbj_php2.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                try {
-
-                    if (response.trim().equals("error")){
-                        int $arreglo[]={0,0,0,0,0,0,0,0,0};
-                        ja2 = new JSONArray($arreglo);
-                        ValidarQR();
-
-                    }else{
-                        ja2 = new JSONArray(response);
-                        ValidarQR();
-
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-
-        }, new Response.ErrorListener(){
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("TAG","Error: " + error.toString());
-            }
-        }){
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("id_trabajador", id_traba.trim());
-                return params;
-            }
-        };
-        requestQueue.add(stringRequest);
-    }
 
 
 
     public void ValidarQR() throws JSONException {
 
         try {
+
+
             Calendar c = Calendar.getInstance();
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             Date date = (Date)formatter.parse(ja1.getString(17));
 
-            FechaA = Calendar.getInstance().getTime();
+            //FechaA = Calendar.getInstance().getTime();
 
             //Vigencia de Trabajador
             if(c.getTime().before(date)) {
@@ -162,11 +125,16 @@ public class BitacoraTrabajadorActivity extends mx.linkom.caseta_grupokap.Menu {
                 //Acceso de Trabajador
                 if (ja1.getString(20).equals("1")) {
 
+                    rlVista.setVisibility(View.GONE);
+                    rlPermitido.setVisibility(View.VISIBLE);
+                    rlDenegado.setVisibility(View.GONE);
+
                         Nombre.setText(ja1.getString(6));
                         Puesto.setText(ja1.getString(12));
                         Vigencia.setText(ja1.getString(17));
 
                 }else {
+
                     rlVista.setVisibility(View.GONE);
                     rlPermitido.setVisibility(View.GONE);
                     rlDenegado.setVisibility(View.VISIBLE);
@@ -176,6 +144,7 @@ public class BitacoraTrabajadorActivity extends mx.linkom.caseta_grupokap.Menu {
                 }
 
             }else {
+
                 rlVista.setVisibility(View.GONE);
                 rlPermitido.setVisibility(View.GONE);
                 rlDenegado.setVisibility(View.VISIBLE);

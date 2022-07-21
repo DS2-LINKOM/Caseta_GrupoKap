@@ -348,8 +348,14 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
+                           // if(position==0) {
+                            //    Intent placas = new Intent(getApplication(), mx.linkom.caseta_grupokap.ListaRondinesActivity.class);
+                           //     startActivity(placas);
+                           //     finish();
+                           //mega }
+
                             if(position==0) {
-                                Intent placas = new Intent(getApplication(), mx.linkom.caseta_grupokap.ListaRondinesActivity.class);
+                                Intent placas = new Intent(getApplication(), Rondines.class);
                                 startActivity(placas);
                                 finish();
                             }
