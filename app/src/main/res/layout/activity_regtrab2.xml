@@ -6,6 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/white"
+
     >
 
 
@@ -48,16 +49,19 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="22dp"
-                        android:text="Registros"
+                        android:text="Lista Trabajadores"
                         android:textColor="@color/fontColorBlanco"
                         android:textSize="@dimen/fontSizeEncabezados"
                         android:fontFamily="@font/fontNegritaC"
                         />
 
                 </LinearLayout>
+
+
             </LinearLayout>
         </FrameLayout>
     </ScrollView>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -65,50 +69,44 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <GridView
-                android:id="@+id/gridList"
+
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:numColumns="1"
-                ></GridView>
-            <GridView
-                android:id="@+id/gridList2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:numColumns="1"
-                ></GridView>
-            <GridView
-                android:id="@+id/gridList3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:numColumns="1"
-                ></GridView>
-            <GridView
-                android:id="@+id/gridList4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:numColumns="1"
-                ></GridView>
-            <GridView
-                android:id="@+id/gridList5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:numColumns="1"
-                ></GridView>
-            <GridView
-                android:id="@+id/gridList6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:numColumns="1"
-                ></GridView>
+                android:orientation="horizontal"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
+
+
+
+                <Button
+                    android:id="@+id/btnTrabajador"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="@drawable/boton_descargar"
+                    android:gravity="center"
+                    android:text="Nuevo Trabajador"
+                    android:textColor="@color/FormTextColor"
+                    android:textSize="@dimen/fontSize"
+                    android:fontFamily="@font/fontNegritaC"
+                    />
+            </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
+    <GridView
+        android:id="@+id/gridList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:numColumns="1"
+        ></GridView>
+
 
 
 

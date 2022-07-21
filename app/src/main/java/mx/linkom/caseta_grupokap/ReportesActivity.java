@@ -34,7 +34,7 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
     private mx.linkom.caseta_grupokap.Configuracion Conf;
     JSONArray ja1;
 
-    private GridView gridList,gridList2,gridList3,gridList4,gridList5;
+    private GridView gridList,gridList2,gridList3,gridList4,gridList5,gridList6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +46,7 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
         gridList3 = (GridView)findViewById(R.id.gridList3);
         gridList4 = (GridView)findViewById(R.id.gridList4);
         gridList5 = (GridView)findViewById(R.id.gridList5);
+        gridList6 = (GridView)findViewById(R.id.gridList6);
 
     }
     @Override
@@ -73,6 +74,7 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
                         llenado3();
                         llenado4();
                         llenado5();
+                        llenado6();
                     } catch (JSONException e) {
                         Toast.makeText(getApplicationContext(), "Usuario y/o Contraseña Incorrectos", Toast.LENGTH_LONG).show();
 
@@ -367,6 +369,51 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
 
         });
     }
+
+
+    public void llenado6(){
+        ArrayList<ModuloClassGrid> lista6 = new ArrayList<ModuloClassGrid>();
+
+        //if(Conf.getRegTraba().equals("1")  ) {
+        if(Conf.getRegTraba().equals("1")  ) {
+
+            lista6.add(new ModuloClassGrid(R.drawable.ic_trabajadores, "Registro Trabajadores", "#FF4081"));
+        }
+        gridList6.setAdapter(new adaptador_Modulo(this, R.layout.activity_modulo_lista, lista6){
+            @Override
+            public void onEntrada(Object entrada, View view) {
+                if (entrada != null) {
+                    ImageView add = (ImageView) view.findViewById(R.id.imageView);
+                    if (add != null)
+                        add.setImageResource(((ModuloClassGrid) entrada).getImagen());
+
+                    final TextView title = (TextView) view.findViewById(R.id.title);
+                    if (title != null)
+                        title.setText(((ModuloClassGrid) entrada).getTitle());
+
+                    final LinearLayout line = (LinearLayout) view.findViewById(R.id.line);
+                    if (line != null)
+                        line.setBackgroundColor(Color.parseColor(((ModuloClassGrid) entrada).getColorCode()));
+
+                    gridList6.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+                            if(position==0) {
+
+                                Intent traba = new Intent(getApplication(), RegTrab2Activity.class);
+                                startActivity(traba);
+                                finish();
+                            }
+                        }
+                    });
+
+                }
+            }
+
+        });
+    }
+
 
     @Override
     public void onBackPressed(){

@@ -222,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
                             ja3 = new JSONArray(response);
                             Conf.setUsu(ja3.getString(0));
                             Conf.setNombre(ja3.getString(3));
+                            Conf.setRegTraba(ja3.getString(8));
 
                             mx.linkom.caseta_grupokap.Global.USER = ja3.getString(3);
                             mx.linkom.caseta_grupokap.Global.PASS = ja3.getString(4);

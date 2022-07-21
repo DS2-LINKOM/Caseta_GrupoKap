@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/drawable-mdpi/custom_spinner.xml" value="0.2703125" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/drawable-xhdpi/ic_trabajadores.xml" value="0.2703125" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/drawable/border_grid.xml" value="0.2703125" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/drawable/boton_descargar.xml" value="0.2703125" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/drawable/boton_registrar.xml" value="0.2703125" />
@@ -31,6 +32,8 @@
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_placasinfo.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_recepcion.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_recepcionvisitas.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_regtrab3.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_reportes.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_rondines.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/fragment_qr.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/menu/menu_main.xml" value="0.25416666666666665" />

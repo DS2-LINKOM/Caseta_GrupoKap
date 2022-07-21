@@ -41,6 +41,9 @@ public class Configuracion {
     private final String KEY_BDCON = "cbdcon";
     private final String KEY_QR_RONDINES = "cqrr";
 
+    private final String KEY_TRABAJADOR = "usu_trab";
+    private final String KEY_REGTRABAJADOR = "usu_regtrab";
+
     private Context mContext;
 
     public Configuracion(Context context){
@@ -49,6 +52,28 @@ public class Configuracion {
 
     private SharedPreferences getSettings(){
         return mContext.getSharedPreferences(SHARED_PREFS_FILE, 0);
+    }
+
+    //REGTRABA
+    public String getRegTraba(){
+        return getSettings().getString(KEY_REGTRABAJADOR, null);
+    }
+
+    public void setRegTraba(String usu_regtrab){
+        SharedPreferences.Editor editor = getSettings().edit();
+        editor.putString(KEY_REGTRABAJADOR, usu_regtrab );
+        editor.commit();
+    }
+
+    //TRABAJADOR
+    public String getTraba(){
+        return getSettings().getString(KEY_TRABAJADOR, null);
+    }
+
+    public void setTraba(String usu_trab){
+        SharedPreferences.Editor editor = getSettings().edit();
+        editor.putString(KEY_TRABAJADOR, usu_trab );
+        editor.commit();
     }
 
     //QR_RONDINES
