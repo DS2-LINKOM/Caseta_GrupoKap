@@ -519,28 +519,85 @@ public class AccesosActivity extends mx.linkom.caseta_grupokap.Menu {
     public void imgFoto(){
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
-        File foto = new File(getApplication().getExternalFilesDir(null),"accesos1.png");
-        uri_img= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
-        intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img);
-        startActivityForResult( intentCaptura, 0);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+
+            File foto=null;
+            try {
+                foto= new File(getApplication().getExternalFilesDir(null),"accesos1.png");
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+
+                uri_img= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img);
+                startActivityForResult(intentCaptura, 0);
+            }
+        }
     }
 
     public void imgFoto2(){
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
-        File foto = new File(getApplication().getExternalFilesDir(null),"accesos2.png");
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+            File foto=null;
+            try {
+                 foto = new File(getApplication().getExternalFilesDir(null),"accesos2.png");
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
         uri_img2= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
         intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img2);
         startActivityForResult( intentCaptura, 1);
+            }
+        }
     }
 
     public void imgFoto3(){
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
-        File foto = new File(getApplication().getExternalFilesDir(null),"accesos3.png");
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+
+            File foto=null;
+            try {
+                foto = new File(getApplication().getExternalFilesDir(null),"accesos3.png");
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
         uri_img3= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
         intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img3);
         startActivityForResult( intentCaptura, 2);
+            }
+        }
     }
 
     @Override

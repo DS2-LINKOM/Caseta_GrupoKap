@@ -271,31 +271,91 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
 
     //FOTOS
 
+
     public void imgFoto(){
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
-        File foto = new File(getApplication().getExternalFilesDir(null),"rondines1.png");
-        uri_img= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
-        intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img);
-        startActivityForResult( intentCaptura, 0);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+
+            File foto=null;
+            try {
+                foto= new File(getApplication().getExternalFilesDir(null),"rondines1.png");
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RondinIncidencias.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+
+                uri_img= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img);
+                startActivityForResult(intentCaptura, 0);
+            }
+        }
     }
+
 
     public void imgFoto2(){
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
-        File foto = new File(getApplication().getExternalFilesDir(null),"rondines2.png");
-        uri_img2= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
-        intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img2);
-        startActivityForResult( intentCaptura, 1);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+            File foto=null;
+            try {
+                foto = new File(getApplication().getExternalFilesDir(null),"rondines2.png");
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RondinIncidencias.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+                uri_img2= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img2);
+                startActivityForResult( intentCaptura, 1);
+            }
+        }
     }
+
 
     public void imgFoto3(){
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
-        File foto = new File(getApplication().getExternalFilesDir(null),"rondines3.png");
-        uri_img3= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
-        intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img3);
-        startActivityForResult( intentCaptura, 2);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+
+            File foto=null;
+            try {
+                foto = new File(getApplication().getExternalFilesDir(null),"rondines3.png");
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RondinIncidencias.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+                uri_img3= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img3);
+                startActivityForResult( intentCaptura, 2);
+            }
+        }
     }
 
     @Override
@@ -321,7 +381,7 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
             if (requestCode == 1) {
 
 
-                Bitmap bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/rondine2.png");
+                Bitmap bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/rondines2.png");
 
                 Viewfoto2.setVisibility(View.VISIBLE);
                 view_foto2.setVisibility(View.VISIBLE);
