@@ -22,14 +22,14 @@
 
     <item
         android:id="@+id/Cerrar"
-        android:icon="@drawable/ic_cerrar"
+        android:icon="@drawable/ic_salir"
         android:title="@string/Cerrar"
         app:showAsAction="ifRoom"
         />
     <item
         android:id="@+id/Version"
         android:icon="@drawable/ic_info"
-        android:title="v. 21.21.35"
+        android:title="v. 22.22.35"
         app:showAsAction="ifRoom"
         />
 

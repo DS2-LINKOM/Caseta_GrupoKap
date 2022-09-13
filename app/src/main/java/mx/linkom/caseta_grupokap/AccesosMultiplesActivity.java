@@ -63,7 +63,7 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
 
     LinearLayout rlPermitido, rlDenegado,rlVista;
     TextView  tvMensaje;
-    TextView Nombre,Dire,Visi,Tipo,Comentarios;
+    TextView Nombre,Dire,Visi,Tipo;
 
     EditText Placas;
     Spinner Pasajeros;
@@ -90,6 +90,9 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
     RadioButton si,no;
     TextView dato;
     LinearLayout CPlacasTexto;
+    EditText Comentarios;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +103,7 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
         storageReference=storage.getReference();
         names = new ArrayList<String>();
 
+        Comentarios = (EditText)findViewById(R.id.setComentarios);
         reg1 = (Button) findViewById(R.id.reg1);
         reg2 = (Button) findViewById(R.id.reg2);
         reg3 = (Button) findViewById(R.id.reg3);
@@ -115,7 +119,6 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
         view1 = (ImageView) findViewById(R.id.view1);
         view2 = (ImageView) findViewById(R.id.view2);
         view3 = (ImageView) findViewById(R.id.view3);
-        Comentarios = (TextView)findViewById(R.id.setComentarios);
 
         espacio1 = (LinearLayout) findViewById(R.id.espacio1);
         espacio2 = (LinearLayout) findViewById(R.id.espacio2);
@@ -1112,8 +1115,7 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
                         params.put("correo",ja2.getString(6).trim());
                         params.put("visita",ja1.getString(7).trim());
                         params.put("nom_residencial",Conf.getNomResi().trim());
-
-
+                        params.put("comentarios",Comentarios.getText().toString().trim());
 
 
                     } catch (JSONException e) {

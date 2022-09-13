@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/drawable-hdpi/ic_salir.xml" value="0.2703125" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/drawable-mdpi/custom_spinner.xml" value="0.2703125" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/drawable-xhdpi/ic_trabajadores.xml" value="0.2703125" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/drawable/border_grid.xml" value="0.2703125" />
@@ -11,14 +12,20 @@
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/acitivity_accesostrabajador.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/acitivity_listagrupalentrada.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/acitivity_listagrupalsalida.xml" value="0.25416666666666665" />
-        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_accesos.xml" value="0.176" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_accesos.xml" value="0.4" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_accesos_salidas.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_accesosgrupales.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_accesosgrupales_salidas.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_accesosmultiples.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_accesosmultiplessalidas.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_accesosregistro.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_bitacora.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_dashboard.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_entradasqr.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_entradassalidas.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_entrega.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_entregafolio.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_escaneo_tbj.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_escaneo_trabajador_entrada.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_escaneo_trabajador_salida.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_escaneo_visita.xml" value="0.25416666666666665" />
@@ -30,11 +37,17 @@
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_modulo_lista.xml" value="0.4" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_placas.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_placasinfo.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_preentradas.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_preentradasgrupalqr.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_preentradasmultiplesqr.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_preentradasqr.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_recepcion.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_recepcionvisitas.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_regtrab3.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_reportes.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_rondines.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_visitasrecepentradasdetalle.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/activity_visitasrecepsalidasdetalle.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/layout/fragment_qr.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/Andrea/AndroidStudioProjects/CASETA/Caseta_GrupoKap/app/src/main/res/menu/menu_main.xml" value="0.25416666666666665" />
       </map>

@@ -74,6 +74,7 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
     LinearLayout Foto1,Foto2,Foto3,CPlacasTexto;
     ImageView view1,view2,view3;
     TextView nombre_foto1,nombre_foto2,nombre_foto3,dato;
+    EditText Comentarios;
 
     FirebaseStorage storage;
     StorageReference storageReference;
@@ -90,6 +91,7 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
 
         storage= FirebaseStorage.getInstance();
         storageReference=storage.getReference();
+        Comentarios = (EditText)findViewById(R.id.setComentarios);
 
         reg1 = (Button) findViewById(R.id.reg1);
         reg2 = (Button) findViewById(R.id.reg2);
@@ -1031,6 +1033,7 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
                         params.put("token", ja4.getString(5).trim());
                         params.put("correo",ja4.getString(4).trim());
                         params.put("nom_residencial",Conf.getNomResi().trim());
+                        params.put("comentarios",Comentarios.getText().toString().trim());
 
 
                     } catch (JSONException e) {

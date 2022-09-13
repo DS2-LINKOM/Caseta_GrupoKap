@@ -81,6 +81,7 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
     int foto;
     int fotos1,fotos2,fotos3;
     Uri uri_img,uri_img2,uri_img3;
+    EditText Comentarios;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +92,7 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
 
         storage= FirebaseStorage.getInstance();
         storageReference=storage.getReference();
+        Comentarios = (EditText)findViewById(R.id.setComentarios);
 
         reg1 = (Button) findViewById(R.id.reg1);
         reg2 = (Button) findViewById(R.id.reg2);
@@ -799,7 +801,7 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
     public void Datos(){
         try {
             Nombre.setText(ja5.getString(7));
-            Log.e("TAG","Linkom ST: " + ja5.getString(4));
+            Comentarios.setText(ja5.getString(9));
 
             if(ja5.getString(4).equals("1") || ja5.getString(4).equals("0")){
                 visi.setChecked(true);
@@ -1122,6 +1124,7 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
                         params.put("correo",ja4.getString(4).trim());
                         params.put("nom_residencial",Conf.getNomResi().trim());
 
+                        params.put("comentarios",Comentarios.getText().toString().trim());
 
 
                     } catch (JSONException e) {
