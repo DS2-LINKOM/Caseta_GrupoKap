@@ -140,7 +140,7 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
             @Override
             public void onClick(View v) {
 
-                Intent i = new Intent(getApplicationContext(), AccesosSalidasActivity.class);
+                Intent i = new Intent(getApplicationContext(), AccesosMorososActivity.class);
                 startActivity(i);
                 finish();
             }
@@ -243,7 +243,6 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                 if (response.length()>0){
                     try {
                         ja1 = new JSONArray(response);
-
                         Usuario(ja1.getString(2));
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -281,7 +280,6 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                     try {
                         ja2 = new JSONArray(response);
                         dtlLugar(ja2.getString(0));
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -321,7 +319,6 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                             ja3 = new JSONArray(response);
                             salidas(ja1.getString(0));
 
-
                         } catch (JSONException e) {
 
                             e.printStackTrace();
@@ -355,7 +352,6 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URLResidencial, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.e("TAG", "Tipo: " + response);
 
                 try {
                     if (response.trim().equals("error")){

@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
                             Conf.setBdCon(ja1.getString(4));
                             Conf.setPin(ja1.getString(6));
                             Residencial();
+                            Log.e("TAG", "LINKOM ST: " + Conf.getPin());
 
                         } catch (JSONException e) {
                             Toast.makeText(getApplicationContext(), "Datos Incorrectos", Toast.LENGTH_LONG).show();
