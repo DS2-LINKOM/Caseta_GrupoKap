@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -42,6 +44,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
+import mx.linkom.caseta_grupokap.offline.Global_info;
+
 public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu {
     private CameraSource cameraSource;
     private SurfaceView cameraView;
@@ -51,13 +56,16 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
     FloatingActionButton fabReiniciar;
     TextView tvRespusta;
     Configuracion Conf;
-    EditText qr,placas;
-    Button Buscar,Buscar1;
-    JSONArray ja1,ja2,ja3,ja4;
+    EditText qr, placas;
+    Button Buscar, Buscar1;
+    JSONArray ja1, ja2, ja3, ja4;
     LinearLayout rlOtro;
 
-    Button  Lector;
-    LinearLayout Qr,Qr2;
+    Button Lector;
+    LinearLayout Qr, Qr2;
+
+    ImageView iconoInternet;
+    boolean Offline = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +74,8 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
         Conf = new Configuracion(this);
         placas = (EditText) findViewById(R.id.editText1);
         Buscar1 = (Button) findViewById(R.id.btnBuscar1);
-        placas.setFilters(new InputFilter[] { filter,new InputFilter.AllCaps() {
-        } });
+        placas.setFilters(new InputFilter[]{filter, new InputFilter.AllCaps() {
+        }});
         Qr = (LinearLayout) findViewById(R.id.qr);
         Qr2 = (LinearLayout) findViewById(R.id.qr2);
         Lector = (Button) findViewById(R.id.btnLector);
@@ -75,28 +83,73 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
         qr = (EditText) findViewById(R.id.editText);
         Buscar = (Button) findViewById(R.id.btnBuscar);
         rlOtro = (LinearLayout) findViewById(R.id.rlOtro);
-       // qr.setFilters(new InputFilter[] { filter,new InputFilter.AllCaps() {
+        // qr.setFilters(new InputFilter[] { filter,new InputFilter.AllCaps() {
         //} });
 
+        iconoInternet = (ImageView) findViewById(R.id.iconoInternetEscaneoVisitaSalidas);
+
+        if (Global_info.getINTERNET().equals("Si")) {
+            iconoInternet.setImageResource(R.drawable.ic_online);
+            Offline = false;
+        } else {
+            iconoInternet.setImageResource(R.drawable.ic_offline);
+            Offline = true;
+        }
+
+        iconoInternet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Offline) {
+                    android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(EscaneoVisitaSalidaActivity.this);
+                    alertDialogBuilder.setTitle(Global_info.getTituloAviso());
+                    alertDialogBuilder
+                            .setMessage(Global_info.getModoOffline())
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            }).create().show();
+                } else {
+                    android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(EscaneoVisitaSalidaActivity.this);
+                    alertDialogBuilder.setTitle(Global_info.getTituloAviso());
+                    alertDialogBuilder
+                            .setMessage(Global_info.getModoOnline())
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            }).create().show();
+                }
+            }
+        });
 
         Lector.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Qr.setVisibility(View.VISIBLE);
                 Qr2.setVisibility(View.VISIBLE);
-            }});
+            }
+        });
 
 
         Buscar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                QR_codigo();
-            }});
+                if (Offline) {
+                    QR_codigoOffline();
+                } else {
+                    QR_codigo();
+                }
+            }
+        });
         Buscar1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                placas();
-            }});
+                if (Offline) {
+                    placasOffline();
+                } else {
+                    placas();
+                }
+            }
+        });
 
         Conf = new Configuracion(this);
         Conf.setQR(null);
@@ -107,8 +160,6 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
 
         initQR();
         rlOtro.setVisibility(View.VISIBLE);
-
-
 
 
     }
@@ -124,8 +175,6 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
             return null;
         }
     };
-
-
 
 
     public void initQR() {
@@ -207,10 +256,18 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
                         if (URLUtil.isValidUrl(token)) {
 
                             Conf.setQR(token);
-                            QR();
+                            if (Offline) {
+                                QROffline();
+                            } else {
+                                QR();
+                            }
                         } else {
                             Conf.setQR(token);
-                            QR();
+                            if (Offline) {
+                                QROffline();
+                            } else {
+                                QR();
+                            }
                         }
 
                         new Thread(new Runnable() {
@@ -235,6 +292,85 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
     }
 
 
+    public void placasOffline() {
+        Log.e("info", "PlacasOffline");
+        if (placas.getText().toString().equals("")) {
+
+            placas.setText("");
+            rlOtro.setVisibility(View.VISIBLE);
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EscaneoVisitaSalidaActivity.this);
+            alertDialogBuilder.setTitle("Alerta");
+            alertDialogBuilder
+                    .setMessage("Placa Inexistente")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                        }
+                    }).create().show();
+        } else if (placas.getText().toString().equals(" ")) {
+
+            placas.setText("");
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EscaneoVisitaSalidaActivity.this);
+            alertDialogBuilder.setTitle("Alerta");
+            alertDialogBuilder
+                    .setMessage("Placa Inexistente")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                        }
+                    }).create().show();
+
+        } else {
+            try {
+                String placa = placas.getText().toString().trim();
+                String id_residencial = Conf.getResid().trim();
+                String parametros[] = {id_residencial, placa};
+
+                Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_DTL_ENTRADAS_SALIDAS, null, "consulta1", parametros, null);
+
+                if (cursor.moveToFirst()) {
+                    ja1 = new JSONArray();
+                    ja1.put(cursor.getString(0));
+                    ja1.put(cursor.getString(1));
+                    ja1.put(cursor.getString(2));
+                    ja1.put(cursor.getString(3));
+                    ja1.put(cursor.getString(4));
+                    ja1.put(cursor.getString(5));
+                    ja1.put(cursor.getString(6));
+                    ja1.put(cursor.getString(7));
+                    ja1.put(cursor.getString(8));
+                    ja1.put(cursor.getString(9));
+                    ja1.put(cursor.getString(10));
+                    ja1.put(cursor.getString(11));
+                    ja1.put(cursor.getString(12));
+                    ja1.put(cursor.getString(13));
+                    ja1.put(cursor.getString(14));
+                    ja1.put(cursor.getString(15));
+
+                    placas2Offline(ja1.getString(2));
+
+                } else {
+                    rlOtro.setVisibility(View.VISIBLE);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EscaneoVisitaSalidaActivity.this);
+                    alertDialogBuilder.setTitle("Alerta");
+                    alertDialogBuilder
+                            .setMessage("Placa inexistente en modo offline")
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+
+                                }
+                            }).create().show();
+                }
+
+                cursor.close();
+
+            } catch (Exception ex) {
+                Log.e("Exception", ex.toString());
+            }
+        }
+    }
 
 
     public void placas() {
@@ -252,7 +388,7 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
 
                         }
                     }).create().show();
-        }else if (placas.getText().toString().equals(" ")) {
+        } else if (placas.getText().toString().equals(" ")) {
 
             placas.setText("");
 
@@ -266,8 +402,8 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
                         }
                     }).create().show();
 
-        } else{
-            String url = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php8.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        } else {
+            String url = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php8.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
 
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
@@ -296,7 +432,7 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
                                 ja1 = new JSONArray(response);
                                 placas2(ja1.getString(2));
                             } catch (JSONException e) {
-                               // placas.setText("");
+                                // placas.setText("");
                             }
                         }
                     }
@@ -321,8 +457,80 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
         }
     }
 
+    public void placas2Offline(final String id_visita) {
+
+        try {
+            String id_residencial = Conf.getResid().trim();
+            String visita = id_visita.trim();
+            String parametros[] = {visita, id_residencial};
+
+            Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_VISITA, null, "vst_php9", parametros, null);
+
+            if (cursor.moveToFirst()) {
+                ja2 = new JSONArray();
+                ja2.put(cursor.getString(0));
+                ja2.put(cursor.getString(1));
+                ja2.put(cursor.getString(2));
+                ja2.put(cursor.getString(3));
+                ja2.put(cursor.getString(4));
+                ja2.put(cursor.getString(5));
+                ja2.put(cursor.getString(6));
+                ja2.put(cursor.getString(7));
+                ja2.put(cursor.getString(8));
+                ja2.put(cursor.getString(9));
+                ja2.put(cursor.getString(10));
+                ja2.put(cursor.getString(11));
+                ja2.put(cursor.getString(12));
+                ja2.put(cursor.getString(13));
+                ja2.put(cursor.getString(14));
+                ja2.put(cursor.getString(15));
+
+
+                String sCadena = ja2.getString(12);
+                String palabra = sCadena.substring(0, 1);
+
+                if (ja2.getString(5).equals("2")) {
+                    Conf.setST("Aceptado");
+                    Conf.setQR(ja2.getString(12));
+                    Log.e("EscaneoVisitaSalida", "AccesosMultiplesSalidasActivity");
+                    Intent i = new Intent(getApplicationContext(), AccesosMultiplesSalidasActivity.class);
+                    startActivity(i);
+                    finish();
+                } else if (palabra.equals("M")) {
+                    Conf.setST("Aceptado");
+                    Conf.setQR(ja2.getString(12));
+                    Log.e("EscaneoVisitaSalida", "AccesosMultiplesSalidasActivity2");
+                    Intent i = new Intent(getApplicationContext(), AccesosMultiplesSalidasActivity.class);
+                    startActivity(i);
+                    finish();
+                } else {
+                    Conf.setST("Aceptado");
+                    Conf.setQR(ja2.getString(12));
+                    Log.e("EscaneoVisitaSalida", "AccesosSalidasActivity");
+                    Intent i = new Intent(getApplicationContext(), AccesosSalidasActivity.class);
+                    startActivity(i);
+                    finish();
+                }
+            } else {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EscaneoVisitaSalidaActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al obtener datos")
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent i = new Intent(getApplicationContext(), EscaneoVisitaSalidaActivity.class);
+                                startActivity(i);
+                                finish();
+                            }
+                        }).create().show();
+            }
+        } catch (Exception ex) {
+            Log.e("Exception", ex.toString());
+        }
+    }
+
     public void placas2(final String id_visita) {
-        String url = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php9.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String url = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php9.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
@@ -330,26 +538,26 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
             @Override
             public void onResponse(String response) {
 
-                response = response.replace("][",",");
-                if (response.length()>0){
+                response = response.replace("][", ",");
+                if (response.length() > 0) {
                     try {
                         ja2 = new JSONArray(response);
                         String sCadena = ja2.getString(12);
-                        String palabra=sCadena.substring(0, 1);
+                        String palabra = sCadena.substring(0, 1);
 
-                         if(ja2.getString(5).equals("2") ){
+                        if (ja2.getString(5).equals("2")) {
                             Conf.setST("Aceptado");
                             Conf.setQR(ja2.getString(12));
                             Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesosMultiplesSalidasActivity.class);
                             startActivity(i);
                             finish();
-                        }else if(palabra.equals("M")){
+                        } else if (palabra.equals("M")) {
                             Conf.setST("Aceptado");
                             Conf.setQR(ja2.getString(12));
                             Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesosMultiplesSalidasActivity.class);
                             startActivity(i);
                             finish();
-                        }else{
+                        } else {
                             Conf.setST("Aceptado");
                             Conf.setQR(ja2.getString(12));
                             Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesosSalidasActivity.class);
@@ -364,12 +572,12 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
 
 
             }
-        }, new Response.ErrorListener(){
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("TAG","Error: " + error.toString());
+                Log.e("TAG", "Error: " + error.toString());
             }
-        }){
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -384,45 +592,123 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
 
     }
 
+    public void QROffline() {
+        String qrs = Conf.getQR();
+        String[] a = qrs.split("");
+        String pl = a[0];
+        String sl = a[1];
+
+        try {
+            String qr = Conf.getQR();
+            String id_residencial = Conf.getResid().trim();
+
+            String[] parametros = {qr, id_residencial};
+            Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_VISITA, null, "vst1", parametros, null);
+
+            if (cursor.moveToFirst()) {
+                ja3 = new JSONArray();
+                ja3.put(cursor.getString(0));
+                ja3.put(cursor.getString(1));
+                ja3.put(cursor.getString(2));
+                ja3.put(cursor.getString(3));
+                ja3.put(cursor.getString(4));
+                ja3.put(cursor.getString(5));
+                ja3.put(cursor.getString(6));
+                ja3.put(cursor.getString(7));
+                ja3.put(cursor.getString(8));
+                ja3.put(cursor.getString(9));
+                ja3.put(cursor.getString(10));
+                ja3.put(cursor.getString(11));
+                ja3.put(cursor.getString(12));
+                ja3.put(cursor.getString(13));
+                ja3.put(cursor.getString(14));
+                ja3.put(cursor.getString(15));
+
+                String sCadena = Conf.getQR().trim();
+                String palabra = sCadena.substring(0, 1);
+
+                Log.e("Info", "" + ja3.getString(6).length());
+                Log.e("Info", "" + ja3.getString(6));
+                if (ja3.getString(6).length() > 0) {
+                    Conf.setEvento(ja3.getString(6));
+                    Conf.setST("Aceptado");
+                    Log.e("EscaneoVisitaSalida", "ListaGrupalSalidaActivity");
+                    Intent i = new Intent(getApplicationContext(), ListaGrupalSalidaActivity.class);
+                    startActivity(i);
+                    finish();
+                } else if (ja3.getString(5).equals("2")) {
+                    Conf.setST("Aceptado");
+                    Log.e("EscaneoVisitaSalida", "AccesosMultiplesSalidasActivity");
+                    Intent i = new Intent(getApplicationContext(), AccesosMultiplesSalidasActivity.class);
+                    startActivity(i);
+                    finish();
+                } else if (palabra.equals("M")) {
+                    Conf.setST("Aceptado");
+                    Log.e("EscaneoVisitaSalida", "AccesosMultiplesSalidasActivity");
+                    Intent i = new Intent(getApplicationContext(), AccesosMultiplesSalidasActivity.class);
+                    startActivity(i);
+                    finish();
+                } else {
+                    Conf.setST("Aceptado");
+                    Log.e("EscaneoVisitaSalida", "AccesosSalidasActivity");
+                    Intent i = new Intent(getApplicationContext(), AccesosSalidasActivity.class);
+                    startActivity(i);
+                    finish();
+                }
+            } else {
+                Conf.setST("Denegado");
+                Log.e("EscaneoVisitaSalida", "AccesosSalidasActivity1");
+                Intent i = new Intent(getApplicationContext(), AccesosSalidasActivity.class);
+                startActivity(i);
+                finish();
+            }
+            cursor.close();
+
+        } catch (Exception ex) {
+            Log.e("Exception", ex.toString());
+        }
+    }
+
+
     public void QR() {
-        String url = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php1.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String url = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php1.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
 
-                if(response.equals("error")){
+                if (response.equals("error")) {
                     Conf.setST("Denegado");
 
                     Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesosSalidasActivity.class);
                     startActivity(i);
                     finish();
-                }else {
-                    response = response.replace("][",",");
+                } else {
+                    response = response.replace("][", ",");
 
                     try {
                         ja3 = new JSONArray(response);
                         String sCadena = Conf.getQR().trim();
-                        String palabra=sCadena.substring(0, 1);
+                        String palabra = sCadena.substring(0, 1);
 
-                        if(ja3.getString(6).length()>0 ) {
+                        if (ja3.getString(6).length() > 0) {
                             Conf.setEvento(ja3.getString(6));
                             Conf.setST("Aceptado");
                             Intent i = new Intent(getApplicationContext(), ListaGrupalSalidaActivity.class);
                             startActivity(i);
                             finish();
-                        }else if(ja3.getString(5).equals("2") ){
+                        } else if (ja3.getString(5).equals("2")) {
                             Conf.setST("Aceptado");
                             Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesosMultiplesSalidasActivity.class);
                             startActivity(i);
                             finish();
-                        }else if(palabra.equals("M")){
+                        } else if (palabra.equals("M")) {
                             Conf.setST("Aceptado");
                             Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesosMultiplesSalidasActivity.class);
                             startActivity(i);
                             finish();
-                        }else{
+                        } else {
                             Conf.setST("Aceptado");
                             Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesosSalidasActivity.class);
                             startActivity(i);
@@ -439,7 +725,7 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
             public void onErrorResponse(VolleyError error) {
                 Log.e("Error ", "Id: " + error.toString());
             }
-        }){
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
 
@@ -453,50 +739,130 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
         requestQueue.add(stringRequest);
     }
 
+    public void QR_codigoOffline() {
+
+        String qrs = qr.getText().toString().trim();
+        String[] a = qrs.split("");
+        String pl = a[0];
+        String sl = a[1];
+
+
+        try {
+            String cod_qr = qr.getText().toString().trim();
+            String id_residencial = Conf.getResid().trim();
+
+            String[] parametros = {cod_qr, id_residencial};
+            Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_VISITA, null, "vst1", parametros, null);
+
+            if (cursor.moveToFirst()) {
+                ja4 = new JSONArray();
+                ja4.put(cursor.getString(0));
+                ja4.put(cursor.getString(1));
+                ja4.put(cursor.getString(2));
+                ja4.put(cursor.getString(3));
+                ja4.put(cursor.getString(4));
+                ja4.put(cursor.getString(5));
+                ja4.put(cursor.getString(6));
+                ja4.put(cursor.getString(7));
+                ja4.put(cursor.getString(8));
+                ja4.put(cursor.getString(9));
+                ja4.put(cursor.getString(10));
+                ja4.put(cursor.getString(11));
+                ja4.put(cursor.getString(12));
+                ja4.put(cursor.getString(13));
+                ja4.put(cursor.getString(14));
+                ja4.put(cursor.getString(15));
+
+
+                String sCadena = qr.getText().toString().trim();
+                String palabra = sCadena.substring(0, 1);
+
+                if (ja4.getString(6).length() > 0) {
+                    Conf.setEvento(ja4.getString(6));
+                    Conf.setQR(qr.getText().toString().trim());
+                    Conf.setST("Aceptado");
+                    Intent i = new Intent(getApplicationContext(), ListaGrupalSalidaActivity.class);
+                    startActivity(i);
+                    finish();
+                } else if (ja4.getString(5).equals("2")) {
+
+                    Conf.setST("Aceptado");
+                    Conf.setQR(qr.getText().toString().trim());
+                    Intent i = new Intent(getApplicationContext(), AccesosMultiplesSalidasActivity.class);
+                    startActivity(i);
+                    finish();
+                } else if (palabra.equals("M")) {
+                    Conf.setST("Aceptado");
+                    Conf.setQR(qr.getText().toString().trim());
+
+                    Intent i = new Intent(getApplicationContext(), AccesosMultiplesSalidasActivity.class);
+                    startActivity(i);
+                    finish();
+                } else {
+                    Conf.setST("Aceptado");
+                    Conf.setQR(qr.getText().toString().trim());
+
+                    Intent i = new Intent(getApplicationContext(), AccesosSalidasActivity.class);
+                    startActivity(i);
+                    finish();
+                }
+            } else {
+                Conf.setST("Denegado");
+
+                Intent i = new Intent(getApplicationContext(), AccesosSalidasActivity.class);
+                startActivity(i);
+                finish();
+            }
+            cursor.close();
+        } catch (Exception ex) {
+            Log.e("Exception", ex.toString());
+        }
+    }
+
     public void QR_codigo() {
 
-        String url = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php1.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String url = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php1.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
-                if(response.equals("error")){
+                if (response.equals("error")) {
                     Conf.setST("Denegado");
 
                     Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesosSalidasActivity.class);
                     startActivity(i);
                     finish();
-                }else {
-                    response = response.replace("][",",");
+                } else {
+                    response = response.replace("][", ",");
 
                     try {
                         ja4 = new JSONArray(response);
                         String sCadena = qr.getText().toString().trim();
-                        String palabra=sCadena.substring(0, 1);
+                        String palabra = sCadena.substring(0, 1);
 
-                        if(ja4.getString(6).length()>0 ) {
+                        if (ja4.getString(6).length() > 0) {
                             Conf.setEvento(ja4.getString(6));
                             Conf.setQR(qr.getText().toString().trim());
                             Conf.setST("Aceptado");
                             Intent i = new Intent(getApplicationContext(), ListaGrupalSalidaActivity.class);
                             startActivity(i);
                             finish();
-                        }else if(ja4.getString(5).equals("2") ){
+                        } else if (ja4.getString(5).equals("2")) {
 
                             Conf.setST("Aceptado");
                             Conf.setQR(qr.getText().toString().trim());
                             Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesosMultiplesSalidasActivity.class);
                             startActivity(i);
                             finish();
-                        }else if(palabra.equals("M")){
+                        } else if (palabra.equals("M")) {
                             Conf.setST("Aceptado");
                             Conf.setQR(qr.getText().toString().trim());
 
                             Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesosMultiplesSalidasActivity.class);
                             startActivity(i);
                             finish();
-                        }else{
+                        } else {
                             Conf.setST("Aceptado");
                             Conf.setQR(qr.getText().toString().trim());
 
@@ -515,7 +881,7 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
             public void onErrorResponse(VolleyError error) {
                 Log.e("Error ", "Id: " + error.toString());
             }
-        }){
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
 
@@ -530,9 +896,8 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
     }
 
 
-    
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         super.onBackPressed();
         Intent intent = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.EntradasSalidasActivity.class);
         startActivity(intent);

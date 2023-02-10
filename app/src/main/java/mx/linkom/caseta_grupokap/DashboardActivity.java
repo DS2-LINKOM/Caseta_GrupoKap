@@ -1,7 +1,12 @@
 package mx.linkom.caseta_grupokap;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -35,6 +42,9 @@ import java.util.Map;
 
 import mx.linkom.caseta_grupokap.adaptadores.ModuloClassGrid;
 import mx.linkom.caseta_grupokap.adaptadores.adaptador_Modulo;
+import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
+import mx.linkom.caseta_grupokap.offline.Global_info;
+import mx.linkom.caseta_grupokap.offline.Servicios.testInternet;
 
 public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
     private FirebaseAuth fAuth;
@@ -47,6 +57,9 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
     LinearLayout rlVistantes,rlTrabajadores;
 
     private GridView gridList,gridList2;
+
+    ImageView iconoInternet;
+    boolean Offline = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,17 +82,78 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
         rlVistantes = (LinearLayout)findViewById(R.id.rlVistantes);
         rlTrabajadores = (LinearLayout)findViewById(R.id.rlTrabajadores);
         nombre.setText(Conf.getNomResi());
+
+        iconoInternet = (ImageView) findViewById(R.id.iconoInternetDashboard);
+
+        if (Global_info.getINTERNET().equals("Si")){
+            iconoInternet.setImageResource(R.drawable.ic_online);
+            Offline = false;
+        }else{
+            iconoInternet.setImageResource(R.drawable.ic_offline);
+            Offline = true;
+        }
+
+        //Iniciar el servicio
+        if(!foregroundServiceRunning()) { //Solo se va a ejecutar el servicio si es que aún no se esta ejecutando aun
+            Intent serviceIntent = new Intent(this, testInternet.class);
+            startForegroundService(serviceIntent);
+        }
+
+        iconoInternet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Offline){
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(DashboardActivity.this);
+                    alertDialogBuilder.setTitle(Global_info.getTituloAviso());
+                    alertDialogBuilder
+                            .setMessage(Global_info.getModoOffline())
+                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            }).create().show();
+                }else {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(DashboardActivity.this);
+                    alertDialogBuilder.setTitle(Global_info.getTituloAviso());
+                    alertDialogBuilder
+                            .setMessage(Global_info.getModoOnline())
+                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            }).create().show();
+                }
+            }
+        });
     }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onStart() {
         super.onStart();
 
         Registro();
         Sesion();
-        menu();
+        if (Global_info.getINTERNET().equals("Si")){
+            menu();
+        }else {
+            menuOffline();
+        }
 
     }
 
+    //Método para saber si es que el servicio ya se esta ejecutando
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public boolean foregroundServiceRunning(){
+        //Obtiene los servicios que se estan ejecutando
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        //Se recorren todos los servicios obtnidos para saber si el servicio creado ya se esta ejecutando
+        for(ActivityManager.RunningServiceInfo service: activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if(testInternet.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     public void Registro (){
@@ -119,6 +193,46 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void menuOffline(){
+
+        try {
+            Cursor cursoAppCaseta = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_APP_CASETA, null, null, null);
+
+            ja3 = new JSONArray();
+
+            if (cursoAppCaseta.moveToFirst()){
+                System.out.println("indice " + cursoAppCaseta.getString(0));
+                ja3.put(cursoAppCaseta.getString(0));
+                ja3.put(cursoAppCaseta.getString(1));
+                ja3.put(cursoAppCaseta.getString(2));
+                ja3.put(cursoAppCaseta.getString(3));
+                ja3.put(cursoAppCaseta.getString(4));
+                ja3.put(cursoAppCaseta.getString(5));
+                ja3.put(cursoAppCaseta.getString(6));
+                ja3.put(cursoAppCaseta.getString(7));
+                ja3.put(cursoAppCaseta.getString(8));
+                ja3.put(cursoAppCaseta.getString(9));
+                ja3.put(cursoAppCaseta.getString(10));
+                ja3.put(cursoAppCaseta.getString(11));
+                ja3.put(cursoAppCaseta.getString(12));
+
+            }
+
+            cursoAppCaseta.close();
+
+            Info();
+            llenado();
+            llenado2();
+
+        }catch (Exception ex){
+            System.out.println(ex.toString());
+            Toast.makeText(getApplicationContext(), "Usuario y/o Contraseña Incorrectos", Toast.LENGTH_LONG).show();
+        }finally {
+            // bd.close();
+        }
+
+    }
 
     public void menu() {
 

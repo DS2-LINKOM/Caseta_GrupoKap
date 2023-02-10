@@ -1,12 +1,17 @@
 package mx.linkom.caseta_grupokap;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -25,6 +30,8 @@ import java.util.Map;
 
 import mx.linkom.caseta_grupokap.adaptadores.ListasClassGrid;
 import mx.linkom.caseta_grupokap.adaptadores.adaptador_Modulo;
+import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
+import mx.linkom.caseta_grupokap.offline.Global_info;
 
 
 public class ListaGrupalEntradaActivity extends mx.linkom.caseta_grupokap.Menu {
@@ -34,6 +41,9 @@ public class ListaGrupalEntradaActivity extends mx.linkom.caseta_grupokap.Menu {
     private Configuracion Conf;
     JSONArray ja1;
     ArrayList<String> ubicacion;
+
+    ImageView iconoInternet;
+    boolean Offline = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +55,99 @@ public class ListaGrupalEntradaActivity extends mx.linkom.caseta_grupokap.Menu {
         evento = (TextView) findViewById(R.id.evento);
         gridList = (GridView) findViewById(R.id.gridList);
 
+        iconoInternet = (ImageView) findViewById(R.id.iconoInternetListaGrupalEntrada);
+
+        if (Global_info.getINTERNET().equals("Si")){
+            iconoInternet.setImageResource(R.drawable.ic_online);
+            Offline = false;
+        }else {
+            iconoInternet.setImageResource(R.drawable.ic_offline);
+            Offline = true;
+        }
+
+        iconoInternet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Offline){
+                    android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(ListaGrupalEntradaActivity.this);
+                    alertDialogBuilder.setTitle(Global_info.getTituloAviso());
+                    alertDialogBuilder
+                            .setMessage(Global_info.getModoOffline())
+                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            }).create().show();
+                }else {
+                    android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(ListaGrupalEntradaActivity.this);
+                    alertDialogBuilder.setTitle(Global_info.getTituloAviso());
+                    alertDialogBuilder
+                            .setMessage(Global_info.getModoOffline())
+                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            }).create().show();
+                }
+            }
+        });
+
         evento.setText(Conf.getEvento());
-        invitados();
+        if (Offline){
+            invitadosOffline();
+        }else {
+            invitados();
+        }
 
 
     }
 
+    public void invitadosOffline() {
+        try {
+            String qr_visita = Conf.getQR().trim();
+            String id_residencial = Conf.getResid().trim();
+
+            String[] parametros = {qr_visita, id_residencial};
+            Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_VISITA, null, "vst_grupal1", parametros,null);
+
+            if (cursor.moveToFirst()){
+                ja1 = new JSONArray();
+                do {
+                    ja1.put(cursor.getString(0));
+                    ja1.put(cursor.getString(1));
+                    ja1.put(cursor.getString(2));
+                    ja1.put(cursor.getString(3));
+                    ja1.put(cursor.getString(4));
+                    ja1.put(cursor.getString(5));
+                    ja1.put(cursor.getString(6));
+                    ja1.put(cursor.getString(7));
+                    ja1.put(cursor.getString(8));
+                    ja1.put(cursor.getString(9));
+                    ja1.put(cursor.getString(10));
+                    ja1.put(cursor.getString(11));
+                    ja1.put(cursor.getString(12));
+                    ja1.put(cursor.getString(13));
+                    ja1.put(cursor.getString(14));
+                    ja1.put(cursor.getString(15));
+                }while (cursor.moveToNext());
+
+                llenado();
+            }else {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ListaGrupalEntradaActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al obtener datos en modo offline")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
+                                startActivity(i);
+                                finish();
+                            }
+                        }).create().show();
+            }
+            cursor.close();
+        }catch (Exception ex){
+
+        }
+    }
 
     public void invitados() {
         String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_gru_1.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();

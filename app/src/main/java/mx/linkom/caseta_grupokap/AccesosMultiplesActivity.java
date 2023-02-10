@@ -1,11 +1,14 @@
 package mx.linkom.caseta_grupokap;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputFilter;
@@ -25,6 +28,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 
@@ -49,12 +53,16 @@ import org.json.JSONException;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
+import mx.linkom.caseta_grupokap.offline.Global_info;
 
 public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
     Configuracion Conf;
@@ -92,7 +100,12 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
     LinearLayout CPlacasTexto;
     EditText Comentarios;
 
+    ImageView iconoInternet;
+    boolean Offline = false;
+    String rutaImagen1, rutaImagen2, rutaImagen3;
 
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -161,12 +174,51 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
         no = (RadioButton)findViewById(R.id.No);
         dato = (TextView) findViewById(R.id.placas_texto);
 
+        iconoInternet = (ImageView) findViewById(R.id.iconoInternetAccesosMultiples);
+
+        if (Global_info.getINTERNET().equals("Si")){
+            iconoInternet.setImageResource(R.drawable.ic_online);
+            Offline = false;
+        }else {
+            iconoInternet.setImageResource(R.drawable.ic_offline);
+            Offline = true;
+        }
+
+        iconoInternet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Offline){
+                    android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(AccesosMultiplesActivity.this);
+                    alertDialogBuilder.setTitle(Global_info.getTituloAviso());
+                    alertDialogBuilder
+                            .setMessage(Global_info.getModoOffline())
+                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            }).create().show();
+                }else {
+                    android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(AccesosMultiplesActivity.this);
+                    alertDialogBuilder.setTitle(Global_info.getTituloAviso());
+                    alertDialogBuilder
+                            .setMessage(Global_info.getModoOnline())
+                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            }).create().show();
+                }
+            }
+        });
+
         //SI ES ACEPTADO O DENEGAODO
         if(Conf.getST().equals("Aceptado")){
             rlVista.setVisibility(View.VISIBLE);
             rlPermitido.setVisibility(View.GONE);
             rlDenegado.setVisibility(View.GONE);
-            menu();
+            if (Offline){
+                menuOffline();
+            }else {
+                menu();
+            }
         }else if(Conf.getST().equals("Denegado")){
             rlDenegado.setVisibility(View.VISIBLE);
             rlVista.setVisibility(View.GONE);
@@ -217,7 +269,11 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
             @Override
             public void onClick(View v) {
                 foto=1;
-                imgFoto();
+                if (Offline){
+                    imgFotoOffline();
+                }else {
+                    imgFoto();
+                }
             }
         });
 
@@ -225,7 +281,11 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
             @Override
             public void onClick(View v) {
                 foto=2;
-                imgFoto2();
+                if (Offline){
+                    imgFoto2Offline();
+                }else {
+                    imgFoto2();
+                }
             }
         });
 
@@ -233,7 +293,11 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
             @Override
             public void onClick(View v) {
                 foto=3;
-                imgFoto3();
+                if (Offline){
+                    imgFoto3Offline();
+                }else {
+                    imgFoto3();
+                }
             }
         });
         Placas.setFilters(new InputFilter[] { filter,new InputFilter.AllCaps() {
@@ -317,14 +381,14 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
 
     String [] segundo = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
             "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandonsegun = (int) Math.round(Math.random() * 26 ) ;
+    int numRandonsegun = (int) Math.round(Math.random() * 25 ) ;
 
     Random tercero = new Random();
     int tercer= tercero.nextInt(9);
 
     String [] cuarto = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
             "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandoncuart = (int) Math.round(Math.random() * 26 ) ;
+    int numRandoncuart = (int) Math.round(Math.random() * 25 ) ;
 
     String numero_aletorio=prime+segundo[numRandonsegun]+tercer+cuarto[numRandoncuart];
 
@@ -335,14 +399,14 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
 
     String [] segundo2 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
             "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandonsegun2 = (int) Math.round(Math.random() * 26 ) ;
+    int numRandonsegun2 = (int) Math.round(Math.random() * 25 ) ;
 
     Random tercero2 = new Random();
     int tercer2= tercero2.nextInt(9);
 
     String [] cuarto2 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
             "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandoncuart2 = (int) Math.round(Math.random() * 26 ) ;
+    int numRandoncuart2 = (int) Math.round(Math.random() * 25 ) ;
 
     String numero_aletorio2=prime2+segundo2[numRandonsegun2]+tercer2+cuarto2[numRandoncuart2];
 
@@ -353,14 +417,14 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
 
     String [] segundo3= {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
             "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandonsegun3 = (int) Math.round(Math.random() * 26 ) ;
+    int numRandonsegun3 = (int) Math.round(Math.random() * 25 ) ;
 
     Random tercero3 = new Random();
     int tercer3= tercero3.nextInt(9);
 
     String [] cuarto3 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
             "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandoncuart3 = (int) Math.round(Math.random() * 26 ) ;
+    int numRandoncuart3 = (int) Math.round(Math.random() * 25 ) ;
 
     String numero_aletorio3=prime3+segundo3[numRandonsegun3]+tercer3+cuarto3[numRandoncuart3];
 
@@ -370,6 +434,51 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
     int mes = fecha.get(Calendar.MONTH) + 1;
     int dia = fecha.get(Calendar.DAY_OF_MONTH);
 
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void menuOffline() {
+        Log.e("info", "menu offline");
+        try {
+            Cursor cursoAppCaseta = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_APP_CASETA, null, null, null);
+
+            ja5 = new JSONArray();
+
+            if (cursoAppCaseta.moveToFirst()){
+                ja5.put(cursoAppCaseta.getString(0));
+                ja5.put(cursoAppCaseta.getString(1));
+                ja5.put(cursoAppCaseta.getString(2));
+                ja5.put(cursoAppCaseta.getString(3));
+                ja5.put(cursoAppCaseta.getString(4));
+                ja5.put(cursoAppCaseta.getString(5));
+                ja5.put(cursoAppCaseta.getString(6));
+                ja5.put(cursoAppCaseta.getString(7));
+                ja5.put(cursoAppCaseta.getString(8));
+                ja5.put(cursoAppCaseta.getString(9));
+                ja5.put(cursoAppCaseta.getString(10));
+                ja5.put(cursoAppCaseta.getString(11));
+                ja5.put(cursoAppCaseta.getString(12));
+
+                submenuOffline(ja5.getString(0));
+
+            }else {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosMultiplesActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al obtener datos")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
+                                startActivity(i);
+                                finish();
+                            }
+                        }).create().show();
+            }
+            cursoAppCaseta.close();
+
+        }catch (Exception ex){
+            System.out.println(ex.toString());
+        }
+    }
 
 
     public void menu() {
@@ -405,6 +514,42 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
             }
         };
         requestQueue.add(stringRequest);
+    }
+
+    public void submenuOffline(final String id_app) {
+        Log.e("info", "submenu offline");
+
+        try {
+            Cursor cursoAppCaseta = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_APPCASETAIMA, null, null, null, null);
+
+            ja6 = new JSONArray();
+
+            if (cursoAppCaseta.moveToFirst()){
+                ja6.put(cursoAppCaseta.getString(0));
+                ja6.put(cursoAppCaseta.getString(1));
+                ja6.put(cursoAppCaseta.getString(2));
+                ja6.put(cursoAppCaseta.getString(3));
+                ja6.put(cursoAppCaseta.getString(4));
+                ja6.put(cursoAppCaseta.getString(5));
+                ja6.put(cursoAppCaseta.getString(6));
+                ja6.put(cursoAppCaseta.getString(7));
+                ja6.put(cursoAppCaseta.getString(8));
+                ja6.put(cursoAppCaseta.getString(9));
+                ja6.put(cursoAppCaseta.getString(10));
+
+                imagenes();
+                VisitaOffline();
+            }else {
+                int $arreglo[]={0};
+                ja6 = new JSONArray($arreglo);
+                imagenes();
+                VisitaOffline();
+            }
+            cursoAppCaseta.close();
+
+        }catch (Exception ex){
+            System.out.println(ex.toString());
+        }
     }
 
     public void submenu(final String id_app) {
@@ -520,6 +665,36 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
     //FOTOS
 
 
+    public void imgFotoOffline(){
+        Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+
+            File foto=null;
+            try {
+                foto= new File(getApplication().getExternalFilesDir(null),"app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png");
+                rutaImagen1 = foto.getAbsolutePath();
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosMultiplesActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+
+                uri_img= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img);
+                startActivityForResult(intentCaptura, 0);
+            }
+        }
+    }
+
     public void imgFoto(){
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
@@ -549,6 +724,34 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
         }
     }
 
+    public void imgFoto2Offline(){
+        Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+            File foto=null;
+            try {
+                foto = new File(getApplication().getExternalFilesDir(null),"app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png");
+                rutaImagen2 = foto.getAbsolutePath();
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosMultiplesActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+                uri_img2= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img2);
+                startActivityForResult( intentCaptura, 1);
+            }
+        }
+    }
+
     public void imgFoto2(){
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
@@ -572,6 +775,35 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
                 uri_img2= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
                 intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img2);
                 startActivityForResult( intentCaptura, 1);
+            }
+        }
+    }
+
+    public void imgFoto3Offline(){
+        Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+
+            File foto=null;
+            try {
+                foto = new File(getApplication().getExternalFilesDir(null),"app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png");
+                rutaImagen3 = foto.getAbsolutePath();
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosMultiplesActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+                uri_img3= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img3);
+                startActivityForResult( intentCaptura, 2);
             }
         }
     }
@@ -614,8 +846,12 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
             if (requestCode == 0) {
 
 
-                Bitmap bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosMulti1.png");
-
+                Bitmap bitmap;
+                if (Offline){
+                    bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png");
+                }else {
+                    bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosMulti1.png");
+                }
 
 
                 Foto1View.setVisibility(View.VISIBLE);
@@ -654,7 +890,12 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
             if (requestCode == 1) {
 
 
-                Bitmap bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosMulti2.png");
+                Bitmap bitmap2;
+                if (Offline){
+                    bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png");
+                }else {
+                    bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosMulti2.png");
+                }
 
                 Foto2View.setVisibility(View.VISIBLE);
                 view2.setVisibility(View.VISIBLE);
@@ -685,7 +926,12 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
             if (requestCode == 2) {
 
 
-                Bitmap bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosMulti3.png");
+                Bitmap bitmap3;
+                if (Offline){
+                    bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png");
+                }else {
+                    bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosMulti3.png");
+                }
 
                 Foto3View.setVisibility(View.VISIBLE);
                 view3.setVisibility(View.VISIBLE);
@@ -702,6 +948,55 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
 
 
             }
+        }
+    }
+
+    public void VisitaOffline(){
+        Log.e("info", "visita offline");
+        try {
+            String qr = Conf.getQR().trim();
+            String id_resid= Conf.getResid().trim();
+            String parametros[] = {qr, id_resid};
+
+            Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_VISITA, null, "vst1", parametros, null);
+
+            if (cursor.moveToFirst()){
+                ja1 = new JSONArray();
+                ja1.put(cursor.getString(0));
+                ja1.put(cursor.getString(1));
+                ja1.put(cursor.getString(2));
+                ja1.put(cursor.getString(3));
+                ja1.put(cursor.getString(4));
+                ja1.put(cursor.getString(5));
+                ja1.put(cursor.getString(6));
+                ja1.put(cursor.getString(7));
+                ja1.put(cursor.getString(8));
+                ja1.put(cursor.getString(9));
+                ja1.put(cursor.getString(10));
+                ja1.put(cursor.getString(11));
+                ja1.put(cursor.getString(12));
+                ja1.put(cursor.getString(13));
+                ja1.put(cursor.getString(14));
+                ja1.put(cursor.getString(15));
+
+                UsuarioOffline(ja1.getString(2));
+            }else {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosMultiplesActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al obtener datos de la visita")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
+                                startActivity(i);
+                                finish();
+                            }
+                        }).create().show();
+            }
+            cursor.close();
+
+        }catch (Exception ex){
+            Log.e("Exception", ex.toString());
         }
     }
 
@@ -743,6 +1038,48 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
         requestQueue.add(stringRequest);
     }
 
+    public void UsuarioOffline(final String IdUsu){ //DATOS USUARIO
+        Log.e("info", "usuario offline");
+        try {
+            String id_residencial = Conf.getResid().trim();
+            String id = IdUsu.trim();
+
+            String parametros[] ={id, id_residencial};
+
+            Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_USUARIO, null, "dts_accesso_autos", parametros, null);
+
+            if (cursor.moveToFirst()){
+                ja2 = new JSONArray();
+
+                ja2.put(cursor.getString(0));
+                ja2.put(cursor.getString(1));
+                ja2.put(cursor.getString(2));
+                ja2.put(cursor.getString(3));
+                ja2.put(cursor.getString(4));
+                ja2.put(cursor.getString(5));
+                ja2.put(cursor.getString(6));
+
+                dtlLugarOffline(ja2.getString(0));
+            }else {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosMultiplesActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al obtener datos de usuario")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
+                                startActivity(i);
+                                finish();
+                            }
+                        }).create().show();
+            }
+            cursor.close();
+        }catch (Exception ex){
+            Log.e("Exception", ex.toString());
+        }
+
+    }
+
 
     public void Usuario(final String IdUsu){ //DATOS USUARIO
 
@@ -778,6 +1115,31 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
             }
         };
         requestQueue.add(stringRequest);
+    }
+
+    public void dtlLugarOffline(final String idUsuario){
+        Log.e("info", "dtllugar offline");
+        try {
+            String id_residencial = Conf.getResid().trim();
+            String id = idUsuario.trim();
+
+            String parametros[] ={id_residencial, id};
+
+            Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_LUGAR, null, "dtl_lugar_usuario", parametros, null);
+
+            if (cursor.moveToFirst()){
+                ja3 = new JSONArray();
+                ja3.put(cursor.getString(0));
+
+                salidasOffline(ja1.getString(0));
+
+            }else {
+                sincasa();
+            }
+            cursor.close();
+        }catch (Exception ex){
+            Log.e("Exception", ex.toString());
+        }
     }
 
     public void dtlLugar(final String idUsuario){
@@ -819,6 +1181,30 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
             }
         };
         requestQueue.add(stringRequest);
+    }
+
+    public void salidasOffline (final String id_visitante){
+        Log.e("info", "salidas offline");
+        try {
+            String id_resid = Conf.getResid().trim();
+            String id_visit = id_visitante.trim();
+            String parametros[] = {id_resid, id_visit};
+
+            Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_DTL_ENTRADAS_SALIDAS, null, "vst_php4", parametros, null);
+
+            if (cursor.moveToFirst()){
+                ja4 = new JSONArray();
+                ja4.put(cursor.getString(0));
+                ValidarQR();
+            }else {
+                int $arreglo[]={0};
+                ja4 = new JSONArray($arreglo);
+                ValidarQR();
+            }
+            cursor.close();
+        }catch (Exception ex){
+            Log.e("Exception", ex.toString());
+        }
     }
 
     public void salidas (final String id_visitante){
@@ -988,8 +1374,13 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
         alertDialogBuilder
                 .setMessage("¿ Desea realizar la entrada ?")
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.O)
                     public void onClick(DialogInterface dialog, int id) {
-                        Registrar();
+                        if (Offline){
+                            RegistrarOffline();
+                        }else {
+                            Registrar();
+                        }
                     }
                 })
                 .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
@@ -1001,6 +1392,196 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
 
                     }
                 }).create().show();
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void RegistrarOffline(){
+
+        if(Placas.getText().toString().equals("") && si.isChecked()){
+            Toast.makeText(getApplicationContext(),"Campo de placas", Toast.LENGTH_SHORT).show();
+        }else if(Placas.getText().toString().equals(" ") && si.isChecked()){
+            Toast.makeText(getApplicationContext(),"Campo de placas ", Toast.LENGTH_SHORT).show();
+        }else if( Placas.getText().toString().equals("N/A") && si.isChecked() ){
+            Toast.makeText(getApplicationContext(),"Campo de placas", Toast.LENGTH_SHORT).show();
+        }else{
+
+            try {
+                if(ja6.getString(0).equals("0") || ja6.getString(3).equals("0")) {
+                    f1="";
+                    f2="";
+                    f3="";
+                }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("0") && ja6.getString(7).equals("0")){
+                    f1="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png";
+                    f2="";
+                    f3="";
+
+                    ContentValues val_img1 =  ValuesImagen(f1, Conf.getPin()+"/caseta/"+f1.trim(), rutaImagen1);
+                    Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
+                }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("0")){
+                    f1="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png";
+                    f2="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png";
+                    f3="";
+
+                    ContentValues val_img1 =  ValuesImagen(f1, Conf.getPin()+"/caseta/"+f1.trim(), rutaImagen1);
+                    Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
+                    ContentValues val_img2 =  ValuesImagen(f2, Conf.getPin()+"/caseta/"+f2.trim(), rutaImagen2);
+                    Uri uri2 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img2);
+
+                }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")){
+                    f1="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png";
+                    f2="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png";
+                    f3="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png";
+
+                    ContentValues val_img1 =  ValuesImagen(f1, Conf.getPin()+"/caseta/"+f1.trim(), rutaImagen1);
+                    Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
+                    ContentValues val_img2 =  ValuesImagen(f2, Conf.getPin()+"/caseta/"+f2.trim(), rutaImagen2);
+                    Uri uri2 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img2);
+
+                    ContentValues val_img3 =  ValuesImagen(f3, Conf.getPin()+"/caseta/"+f3.trim(), rutaImagen3);
+                    Uri uri3 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img3);
+                }
+
+                LocalDateTime hoy = LocalDateTime.now();
+
+                int year = hoy.getYear();
+                int month = hoy.getMonthValue();
+                int day = hoy.getDayOfMonth();
+                int hour = hoy.getHour();
+                int minute = hoy.getMinute();
+                int second =hoy.getSecond();
+
+                String fecha = "";
+
+                //Poner el cero cuando el mes o dia es menor a 10
+                if (day < 10 || month < 10){
+                    if (month < 10 && day >= 10){
+                        fecha = year+"-0"+month+"-"+day;
+                    } else if (month >= 10 && day < 10){
+                        fecha = year+"-"+month+"-0"+day;
+                    }else if (month < 10 && day < 10){
+                        fecha = year+"-0"+month+"-0"+day;
+                    }
+                }else {
+                    fecha = year+"-"+month+"-"+day;
+                }
+
+                String hora = "";
+
+                if (hour < 10 || minute < 10){
+                    if (hour < 10 && minute >=10){
+                        hora = "0"+hour+":"+minute;
+                    }else if (hour >= 10 && minute < 10){
+                        hora = hour+":0"+minute;
+                    }else if (hour < 10 && minute < 10){
+                        hora = "0"+hour+":0"+minute;
+                    }
+                }else {
+                    hora = hour+":"+minute;
+                }
+
+                String segundos = "00";
+
+                if (second < 10){
+                    segundos = "0"+second;
+                }else {
+                    segundos = ""+second;
+                }
+
+                ContentValues values = new ContentValues();
+                values.put("id_residencial", Conf.getResid().trim());
+                values.put("id_visita", ja1.getString(0).trim());
+                values.put("entrada_real", fecha+" "+hora+":"+segundos);
+                values.put("salida_real", "0000-00-00 00:00:00");
+                values.put("guardia_de_entrada", Conf.getUsu().trim());
+                values.put("guardia_de_salida", "0");
+                values.put("cajon", "N/A");
+                values.put("personas", Pasajeros.getSelectedItem().toString());
+                values.put("placas", Placas.getText().toString().trim());
+                values.put("descripcion_transporte", "");
+                values.put("foto1", f1);
+                values.put("foto2", f2);
+                values.put("foto3", f3);
+                values.put("comentarios_salida_tardia", "");
+                values.put("estatus", 1);
+                values.put("sqliteEstatus", 1);
+
+                Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_DTL_ENTRADAS_SALIDAS,values);
+
+                String idUri = uri.getLastPathSegment();
+
+                int insertar = Integer.parseInt(idUri);
+
+                if (insertar != -1){
+                    int actualizar;
+
+                    try {
+                        ContentValues values2 = new ContentValues();
+                        values2.put("comentarios", Comentarios.getText().toString().trim());
+                        values2.put("sqliteEstatus", 2);
+
+                        actualizar = getContentResolver().update(UrisContentProvider.URI_CONTENIDO_VISITA, values2, "id = "+ ja1.getString(0).trim(), null);
+
+                        if (actualizar != -1){
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosMultiplesActivity.this);
+                            alertDialogBuilder.setTitle("Alerta");
+                            alertDialogBuilder
+                                    .setMessage("Entrada de visita exitosa en modo offline")
+                                    .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+
+                                            Intent i = new Intent(getApplicationContext(), EntradasSalidasActivity.class);
+                                            startActivity(i);
+                                            finish();
+                                        }
+                                    }).create().show();
+                        }else {
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosMultiplesActivity.this);
+                            alertDialogBuilder.setTitle("Alerta");
+                            alertDialogBuilder
+                                    .setMessage("Visita no exitosa en modo offline")
+                                    .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            Toast.makeText(getApplicationContext(),"Visita No Registrada", Toast.LENGTH_SHORT).show();
+                                            Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
+                                            startActivity(i);
+                                            finish();
+                                        }
+                                    }).create().show();
+                        }
+                    }catch (Exception ex){
+                        Log.e("Exception", ex.toString());
+                    }
+                }else {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosMultiplesActivity.this);
+                    alertDialogBuilder.setTitle("Alerta");
+                    alertDialogBuilder
+                            .setMessage("Visita no exitosa en modo offline")
+                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    Toast.makeText(getApplicationContext(),"Visita No Registrada", Toast.LENGTH_SHORT).show();
+                                    Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
+                                    startActivity(i);
+                                    finish();
+                                }
+                            }).create().show();
+                }
+
+            }catch (Exception ex){
+                Log.e("Exception", ex.toString());
+            }
+        }
+    }
+
+    public ContentValues ValuesImagen(String nombre, String rutaFirebase, String rutaDispositivo){
+        ContentValues values = new ContentValues();
+        values.put("titulo", nombre);
+        values.put("direccionFirebase", rutaFirebase);
+        values.put("rutaDispositivo", rutaDispositivo);
+        return values;
     }
 
 

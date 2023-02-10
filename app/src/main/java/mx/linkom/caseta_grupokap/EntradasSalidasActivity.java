@@ -1,7 +1,11 @@
 package mx.linkom.caseta_grupokap;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +15,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -30,6 +36,8 @@ import java.util.Map;
 
 import mx.linkom.caseta_grupokap.adaptadores.ModuloClassGrid;
 import mx.linkom.caseta_grupokap.adaptadores.adaptador_Modulo;
+import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
+import mx.linkom.caseta_grupokap.offline.Global_info;
 
 public class EntradasSalidasActivity extends  mx.linkom.caseta_grupokap.Menu {
     private FirebaseAuth fAuth;
@@ -37,6 +45,9 @@ public class EntradasSalidasActivity extends  mx.linkom.caseta_grupokap.Menu {
     JSONArray ja1;
 
     public GridView gridList,gridList2,gridList3,gridList4,gridList5;
+
+    ImageView iconoInternet;
+    boolean Offline = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,14 +61,112 @@ public class EntradasSalidasActivity extends  mx.linkom.caseta_grupokap.Menu {
         gridList4 = (GridView)findViewById(R.id.gridList4);
         gridList5 = (GridView)findViewById(R.id.gridList5);
 
+        iconoInternet = (ImageView) findViewById(R.id.iconoInternetEntradasSalidas);
+
+        if (Global_info.getINTERNET().equals("Si")){
+            iconoInternet.setImageResource(R.drawable.ic_online);
+            Offline = false;
+        }else {
+            iconoInternet.setImageResource(R.drawable.ic_offline);
+            Offline = true;
+        }
+
+        iconoInternet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Offline){
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EntradasSalidasActivity.this);
+                    alertDialogBuilder.setTitle(Global_info.getTituloAviso());
+                    alertDialogBuilder
+                            .setMessage(Global_info.getModoOffline())
+                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            }).create().show();
+                }else {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EntradasSalidasActivity.this);
+                    alertDialogBuilder.setTitle(Global_info.getTituloAviso());
+                    alertDialogBuilder
+                            .setMessage(Global_info.getModoOnline())
+                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                }
+                            }).create().show();
+                }
+            }
+        });
 
     }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onStart() {
         super.onStart();
-        menu();
+        if (Offline){
+            menuOffline();
+        }else {
+            menu();
+        }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void menuOffline(){
+
+        try {
+            Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_APP_CASETA, null, null, null);
+
+            ja1 = new JSONArray();
+
+            if (cursor.moveToFirst()){
+                ja1.put(cursor.getString(0));
+                ja1.put(cursor.getString(1));
+                ja1.put(cursor.getString(2));
+                ja1.put(cursor.getString(3));
+                ja1.put(cursor.getString(4));
+                ja1.put(cursor.getString(5));
+                ja1.put(cursor.getString(6));
+                ja1.put(cursor.getString(7));
+                ja1.put(cursor.getString(8));
+                ja1.put(cursor.getString(9));
+                ja1.put(cursor.getString(10));
+                ja1.put(cursor.getString(11));
+                ja1.put(cursor.getString(12));
+
+            }
+            cursor.close();
+
+
+            if(ja1.getString(2).equals("1") && ja1.getString(4).equals("1")){
+                Conf.setPreQr(ja1.getString(4));
+
+            }else if(ja1.getString(2).equals("1") && ja1.getString(4).equals("0")){
+                Conf.setPreQr("0");
+
+            }
+
+            if(ja1.getString(2).equals("1")) {
+                Conf.setTicketE(ja1.getString(11));
+            }else{
+                Conf.setTicketE("0");
+            }
+
+            if(ja1.getString(3).equals("1")) {
+                Conf.setTicketR(ja1.getString(12));
+            }else{
+                Conf.setTicketR("0");
+            }
+
+            llenado();
+            llenado2();
+            llenado3();
+
+        }catch (Exception ex){
+            System.out.println(ex.toString());
+            Toast.makeText(getApplicationContext(), "Usuario y/o Contraseña Incorrectos", Toast.LENGTH_LONG).show();
+        }
+
+    }
 
 
     public void menu() {
@@ -131,6 +240,7 @@ public class EntradasSalidasActivity extends  mx.linkom.caseta_grupokap.Menu {
 
         try {
             if(ja1.getString(2).equals("1")  ){
+                Conf.setPreQr(ja1.getString(4));
                 lista.add(new ModuloClassGrid(R.drawable.entradas,"Entradas","#FF4081"));
                 lista.add(new ModuloClassGrid(R.drawable.entradas,"Salidas","#4cd2c7"));
             }else{

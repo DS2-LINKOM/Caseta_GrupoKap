@@ -32,7 +32,7 @@ public class Menu extends AppCompatActivity implements PopupMenu.OnMenuItemClick
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
-        if (networkInfo != null && networkInfo.isConnected()) {
+        /*if (networkInfo != null && networkInfo.isConnected()) {
             /// Log.d("MIAPP", "Estás online");
         } else {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Menu.this);
@@ -45,7 +45,7 @@ public class Menu extends AppCompatActivity implements PopupMenu.OnMenuItemClick
                         }
                     }).create().show();
             //Log.d("MIAPP", "Estás offline");
-        }
+        }*/
 
     }
 
