@@ -10,7 +10,7 @@ android {
         targetSdkVersion 29
         versionCode 22
         versionCode 30
-        versionName "22.22.36"
+        versionName "23.22.36"
         useLibrary 'org.apache.http.legacy'
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
