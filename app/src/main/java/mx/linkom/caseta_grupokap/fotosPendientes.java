@@ -22,7 +22,7 @@ import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
 import mx.linkom.caseta_grupokap.offline.Global_info;
 import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
 
-public class fotosPendientes extends AppCompatActivity {
+public class fotosPendientes extends  mx.linkom.caseta_grupokap.Menu {
 
     TextView txtCantidadFotos;
     int cantidadFotos = 0;
@@ -85,7 +85,7 @@ public class fotosPendientes extends AppCompatActivity {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(fotosPendientes.this);
                         alertDialogBuilder.setTitle("Aviso");
                         alertDialogBuilder
-                                .setMessage("Las imágenes que se están cargando, revisar el estado en la barra de notificaciones de su dispositivo.")
+                                .setMessage("Las imágenes se están cargando, revisar el estado en la barra de notificaciones de su dispositivo.")
                                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
 
@@ -122,7 +122,7 @@ public class fotosPendientes extends AppCompatActivity {
     private int cantidadFotosLocal(){
         int cantidad = 0;
         Cursor cursoFotos = null;
-        cursoFotos = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, null, null, null);
+        cursoFotos = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, null, "todos", null, null);
         if (cursoFotos.moveToFirst()) {
             do {
                 cantidad++;
@@ -141,7 +141,7 @@ public class fotosPendientes extends AppCompatActivity {
             servicio = true;
             Cursor cursoFotos = null;
 
-            cursoFotos = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE,null,null,null);
+            cursoFotos = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE,null, "todos",null,null);
 
             ArrayList<String> titulos = new ArrayList<String>();
             ArrayList<String> direccionesFirebase = new ArrayList<String>();
