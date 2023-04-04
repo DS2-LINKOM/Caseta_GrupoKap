@@ -1,7 +1,9 @@
 package mx.linkom.caseta_grupokap;
 
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -63,44 +65,45 @@ import java.util.Random;
 
 import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
 import mx.linkom.caseta_grupokap.offline.Global_info;
+import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
 
 public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
     Configuracion Conf;
     FirebaseStorage storage;
     StorageReference storageReference;
 
-    LinearLayout rlPermitido, rlDenegado,rlVista;
-    TextView  tvMensaje;
-    TextView Nombre,Dire,Visi,Tipo;
+    LinearLayout rlPermitido, rlDenegado, rlVista;
+    TextView tvMensaje;
+    TextView Nombre, Dire, Visi, Tipo;
 
     EditText Placas;
     Spinner Pasajeros;
     LinearLayout Pasajeros1;
 
     ArrayList<String> names;
-    JSONArray ja1,ja2,ja3,ja4,ja5,ja6;
-    Bitmap bitmap,bitmap2,bitmap3;
-    ProgressDialog pd,pd2,pd3;
+    JSONArray ja1, ja2, ja3, ja4, ja5, ja6;
+    Bitmap bitmap, bitmap2, bitmap3;
+    ProgressDialog pd, pd2, pd3;
     int foto;
-    String f1,f2,f3;
+    String f1, f2, f3;
 
-    LinearLayout espacio1,espacio2,espacio3,espacio4,espacio5,espacio6,espacio7,espacio8,espacio9,espacio10;
-    LinearLayout registrar1,registrar2,registrar3,registrar4;
-    Button reg1,reg2,reg3,reg4,btn_foto1,btn_foto2,btn_foto3;
-    LinearLayout Foto1View,Foto2View,Foto3View;
-    LinearLayout Foto1,Foto2,Foto3;
-    ImageView view1,view2,view3;
-    TextView nombre_foto1,nombre_foto2,nombre_foto3;
-    Uri uri_img,uri_img2,uri_img3;
+    LinearLayout espacio1, espacio2, espacio3, espacio4, espacio5, espacio6, espacio7, espacio8, espacio9, espacio10;
+    LinearLayout registrar1, registrar2, registrar3, registrar4;
+    Button reg1, reg2, reg3, reg4, btn_foto1, btn_foto2, btn_foto3;
+    LinearLayout Foto1View, Foto2View, Foto3View;
+    LinearLayout Foto1, Foto2, Foto3;
+    ImageView view1, view2, view3;
+    TextView nombre_foto1, nombre_foto2, nombre_foto3;
+    Uri uri_img, uri_img2, uri_img3;
     RadioGroup rdgGrupo2;
-    RadioButton si,no;
+    RadioButton si, no;
     TextView dato;
     LinearLayout CPlacasTexto;
     EditText Comentarios;
 
     ImageView iconoInternet;
     boolean Offline = false;
-    String rutaImagen1, rutaImagen2, rutaImagen3;
+    String rutaImagen1, rutaImagen2, rutaImagen3, rutaImagenPlaca = "", nombreImagen1, nombreImagen2, nombreImagen3, nombreImagenPlaca = "";
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -110,11 +113,11 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         setContentView(R.layout.activity_accesosgrupales);
 
         Conf = new Configuracion(this);
-        storage= FirebaseStorage.getInstance();
-        storageReference=storage.getReference();
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
         names = new ArrayList<String>();
 
-        Comentarios = (EditText)findViewById(R.id.setComentarios);
+        Comentarios = (EditText) findViewById(R.id.setComentarios);
         reg1 = (Button) findViewById(R.id.reg1);
         reg2 = (Button) findViewById(R.id.reg2);
         reg3 = (Button) findViewById(R.id.reg3);
@@ -153,9 +156,9 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         Foto3 = (LinearLayout) findViewById(R.id.Foto3);
 
 
-        Nombre = (TextView)findViewById(R.id.setNombre);
-        Tipo = (TextView)findViewById(R.id.setTipo);
-        Dire = (TextView)findViewById(R.id.setDire);
+        Nombre = (TextView) findViewById(R.id.setNombre);
+        Tipo = (TextView) findViewById(R.id.setTipo);
+        Dire = (TextView) findViewById(R.id.setDire);
         Visi = (TextView) findViewById(R.id.setVisi);
         Pasajeros1 = (LinearLayout) findViewById(R.id.setPasajeros1);
         Pasajeros = (Spinner) findViewById(R.id.setPasajeros);
@@ -167,17 +170,17 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         rlDenegado = (LinearLayout) findViewById(R.id.rlDenegado);
         CPlacasTexto = (LinearLayout) findViewById(R.id.CPlacasTexto);
 
-        rdgGrupo2 = (RadioGroup)findViewById(R.id.rdgGrupo2);
-        si = (RadioButton)findViewById(R.id.Si);
-        no = (RadioButton)findViewById(R.id.No);
+        rdgGrupo2 = (RadioGroup) findViewById(R.id.rdgGrupo2);
+        si = (RadioButton) findViewById(R.id.Si);
+        no = (RadioButton) findViewById(R.id.No);
         dato = (TextView) findViewById(R.id.placas_texto);
 
         iconoInternet = (ImageView) findViewById(R.id.iconoInternetAccesosGrupales);
 
-        if (Global_info.getINTERNET().equals("Si")){
+        if (Global_info.getINTERNET().equals("Si")) {
             iconoInternet.setImageResource(R.drawable.ic_online);
             Offline = false;
-        }else {
+        } else {
             iconoInternet.setImageResource(R.drawable.ic_offline);
             Offline = true;
         }
@@ -185,21 +188,21 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         iconoInternet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Offline){
+                if (Offline) {
                     android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(AccesosGrupalActivity.this);
                     alertDialogBuilder.setTitle(Global_info.getTituloAviso());
                     alertDialogBuilder
                             .setMessage(Global_info.getModoOffline())
-                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                 }
                             }).create().show();
-                }else {
+                } else {
                     android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(AccesosGrupalActivity.this);
                     alertDialogBuilder.setTitle(Global_info.getTituloAviso());
                     alertDialogBuilder
                             .setMessage(Global_info.getModoOnline())
-                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                 }
                             }).create().show();
@@ -208,31 +211,31 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         });
 
         //SI ES ACEPTADO O DENEGAODO
-        if(Conf.getST().equals("Aceptado")){
+        if (Conf.getST().equals("Aceptado")) {
             rlVista.setVisibility(View.VISIBLE);
             rlPermitido.setVisibility(View.GONE);
             rlDenegado.setVisibility(View.GONE);
-            if (Offline){
+            if (Offline) {
                 menuOffline();
-            }else {
+            } else {
                 menu();
-            };
-        }else if(Conf.getST().equals("Denegado")){
+            }
+            ;
+        } else if (Conf.getST().equals("Denegado")) {
             rlDenegado.setVisibility(View.VISIBLE);
             rlVista.setVisibility(View.GONE);
             rlPermitido.setVisibility(View.GONE);
             tvMensaje.setText("QR Inexistente");
         }
 
-        pd= new ProgressDialog(this);
-        pd.setMessage("Subiendo Imagen 1...");
+        pd = new ProgressDialog(this);
+        pd.setMessage("Registrando...");
 
-        pd2= new ProgressDialog(this);
+        pd2 = new ProgressDialog(this);
         pd2.setMessage("Subiendo Imagen 2...");
 
-        pd3= new ProgressDialog(this);
+        pd3 = new ProgressDialog(this);
         pd3.setMessage("Subiendo Imagen 3...");
-
 
 
         reg1.setOnClickListener(new View.OnClickListener() {
@@ -266,55 +269,59 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         btn_foto1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                foto=1;
-                if (Offline){
+                foto = 1;
+                imgFotoOffline();
+                /*if (Offline){
                     imgFotoOffline();
                 }else {
                     imgFoto();
-                }
+                }*/
             }
         });
 
         btn_foto2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                foto=2;
-                if (Offline){
+                foto = 2;
+                imgFoto2Offline();
+                /*if (Offline){
                     imgFoto2Offline();
                 }else {
                     imgFoto2();
-                }
+                }*/
             }
         });
 
         btn_foto3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                foto=3;
-                if (Offline){
+                foto = 3;
+                imgFoto3Offline();
+                /*if (Offline){
                     imgFoto3Offline();
                 }else {
                     imgFoto3();
-                }
+                }*/
             }
         });
-        Placas.setFilters(new InputFilter[] { filter,new InputFilter.AllCaps() {
-        } });
+        Placas.setFilters(new InputFilter[]{filter, new InputFilter.AllCaps() {
+        }});
         cargarSpinner();
         CPlacasTexto.setVisibility(View.VISIBLE);
 
-        if(Conf.getTipoReg().equals("Nada")){
+        if (Conf.getTipoReg().equals("Nada")) {
             dato.setText("Placas / Cono / Gafete / Credencial:");
             si.setChecked(true);
-        }else if(Conf.getTipoReg().equals("Auto")) {
+        } else if (Conf.getTipoReg().equals("Auto")) {
             dato.setText("Placas / Cono:");
             si.setVisibility(View.GONE);
             no.setVisibility(View.GONE);
             si.setChecked(true);
-        }else if(Conf.getTipoReg().equals("Peatonal")){
+        } else if (Conf.getTipoReg().equals("Peatonal")) {
             dato.setText("Gafete / Credencial:");
         }
     }
+
     public void onRadioButtonClicked(View view) {
         boolean marcado = ((RadioButton) view).isChecked();
 
@@ -345,7 +352,8 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
             return null;
         }
     };
-    public void cargarSpinner(){
+
+    public void cargarSpinner() {
 
         names.add("Selecciona...");
         names.add("1");
@@ -367,63 +375,64 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         names.add("17");
         names.add("18");
 
-        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,names);
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, names);
         Pasajeros.setAdapter(adapter1);
 
 
     }
+
     //ALETORIO
     Random primero = new Random();
-    int prime= primero.nextInt(9);
+    int prime = primero.nextInt(9);
 
-    String [] segundo = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
-            "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandonsegun = (int) Math.round(Math.random() * 25 ) ;
+    String[] segundo = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandonsegun = (int) Math.round(Math.random() * 25);
 
     Random tercero = new Random();
-    int tercer= tercero.nextInt(9);
+    int tercer = tercero.nextInt(9);
 
-    String [] cuarto = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
-            "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandoncuart = (int) Math.round(Math.random() * 25 ) ;
+    String[] cuarto = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandoncuart = (int) Math.round(Math.random() * 25);
 
-    String numero_aletorio=prime+segundo[numRandonsegun]+tercer+cuarto[numRandoncuart];
+    String numero_aletorio = prime + segundo[numRandonsegun] + tercer + cuarto[numRandoncuart];
 
     //ALETORIO2
 
     Random primero2 = new Random();
-    int prime2= primero2.nextInt(9);
+    int prime2 = primero2.nextInt(9);
 
-    String [] segundo2 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
-            "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandonsegun2 = (int) Math.round(Math.random() * 25 ) ;
+    String[] segundo2 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandonsegun2 = (int) Math.round(Math.random() * 25);
 
     Random tercero2 = new Random();
-    int tercer2= tercero2.nextInt(9);
+    int tercer2 = tercero2.nextInt(9);
 
-    String [] cuarto2 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
-            "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandoncuart2 = (int) Math.round(Math.random() * 25 ) ;
+    String[] cuarto2 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandoncuart2 = (int) Math.round(Math.random() * 25);
 
-    String numero_aletorio2=prime2+segundo2[numRandonsegun2]+tercer2+cuarto2[numRandoncuart2];
+    String numero_aletorio2 = prime2 + segundo2[numRandonsegun2] + tercer2 + cuarto2[numRandoncuart2];
 
 //ALETORIO3
 
     Random primero3 = new Random();
-    int prime3= primero3.nextInt(9);
+    int prime3 = primero3.nextInt(9);
 
-    String [] segundo3= {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
-            "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandonsegun3 = (int) Math.round(Math.random() * 25 ) ;
+    String[] segundo3 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandonsegun3 = (int) Math.round(Math.random() * 25);
 
     Random tercero3 = new Random();
-    int tercer3= tercero3.nextInt(9);
+    int tercer3 = tercero3.nextInt(9);
 
-    String [] cuarto3 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
-            "k", "l", "m","n","o","p","q","r","s","t","u","v","w", "x","y","z" };
-    int numRandoncuart3 = (int) Math.round(Math.random() * 25 ) ;
+    String[] cuarto3 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandoncuart3 = (int) Math.round(Math.random() * 25);
 
-    String numero_aletorio3=prime3+segundo3[numRandonsegun3]+tercer3+cuarto3[numRandoncuart3];
+    String numero_aletorio3 = prime3 + segundo3[numRandonsegun3] + tercer3 + cuarto3[numRandoncuart3];
 
 
     Calendar fecha = Calendar.getInstance();
@@ -440,7 +449,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
             ja5 = new JSONArray();
 
-            if (cursoAppCaseta.moveToFirst()){
+            if (cursoAppCaseta.moveToFirst()) {
                 ja5.put(cursoAppCaseta.getString(0));
                 ja5.put(cursoAppCaseta.getString(1));
                 ja5.put(cursoAppCaseta.getString(2));
@@ -457,12 +466,12 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
                 submenuOffline(ja5.getString(0));
 
-            }else {
+            } else {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
                 alertDialogBuilder
                         .setMessage("Error al obtener datos")
-                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
                                 startActivity(i);
@@ -472,13 +481,13 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
             }
             cursoAppCaseta.close();
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             System.out.println(ex.toString());
         }
     }
 
     public void menu() {
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/menu.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/menu.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
@@ -521,7 +530,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
             ja6 = new JSONArray();
 
-            if (cursoAppCaseta.moveToFirst()){
+            if (cursoAppCaseta.moveToFirst()) {
                 ja6.put(cursoAppCaseta.getString(0));
                 ja6.put(cursoAppCaseta.getString(1));
                 ja6.put(cursoAppCaseta.getString(2));
@@ -536,8 +545,8 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
                 imagenes();
                 VisitaOffline();
-            }else {
-                int $arreglo[]={0};
+            } else {
+                int $arreglo[] = {0};
                 try {
                     ja6 = new JSONArray($arreglo);
                     imagenes();
@@ -548,13 +557,13 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
             }
             cursoAppCaseta.close();
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             System.out.println(ex.toString());
         }
     }
 
     public void submenu(final String id_app) {
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/menu_2.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/menu_2.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
@@ -562,8 +571,8 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
             public void onResponse(String response) {
 
 
-                if(response.equals("error")){
-                    int $arreglo[]={0};
+                if (response.equals("error")) {
+                    int $arreglo[] = {0};
                     try {
                         ja6 = new JSONArray($arreglo);
                         imagenes();
@@ -572,7 +581,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                         e.printStackTrace();
                     }
 
-                }else {
+                } else {
                     response = response.replace("][", ",");
                     if (response.length() > 0) {
                         try {
@@ -603,10 +612,10 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         requestQueue.add(stringRequest);
     }
 
-    public void imagenes(){
+    public void imagenes() {
         try {
 
-            if(ja6.getString(0).equals("0") || ja6.getString(3).equals("0")) {
+            if (ja6.getString(0).equals("0") || ja6.getString(3).equals("0")) {
 
                 registrar1.setVisibility(View.VISIBLE);
                 espacio1.setVisibility(View.VISIBLE);
@@ -631,7 +640,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                 espacio10.setVisibility(View.GONE);
 
 
-            }else if(ja6.getString(3).equals("1")){
+            } else if (ja6.getString(3).equals("1")) {
 
                 registrar1.setVisibility(View.GONE);
                 espacio1.setVisibility(View.GONE);
@@ -639,7 +648,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                 Foto1.setVisibility(View.VISIBLE);
                 espacio2.setVisibility(View.VISIBLE);
                 nombre_foto1.setVisibility(View.VISIBLE);
-                nombre_foto1.setText(ja6.getString(4)+":");
+                nombre_foto1.setText(ja6.getString(4) + ":");
 
                 Foto1View.setVisibility(View.GONE);
                 espacio3.setVisibility(View.GONE);
@@ -667,22 +676,23 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
     //FOTOS
 
-    public void imgFotoOffline(){
+    public void imgFotoOffline() {
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
 
         if (intentCaptura.resolveActivity(getPackageManager()) != null) {
 
-            File foto=null;
+            File foto = null;
             try {
-                foto= new File(getApplication().getExternalFilesDir(null),"app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png");
+                nombreImagen1 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png";
+                foto = new File(getApplication().getExternalFilesDir(null), nombreImagen1);
                 rutaImagen1 = foto.getAbsolutePath();
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
                 alertDialogBuilder
                         .setMessage("Error al capturar la foto")
-                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
                             }
@@ -690,28 +700,28 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
             }
             if (foto != null) {
 
-                uri_img= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
-                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img);
+                uri_img = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider", foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT, uri_img);
                 startActivityForResult(intentCaptura, 0);
             }
         }
     }
 
-    public void imgFoto(){
+    public void imgFoto() {
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
 
         if (intentCaptura.resolveActivity(getPackageManager()) != null) {
 
-            File foto=null;
+            File foto = null;
             try {
-                foto= new File(getApplication().getExternalFilesDir(null),"accesosGrupal1.png");
+                foto = new File(getApplication().getExternalFilesDir(null), "accesosGrupal1.png");
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
                 alertDialogBuilder
                         .setMessage("Error al capturar la foto")
-                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
                             }
@@ -719,125 +729,126 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
             }
             if (foto != null) {
 
-                uri_img= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
-                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img);
+                uri_img = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider", foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT, uri_img);
                 startActivityForResult(intentCaptura, 0);
             }
         }
     }
 
-    public void imgFoto2Offline(){
+    public void imgFoto2Offline() {
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
 
         if (intentCaptura.resolveActivity(getPackageManager()) != null) {
-            File foto=null;
+            File foto = null;
             try {
-                foto = new File(getApplication().getExternalFilesDir(null),"app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png");
+                nombreImagen2 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio2 + ".png";
+                foto = new File(getApplication().getExternalFilesDir(null), nombreImagen2);
                 rutaImagen2 = foto.getAbsolutePath();
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
                 alertDialogBuilder
                         .setMessage("Error al capturar la foto")
-                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
                             }
                         }).create().show();
             }
             if (foto != null) {
-                uri_img2= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
-                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img2);
-                startActivityForResult( intentCaptura, 1);
+                uri_img2 = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider", foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT, uri_img2);
+                startActivityForResult(intentCaptura, 1);
             }
         }
     }
 
-    public void imgFoto2(){
+    public void imgFoto2() {
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
 
         if (intentCaptura.resolveActivity(getPackageManager()) != null) {
-            File foto=null;
+            File foto = null;
             try {
-                foto = new File(getApplication().getExternalFilesDir(null),"accesosGrupal2.png");
+                foto = new File(getApplication().getExternalFilesDir(null), "accesosGrupal2.png");
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
                 alertDialogBuilder
                         .setMessage("Error al capturar la foto")
-                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
                             }
                         }).create().show();
             }
             if (foto != null) {
-                uri_img2= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
-                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img2);
-                startActivityForResult( intentCaptura, 1);
+                uri_img2 = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider", foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT, uri_img2);
+                startActivityForResult(intentCaptura, 1);
             }
         }
     }
 
-    public void imgFoto3Offline(){
+    public void imgFoto3Offline() {
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
 
         if (intentCaptura.resolveActivity(getPackageManager()) != null) {
 
-            File foto=null;
+            File foto = null;
             try {
-                foto = new File(getApplication().getExternalFilesDir(null),"app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png");
+                nombreImagen3 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio3 + ".png";
+                foto = new File(getApplication().getExternalFilesDir(null), nombreImagen3);
                 rutaImagen3 = foto.getAbsolutePath();
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
                 alertDialogBuilder
                         .setMessage("Error al capturar la foto")
-                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
                             }
                         }).create().show();
             }
             if (foto != null) {
-                uri_img3= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
-                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img3);
-                startActivityForResult( intentCaptura, 2);
+                uri_img3 = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider", foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT, uri_img3);
+                startActivityForResult(intentCaptura, 2);
             }
         }
     }
 
-    public void imgFoto3(){
+    public void imgFoto3() {
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
 
         if (intentCaptura.resolveActivity(getPackageManager()) != null) {
 
-            File foto=null;
+            File foto = null;
             try {
-                foto = new File(getApplication().getExternalFilesDir(null),"accesosGrupal3.png");
+                foto = new File(getApplication().getExternalFilesDir(null), "accesosGrupal3.png");
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
                 alertDialogBuilder
                         .setMessage("Error al capturar la foto")
-                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
                             }
                         }).create().show();
             }
             if (foto != null) {
-                uri_img3= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
-                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img3);
-                startActivityForResult( intentCaptura, 2);
+                uri_img3 = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider", foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT, uri_img3);
+                startActivityForResult(intentCaptura, 2);
             }
         }
     }
-
 
 
     @Override
@@ -851,11 +862,13 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
                 Bitmap bitmap;
 
-                if (Offline){
+                bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/" + nombreImagen1);
+
+                /*if (Offline){
                     bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png");
                 }else {
                     bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosGrupal1.png");
-                }
+                }*/
 
                 Foto1View.setVisibility(View.VISIBLE);
                 view1.setVisibility(View.VISIBLE);
@@ -864,25 +877,25 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
 
                 try {
-                    if(ja6.getString(3).equals("1") && ja6.getString(5).equals("0") && ja6.getString(7).equals("0")) {
+                    if (ja6.getString(3).equals("1") && ja6.getString(5).equals("0") && ja6.getString(7).equals("0")) {
                         registrar2.setVisibility(View.VISIBLE);
                         reg2.setVisibility(View.VISIBLE);
                         espacio4.setVisibility(View.VISIBLE);
                         espacio5.setVisibility(View.VISIBLE);
-                    }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("0")){
+                    } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("0")) {
                         registrar2.setVisibility(View.GONE);
                         Foto2.setVisibility(View.VISIBLE);
                         espacio5.setVisibility(View.VISIBLE);
                         espacio6.setVisibility(View.VISIBLE);
                         nombre_foto2.setVisibility(View.VISIBLE);
-                        nombre_foto2.setText(ja6.getString(6)+":");
-                    }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")) {
+                        nombre_foto2.setText(ja6.getString(6) + ":");
+                    } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")) {
                         registrar2.setVisibility(View.GONE);
                         Foto2.setVisibility(View.VISIBLE);
                         espacio5.setVisibility(View.VISIBLE);
                         espacio6.setVisibility(View.VISIBLE);
                         nombre_foto2.setVisibility(View.VISIBLE);
-                        nombre_foto2.setText(ja6.getString(6)+":");
+                        nombre_foto2.setText(ja6.getString(6) + ":");
 
                     }
                 } catch (JSONException e) {
@@ -890,17 +903,17 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                 }
 
 
-
             }
             if (requestCode == 1) {
 
 
                 Bitmap bitmap2;
-                if (Offline){
+                bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/" + nombreImagen2);
+                /*if (Offline){
                     bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png");
                 }else {
                     bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosGrupal2.png");
-                }
+                }*/
 
                 Foto2View.setVisibility(View.VISIBLE);
                 view2.setVisibility(View.VISIBLE);
@@ -908,18 +921,18 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                 espacio6.setVisibility(View.VISIBLE);
 
                 try {
-                    if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("0")) {
+                    if (ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("0")) {
                         registrar3.setVisibility(View.VISIBLE);
                         reg3.setVisibility(View.VISIBLE);
                         espacio7.setVisibility(View.VISIBLE);
-                    }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")){
+                    } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")) {
                         registrar3.setVisibility(View.GONE);
                         espacio7.setVisibility(View.VISIBLE);
                         espacio8.setVisibility(View.VISIBLE);
                         Foto3.setVisibility(View.VISIBLE);
                         espacio9.setVisibility(View.VISIBLE);
                         nombre_foto3.setVisibility(View.VISIBLE);
-                        nombre_foto3.setText(ja6.getString(8)+":");
+                        nombre_foto3.setText(ja6.getString(8) + ":");
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -931,12 +944,13 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
 
                 Bitmap bitmap3;
+                bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/" + nombreImagen3);
 
-                if (Offline){
+                /*if (Offline){
                     bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png");
                 }else {
                     bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosGrupal3.png");
-                }
+                }*/
 
                 Foto3View.setVisibility(View.VISIBLE);
                 view3.setVisibility(View.VISIBLE);
@@ -945,7 +959,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
 
                 try {
-                    if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")){
+                    if (ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")) {
                         registrar4.setVisibility(View.VISIBLE);
                     }
                 } catch (JSONException e) {
@@ -958,7 +972,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
     }
 
 
-    public void VisitaOffline(){
+    public void VisitaOffline() {
         Log.e("info", "visita offline");
         try {
             String id = Conf.getIdvisita();
@@ -967,7 +981,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
             Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_VISITA, null, "vst_gru_2", parametros, null);
 
-            if (cursor.moveToFirst()){
+            if (cursor.moveToFirst()) {
                 ja1 = new JSONArray();
                 ja1.put(cursor.getString(0));
                 ja1.put(cursor.getString(1));
@@ -987,12 +1001,12 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                 ja1.put(cursor.getString(15));
 
                 UsuarioOffline(ja1.getString(2));
-            }else {
+            } else {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
                 alertDialogBuilder
                         .setMessage("Error al obtener datos de la visita")
-                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
                                 startActivity(i);
@@ -1000,25 +1014,24 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                             }
                         }).create().show();
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             Log.e("Exception", ex.toString());
         }
 
     }
 
 
+    public void Visita() {
 
-    public void Visita(){
-
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_gru_2.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_gru_2.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
 
             @Override
             public void onResponse(String response) {
-                response = response.replace("][",",");
-                if (response.length()>0){
+                response = response.replace("][", ",");
+                if (response.length() > 0) {
                     try {
                         ja1 = new JSONArray(response);
                         Usuario(ja1.getString(2));
@@ -1027,12 +1040,12 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                     }
                 }
             }
-        }, new Response.ErrorListener(){
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("TAG","Error: " + error.toString());
+                Log.e("TAG", "Error: " + error.toString());
             }
-        }){
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -1045,17 +1058,17 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         requestQueue.add(stringRequest);
     }
 
-    public void UsuarioOffline(final String IdUsu){ //DATOS USUARIO
+    public void UsuarioOffline(final String IdUsu) { //DATOS USUARIO
         Log.e("info", "usuario offline");
         try {
             String id_residencial = Conf.getResid().trim();
             String id = IdUsu.trim();
 
-            String parametros[] ={id, id_residencial};
+            String parametros[] = {id, id_residencial};
 
             Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_USUARIO, null, "dts_accesso_autos", parametros, null);
 
-            if (cursor.moveToFirst()){
+            if (cursor.moveToFirst()) {
                 ja2 = new JSONArray();
 
                 ja2.put(cursor.getString(0));
@@ -1067,12 +1080,12 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                 ja2.put(cursor.getString(6));
 
                 dtlLugarOffline(ja2.getString(0));
-            }else {
+            } else {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
                 alertDialogBuilder
                         .setMessage("Error al obtener datos de usuario")
-                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
                                 startActivity(i);
@@ -1081,23 +1094,23 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                         }).create().show();
             }
             cursor.close();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             Log.e("Exception", ex.toString());
         }
 
     }
 
 
-    public void Usuario(final String IdUsu){ //DATOS USUARIO
+    public void Usuario(final String IdUsu) { //DATOS USUARIO
 
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php2.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php2.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
-                response = response.replace("][",",");
-                if (response.length()>0){
+                response = response.replace("][", ",");
+                if (response.length() > 0) {
                     try {
                         ja2 = new JSONArray(response);
                         dtlLugar(ja2.getString(0));
@@ -1107,12 +1120,12 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                     }
                 }
             }
-        }, new Response.ErrorListener(){
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("TAG","Error: " + error.toString());
+                Log.e("TAG", "Error: " + error.toString());
             }
-        }){
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -1124,33 +1137,33 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         requestQueue.add(stringRequest);
     }
 
-    public void dtlLugarOffline(final String idUsuario){
+    public void dtlLugarOffline(final String idUsuario) {
         Log.e("info", "dtllugar offline");
         try {
             String id_residencial = Conf.getResid().trim();
             String id = idUsuario.trim();
 
-            String parametros[] ={id_residencial, id};
+            String parametros[] = {id_residencial, id};
 
             Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_LUGAR, null, "dtl_lugar_usuario", parametros, null);
 
-            if (cursor.moveToFirst()){
+            if (cursor.moveToFirst()) {
                 ja3 = new JSONArray();
                 ja3.put(cursor.getString(0));
 
                 salidasOffline(ja1.getString(0));
 
-            }else {
+            } else {
                 sincasa();
             }
             cursor.close();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             Log.e("Exception", ex.toString());
         }
     }
 
-    public void dtlLugar(final String idUsuario){
-        String URLResidencial = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php3.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+    public void dtlLugar(final String idUsuario) {
+        String URLResidencial = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php3.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URLResidencial, new Response.Listener<String>() {
             @Override
@@ -1177,7 +1190,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
             public void onErrorResponse(VolleyError error) {
                 Log.e("TAG", "Error: " + error.toString());
             }
-        }){
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -1190,7 +1203,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         requestQueue.add(stringRequest);
     }
 
-    public void salidasOffline (final String id_visitante){
+    public void salidasOffline(final String id_visitante) {
         Log.e("info", "salidas offline");
         try {
             String id_resid = Conf.getResid().trim();
@@ -1199,37 +1212,37 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
             Cursor cursor = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_DTL_ENTRADAS_SALIDAS, null, "vst_php4", parametros, null);
 
-            if (cursor.moveToFirst()){
+            if (cursor.moveToFirst()) {
                 ja4 = new JSONArray();
                 ja4.put(cursor.getString(0));
                 ValidarQR();
-            }else {
-                int $arreglo[]={0};
+            } else {
+                int $arreglo[] = {0};
                 ja4 = new JSONArray($arreglo);
                 ValidarQR();
             }
             cursor.close();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             Log.e("Exception", ex.toString());
         }
     }
 
-    public void salidas (final String id_visitante){
-        String URLResidencial = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php4.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+    public void salidas(final String id_visitante) {
+        String URLResidencial = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php4.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URLResidencial, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
                 try {
-                    if (response.trim().equals("error")){
+                    if (response.trim().equals("error")) {
 
-                        int $arreglo[]={0};
+                        int $arreglo[] = {0};
                         ja4 = new JSONArray($arreglo);
                         ValidarQR();
 
-                    }else{
-                        response = response.replace("][",",");
+                    } else {
+                        response = response.replace("][", ",");
                         ja4 = new JSONArray(response);
                         ValidarQR();
                     }
@@ -1243,7 +1256,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
             public void onErrorResponse(VolleyError error) {
                 Log.e("TAG", "Error: " + error.toString());
             }
-        }){
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -1257,8 +1270,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
     }
 
 
-
-    public void sincasa(){
+    public void sincasa() {
 
         rlVista.setVisibility(View.GONE);
         rlPermitido.setVisibility(View.GONE);
@@ -1268,22 +1280,22 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
     }
 
 
-    public void ValidarQR(){
+    public void ValidarQR() {
 
         try {
             Calendar c = Calendar.getInstance();
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date dateentrada = (Date)formatter.parse(ja1.getString(10));
-            Date datesalida = (Date)formatter.parse(ja1.getString(11));
+            Date dateentrada = (Date) formatter.parse(ja1.getString(10));
+            Date datesalida = (Date) formatter.parse(ja1.getString(11));
 
             //ANTES DE LA ENTRADA
-            if(c.getTime().before(dateentrada) && ja4.getString(0).equals("0")) {//NUEVO
+            if (c.getTime().before(dateentrada) && ja4.getString(0).equals("0")) {//NUEVO
                 rlVista.setVisibility(View.GONE);
                 rlPermitido.setVisibility(View.GONE);
                 rlDenegado.setVisibility(View.VISIBLE);
                 tvMensaje.setText("Aún no es hora de entrada");
                 //EN MEDIO
-            } else if( c.getTime().equals(dateentrada) || c.getTime().before(datesalida) ) {
+            } else if (c.getTime().equals(dateentrada) || c.getTime().before(datesalida)) {
 
                 if (ja4.getString(0).equals("0")) { //NUEVO
                     rlVista.setVisibility(View.GONE);
@@ -1291,17 +1303,17 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                     rlPermitido.setVisibility(View.VISIBLE);
 
                     Nombre.setText(ja2.getString(1) + " " + ja2.getString(2) + " " + ja2.getString(3));
-                    if(ja1.getString(4).equals("1") || ja1.getString(12).equals("0")){
+                    if (ja1.getString(4).equals("1") || ja1.getString(12).equals("0")) {
                         Tipo.setText("Visita");
-                    }else if(ja1.getString(4).equals("2")){
+                    } else if (ja1.getString(4).equals("2")) {
                         Tipo.setText("Proveedor / Servicios");
-                    }else if(ja1.getString(4).equals("3")){
+                    } else if (ja1.getString(4).equals("3")) {
                         Tipo.setText("Taxista");
                     }
                     Dire.setText(ja3.getString(0));
                     Visi.setText(ja1.getString(7));
 
-                    if(Integer.parseInt(Conf.getPreQr())==1){
+                    if (Integer.parseInt(Conf.getPreQr()) == 1) {
                         Placas.setText(Conf.getPlacas());
                     }
                     Comentarios.setText(ja1.getString(9));
@@ -1319,30 +1331,29 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                     tvMensaje.setText("Esté código QR ya fue utilizado");
                 }
 
-            }else if(c.getTime().after(datesalida)  && ja4.getString(0).equals("0") ) { //NUEVO
+            } else if (c.getTime().after(datesalida) && ja4.getString(0).equals("0")) { //NUEVO
                 rlVista.setVisibility(View.GONE);
                 rlPermitido.setVisibility(View.GONE);
                 rlDenegado.setVisibility(View.VISIBLE);
                 tvMensaje.setText("Esté código QR ha caducado");
 
-            }else    if(c.getTime().after(datesalida)  && ja4.getString(0).equals("2") ){ //ENTRO Y SALIO
+            } else if (c.getTime().after(datesalida) && ja4.getString(0).equals("2")) { //ENTRO Y SALIO
                 rlVista.setVisibility(View.GONE);
                 rlPermitido.setVisibility(View.GONE);
                 rlDenegado.setVisibility(View.VISIBLE);
                 tvMensaje.setText("Esté código QR ha caducado");
 
-            } else if(c.getTime().after(datesalida)  && ja4.getString(0).equals("1") ){//ESTA ADENTRO
+            } else if (c.getTime().after(datesalida) && ja4.getString(0).equals("1")) {//ESTA ADENTRO
                 rlVista.setVisibility(View.GONE);
                 rlPermitido.setVisibility(View.GONE);
                 rlDenegado.setVisibility(View.VISIBLE);
                 tvMensaje.setText("Esté código QR ha caducado, Leer Salida");
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 
     public void Validacion() {
@@ -1350,12 +1361,13 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         alertDialogBuilder.setTitle("Alerta");
         alertDialogBuilder
                 .setMessage("¿ Desea realizar la entrada ?")
-                .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     public void onClick(DialogInterface dialog, int id) {
-                        if (Offline){
+                        if (Offline) {
                             RegistrarOffline();
-                        }else {
+                        } else {
+                            pd.show();
                             Registrar();
                         }
                     }
@@ -1372,53 +1384,53 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void RegistrarOffline(){
+    public void RegistrarOffline() {
 
-        if(Placas.getText().toString().equals("") && si.isChecked()){
-            Toast.makeText(getApplicationContext(),"Campo de placas", Toast.LENGTH_SHORT).show();
-        }else if(Placas.getText().toString().equals(" ") && si.isChecked()){
-            Toast.makeText(getApplicationContext(),"Campo de placas ", Toast.LENGTH_SHORT).show();
-        }else if( Placas.getText().toString().equals("N/A") && si.isChecked()){
-            Toast.makeText(getApplicationContext(),"Campo de placas", Toast.LENGTH_SHORT).show();
-        }else{
+        if (Placas.getText().toString().equals("") && si.isChecked()) {
+            Toast.makeText(getApplicationContext(), "Campo de placas", Toast.LENGTH_SHORT).show();
+        } else if (Placas.getText().toString().equals(" ") && si.isChecked()) {
+            Toast.makeText(getApplicationContext(), "Campo de placas ", Toast.LENGTH_SHORT).show();
+        } else if (Placas.getText().toString().equals("N/A") && si.isChecked()) {
+            Toast.makeText(getApplicationContext(), "Campo de placas", Toast.LENGTH_SHORT).show();
+        } else {
 
             try {
 
-                if(ja6.getString(0).equals("0") || ja6.getString(3).equals("0")) {
-                    f1="";
-                    f2="";
-                    f3="";
-                }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("0") && ja6.getString(7).equals("0")){
-                    f1="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png";
-                    f2="";
-                    f3="";
+                if (ja6.getString(0).equals("0") || ja6.getString(3).equals("0")) {
+                    f1 = "";
+                    f2 = "";
+                    f3 = "";
+                } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("0") && ja6.getString(7).equals("0")) {
+                    f1 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png";
+                    f2 = "";
+                    f3 = "";
 
-                    ContentValues val_img1 =  ValuesImagen(f1, Conf.getPin()+"/caseta/"+f1.trim(), rutaImagen1);
+                    ContentValues val_img1 = ValuesImagen(f1, Conf.getPin() + "/caseta/" + f1.trim(), rutaImagen1);
                     Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
 
-                }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("0")){
-                    f1="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png";
-                    f2="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png";
-                    f3="";
+                } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("0")) {
+                    f1 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png";
+                    f2 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio2 + ".png";
+                    f3 = "";
 
-                    ContentValues val_img1 =  ValuesImagen(f1, Conf.getPin()+"/caseta/"+f1.trim(), rutaImagen1);
+                    ContentValues val_img1 = ValuesImagen(f1, Conf.getPin() + "/caseta/" + f1.trim(), rutaImagen1);
                     Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
 
-                    ContentValues val_img2 =  ValuesImagen(f2, Conf.getPin()+"/caseta/"+f2.trim(), rutaImagen2);
+                    ContentValues val_img2 = ValuesImagen(f2, Conf.getPin() + "/caseta/" + f2.trim(), rutaImagen2);
                     Uri uri2 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img2);
 
-                }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")){
-                    f1="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png";
-                    f2="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png";
-                    f3="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png";
+                } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")) {
+                    f1 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png";
+                    f2 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio2 + ".png";
+                    f3 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio3 + ".png";
 
-                    ContentValues val_img1 =  ValuesImagen(f1, Conf.getPin()+"/caseta/"+f1.trim(), rutaImagen1);
+                    ContentValues val_img1 = ValuesImagen(f1, Conf.getPin() + "/caseta/" + f1.trim(), rutaImagen1);
                     Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
 
-                    ContentValues val_img2 =  ValuesImagen(f2, Conf.getPin()+"/caseta/"+f2.trim(), rutaImagen2);
+                    ContentValues val_img2 = ValuesImagen(f2, Conf.getPin() + "/caseta/" + f2.trim(), rutaImagen2);
                     Uri uri2 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img2);
 
-                    ContentValues val_img3 =  ValuesImagen(f3, Conf.getPin()+"/caseta/"+f3.trim(), rutaImagen3);
+                    ContentValues val_img3 = ValuesImagen(f3, Conf.getPin() + "/caseta/" + f3.trim(), rutaImagen3);
                     Uri uri3 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img3);
                 }
 
@@ -1429,49 +1441,49 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                 int day = hoy.getDayOfMonth();
                 int hour = hoy.getHour();
                 int minute = hoy.getMinute();
-                int second =hoy.getSecond();
+                int second = hoy.getSecond();
 
                 String fecha = "";
 
                 //Poner el cero cuando el mes o dia es menor a 10
-                if (day < 10 || month < 10){
-                    if (month < 10 && day >= 10){
-                        fecha = year+"-0"+month+"-"+day;
-                    } else if (month >= 10 && day < 10){
-                        fecha = year+"-"+month+"-0"+day;
-                    }else if (month < 10 && day < 10){
-                        fecha = year+"-0"+month+"-0"+day;
+                if (day < 10 || month < 10) {
+                    if (month < 10 && day >= 10) {
+                        fecha = year + "-0" + month + "-" + day;
+                    } else if (month >= 10 && day < 10) {
+                        fecha = year + "-" + month + "-0" + day;
+                    } else if (month < 10 && day < 10) {
+                        fecha = year + "-0" + month + "-0" + day;
                     }
-                }else {
-                    fecha = year+"-"+month+"-"+day;
+                } else {
+                    fecha = year + "-" + month + "-" + day;
                 }
 
                 String hora = "";
 
-                if (hour < 10 || minute < 10){
-                    if (hour < 10 && minute >=10){
-                        hora = "0"+hour+":"+minute;
-                    }else if (hour >= 10 && minute < 10){
-                        hora = hour+":0"+minute;
-                    }else if (hour < 10 && minute < 10){
-                        hora = "0"+hour+":0"+minute;
+                if (hour < 10 || minute < 10) {
+                    if (hour < 10 && minute >= 10) {
+                        hora = "0" + hour + ":" + minute;
+                    } else if (hour >= 10 && minute < 10) {
+                        hora = hour + ":0" + minute;
+                    } else if (hour < 10 && minute < 10) {
+                        hora = "0" + hour + ":0" + minute;
                     }
-                }else {
-                    hora = hour+":"+minute;
+                } else {
+                    hora = hour + ":" + minute;
                 }
 
                 String segundos = "00";
 
-                if (second < 10){
-                    segundos = "0"+second;
-                }else {
-                    segundos = ""+second;
+                if (second < 10) {
+                    segundos = "0" + second;
+                } else {
+                    segundos = "" + second;
                 }
 
                 ContentValues values = new ContentValues();
                 values.put("id_residencial", Conf.getResid().trim());
                 values.put("id_visita", ja1.getString(0).trim());
-                values.put("entrada_real", fecha+" "+hora+":"+segundos);
+                values.put("entrada_real", fecha + " " + hora + ":" + segundos);
                 values.put("salida_real", "0000-00-00 00:00:00");
                 values.put("guardia_de_entrada", Conf.getUsu().trim());
                 values.put("guardia_de_salida", "0");
@@ -1486,13 +1498,13 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                 values.put("estatus", 1);
                 values.put("sqliteEstatus", 1);
 
-                Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_DTL_ENTRADAS_SALIDAS,values);
+                Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_DTL_ENTRADAS_SALIDAS, values);
 
                 String idUri = uri.getLastPathSegment();
 
                 int insertar = Integer.parseInt(idUri);
 
-                if (insertar != -1){
+                if (insertar != -1) {
                     int actualizar;
 
                     try {
@@ -1500,14 +1512,14 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                         values2.put("comentarios", Comentarios.getText().toString().trim());
                         values2.put("sqliteEstatus", 2);
 
-                        actualizar = getContentResolver().update(UrisContentProvider.URI_CONTENIDO_VISITA, values2, "id = "+ ja1.getString(0).trim(), null);
+                        actualizar = getContentResolver().update(UrisContentProvider.URI_CONTENIDO_VISITA, values2, "id = " + ja1.getString(0).trim(), null);
 
-                        if (actualizar != -1){
+                        if (actualizar != -1) {
                             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                             alertDialogBuilder.setTitle("Alerta");
                             alertDialogBuilder
                                     .setMessage("Entrada de visita exitosa en modo offline")
-                                    .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
 
                                             Intent i = new Intent(getApplicationContext(), EntradasSalidasActivity.class);
@@ -1518,44 +1530,44 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                                     }).create().show();
 
 
-                        }else {
+                        } else {
                             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                             alertDialogBuilder.setTitle("Alerta");
                             alertDialogBuilder
                                     .setMessage("Visita no exitosa en modo offline")
-                                    .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
-                                            Toast.makeText(getApplicationContext(),"Visita No Registrada", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getApplicationContext(), "Visita No Registrada", Toast.LENGTH_SHORT).show();
                                             Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
                                             startActivity(i);
                                             finish();
                                         }
                                     }).create().show();
                         }
-                    }catch (Exception ex){
+                    } catch (Exception ex) {
                         Log.e("Exception", ex.toString());
                     }
-                }else {
+                } else {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                     alertDialogBuilder.setTitle("Alerta");
                     alertDialogBuilder
                             .setMessage("Visita no exitosa en modo offline")
-                            .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    Toast.makeText(getApplicationContext(),"Visita No Registrada", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "Visita No Registrada", Toast.LENGTH_SHORT).show();
                                     Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
                                     startActivity(i);
                                     finish();
                                 }
                             }).create().show();
                 }
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 Log.e("Exception", ex.toString());
             }
         }
     }
 
-    public ContentValues ValuesImagen(String nombre, String rutaFirebase, String rutaDispositivo){
+    public ContentValues ValuesImagen(String nombre, String rutaFirebase, String rutaDispositivo) {
         ContentValues values = new ContentValues();
         values.put("titulo", nombre);
         values.put("direccionFirebase", rutaFirebase);
@@ -1563,33 +1575,37 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         return values;
     }
 
-    public void Registrar(){
+    public void Registrar() {
 
-        if(Placas.getText().toString().equals("") && si.isChecked()){
-            Toast.makeText(getApplicationContext(),"Campo de placas", Toast.LENGTH_SHORT).show();
-        }else if(Placas.getText().toString().equals(" ") && si.isChecked()){
-            Toast.makeText(getApplicationContext(),"Campo de placas ", Toast.LENGTH_SHORT).show();
-        }else if( Placas.getText().toString().equals("N/A") && si.isChecked()){
-            Toast.makeText(getApplicationContext(),"Campo de placas", Toast.LENGTH_SHORT).show();
-        }else{
+        if (Placas.getText().toString().equals("") && si.isChecked()) {
+            pd.dismiss();
+            Toast.makeText(getApplicationContext(), "Campo de placas", Toast.LENGTH_SHORT).show();
+        } else if (Placas.getText().toString().equals(" ") && si.isChecked()) {
+            pd.dismiss();
+            Toast.makeText(getApplicationContext(), "Campo de placas ", Toast.LENGTH_SHORT).show();
+        } else if (Placas.getText().toString().equals("N/A") && si.isChecked()) {
+            pd.dismiss();
+            Toast.makeText(getApplicationContext(), "Campo de placas", Toast.LENGTH_SHORT).show();
+        } else {
 
-            String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php5.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+            String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php5.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
                 @Override
-                public void onResponse(String response){
+                public void onResponse(String response) {
 
 
-                    if(response.equals("error")){
+                    if (response.equals("error")) {
 
+                        pd.dismiss();
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
                         alertDialogBuilder.setTitle("Alerta");
                         alertDialogBuilder
                                 .setMessage("Visita No Exitosa")
-                                .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-                                        Toast.makeText(getApplicationContext(),"Visita No Registrada", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getApplicationContext(), "Visita No Registrada", Toast.LENGTH_SHORT).show();
                                         Intent i = new Intent(getApplicationContext(), EscaneoVisitaActivity.class);
                                         startActivity(i);
                                         finish();
@@ -1597,22 +1613,52 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                                 }).create().show();
 
 
-                    }else {
+                    } else {
 
                         try {
-                            if(ja6.getString(0).equals("0") || ja6.getString(3).equals("0")) {
+                            if (ja6.getString(0).equals("0") || ja6.getString(3).equals("0")) {
+                                f1 = "";
+                                f2 = "";
+                                f3 = "";
                                 Terminar();
-                            }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("0") && ja6.getString(7).equals("0")){
-                                upload1();
+                            } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("0") && ja6.getString(7).equals("0")) {
+                                f1 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png";
+                                f2 = "";
+                                f3 = "";
+
+
+                                ContentValues val_img1 = ValuesImagen(f1, Conf.getPin() + "/caseta/" + f1.trim(), rutaImagen1);
+                                Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
                                 Terminar();
-                            }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("0")){
-                                upload1();
-                                upload2();
+
+                            } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("0")) {
+                                f1 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png";
+                                f2 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio2 + ".png";
+                                f3 = "";
+
+                                ContentValues val_img1 = ValuesImagen(f1, Conf.getPin() + "/caseta/" + f1.trim(), rutaImagen1);
+                                Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
+                                ContentValues val_img2 = ValuesImagen(f2, Conf.getPin() + "/caseta/" + f2.trim(), rutaImagen2);
+                                Uri uri2 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img2);
+
                                 Terminar();
-                            }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")){
-                                upload1();
-                                upload2();
-                                upload3();
+
+                            } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")) {
+                                f1 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png";
+                                f2 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio2 + ".png";
+                                f3 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio3 + ".png";
+
+                                ContentValues val_img1 = ValuesImagen(f1, Conf.getPin() + "/caseta/" + f1.trim(), rutaImagen1);
+                                Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
+                                ContentValues val_img2 = ValuesImagen(f2, Conf.getPin() + "/caseta/" + f2.trim(), rutaImagen2);
+                                Uri uri2 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img2);
+
+                                ContentValues val_img3 = ValuesImagen(f3, Conf.getPin() + "/caseta/" + f3.trim(), rutaImagen3);
+                                Uri uri3 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img3);
+
                                 Terminar();
                             }
                         } catch (JSONException e) {
@@ -1624,32 +1670,32 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
 
                 }
-            }, new Response.ErrorListener(){
+            }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e("TAG","Error: " + error.toString());
+                    Log.e("TAG", "Error: " + error.toString());
                 }
-            }){
+            }) {
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
 
                     try {
-                        if(ja6.getString(0).equals("0") || ja6.getString(3).equals("0")) {
-                            f1="";
-                            f2="";
-                            f3="";
-                        }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("0") && ja6.getString(7).equals("0")){
-                            f1="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png";
-                            f2="";
-                            f3="";
-                        }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("0")){
-                            f1="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png";
-                            f2="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png";
-                            f3="";
-                        }else if(ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")){
-                            f1="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png";
-                            f2="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png";
-                            f3="app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png";
+                        if (ja6.getString(0).equals("0") || ja6.getString(3).equals("0")) {
+                            f1 = "";
+                            f2 = "";
+                            f3 = "";
+                        } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("0") && ja6.getString(7).equals("0")) {
+                            f1 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png";
+                            f2 = "";
+                            f3 = "";
+                        } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("0")) {
+                            f1 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png";
+                            f2 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio2 + ".png";
+                            f3 = "";
+                        } else if (ja6.getString(3).equals("1") && ja6.getString(5).equals("1") && ja6.getString(7).equals("1")) {
+                            f1 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png";
+                            f2 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio2 + ".png";
+                            f3 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio3 + ".png";
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -1661,20 +1707,20 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                         params.put("id_residencial", Conf.getResid().trim());
                         params.put("id_visita", ja1.getString(0).trim());
                         params.put("guardia_de_entrada", Conf.getUsu().trim());
-                        params.put("pasajeros",Pasajeros.getSelectedItem().toString());
+                        params.put("pasajeros", Pasajeros.getSelectedItem().toString());
                         params.put("placas", Placas.getText().toString().trim());
                         params.put("foto1", f1);
                         params.put("foto2", f2);
                         params.put("foto3", f3);
-                        params.put("usuario",ja2.getString(1).trim() + " " + ja2.getString(2).trim() + " " + ja2.getString(3).trim());
+                        params.put("usuario", ja2.getString(1).trim() + " " + ja2.getString(2).trim() + " " + ja2.getString(3).trim());
                         params.put("token", ja2.getString(5).trim());
-                        params.put("correo",ja2.getString(6).trim());
-                        params.put("visita",ja1.getString(7).trim());
-                        params.put("nom_residencial",Conf.getNomResi().trim());
-                        params.put("comentarios",Comentarios.getText().toString().trim());
+                        params.put("correo", ja2.getString(6).trim());
+                        params.put("visita", ja1.getString(7).trim());
+                        params.put("nom_residencial", Conf.getNomResi().trim());
+                        params.put("comentarios", Comentarios.getText().toString().trim());
 
                     } catch (JSONException e) {
-                        Log.e("TAG","Error: " + e.toString());
+                        Log.e("TAG", "Error: " + e.toString());
                     }
                     return params;
                 }
@@ -1684,11 +1730,10 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
     }
 
 
-
-    public void upload1(){
+    public void upload1() {
 
         StorageReference mountainImagesRef = null;
-        mountainImagesRef =storageReference.child(Conf.getPin()+"/caseta/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png");
+        mountainImagesRef = storageReference.child(Conf.getPin() + "/caseta/app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png");
 
         UploadTask uploadTask = mountainImagesRef.putFile(uri_img);
 
@@ -1710,7 +1755,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(AccesosGrupalActivity.this,"Fallado",Toast.LENGTH_SHORT).show();
+                Toast.makeText(AccesosGrupalActivity.this, "Fallado", Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -1721,10 +1766,10 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         });
     }
 
-    public void upload2(){
+    public void upload2() {
 
         StorageReference mountainImagesRef2 = null;
-        mountainImagesRef2 =storageReference.child(Conf.getPin()+"/caseta/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png");
+        mountainImagesRef2 = storageReference.child(Conf.getPin() + "/caseta/app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio2 + ".png");
 
         UploadTask uploadTask = mountainImagesRef2.putFile(uri_img2);
 
@@ -1745,7 +1790,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(AccesosGrupalActivity.this,"Fallado",Toast.LENGTH_SHORT).show();
+                Toast.makeText(AccesosGrupalActivity.this, "Fallado", Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -1757,10 +1802,10 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
     }
 
-    public void upload3(){
+    public void upload3() {
 
         StorageReference mountainImagesRef3 = null;
-        mountainImagesRef3 =storageReference.child(Conf.getPin()+"/caseta/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png");
+        mountainImagesRef3 = storageReference.child(Conf.getPin() + "/caseta/app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio3 + ".png");
 
         UploadTask uploadTask = mountainImagesRef3.putFile(uri_img3);
 
@@ -1781,7 +1826,7 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(AccesosGrupalActivity.this,"Fallado",Toast.LENGTH_SHORT).show();
+                Toast.makeText(AccesosGrupalActivity.this, "Fallado", Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -1795,31 +1840,50 @@ public class AccesosGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
     }
 
 
-
     public void Terminar() {
 
+        pd.dismiss();
 
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesosGrupalActivity.this);
         alertDialogBuilder.setTitle("Alerta");
         alertDialogBuilder
                 .setMessage("Entrada de Visita Exitosa")
-                .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
-                                Intent i = new Intent(getApplicationContext(), EntradasSalidasActivity.class);
-                                startActivity(i);
-                                finish();
+                        if (!Offline) {
+                            //Solo ejecutar si el servicio no se esta ejecutando
+                            if (!servicioFotos()) {
+                                Intent cargarFotos = new Intent(AccesosGrupalActivity.this, subirFotos.class);
+                                startService(cargarFotos);
+                            }
+                        }
+
+                        Intent i = new Intent(getApplicationContext(), EntradasSalidasActivity.class);
+                        startActivity(i);
+                        finish();
 
                     }
                 }).create().show();
 
 
-
     }
 
+    //Método para saber si es que el servicio ya se esta ejecutando
+    public boolean servicioFotos() {
+        //Obtiene los servicios que se estan ejecutando
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        //Se recorren todos los servicios obtnidos para saber si el servicio creado ya se esta ejecutando
+        for (ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if (subirFotos.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
         super.onBackPressed();
         Intent intent = new Intent(getApplicationContext(), EntradasSalidasActivity.class);
         startActivity(intent);

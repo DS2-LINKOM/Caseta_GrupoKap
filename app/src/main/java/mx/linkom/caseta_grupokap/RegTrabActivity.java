@@ -1,10 +1,14 @@
 package mx.linkom.caseta_grupokap;
 
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -49,6 +53,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
+import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
+
 public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
 
     Button registrar;
@@ -66,6 +73,8 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
     int foto;
     String nfoto1,nfoto2;
     ProgressDialog pd,pd2;
+
+    String rutaImagen1, rutaImagen2, rutaImagen3, nombreImagen1, nombreImagen2, nombreImagen3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,7 +138,7 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
         });
 
         pd= new ProgressDialog(this);
-        pd.setMessage("Subiendo Imagen 1...");
+        pd.setMessage("Registrando...");
 
         pd2= new ProgressDialog(this);
         pd2.setMessage("Subiendo Imagen 2...");
@@ -190,7 +199,9 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
 
             File foto=null;
             try {
-                foto= new File(getApplication().getExternalFilesDir(null),"ft1.png");
+                nombreImagen1 = "app"+anio+mes+dia+nombre.getText().toString()+"-"+numero_aletorio+".png";
+                foto= new File(getApplication().getExternalFilesDir(null),nombreImagen1);
+                rutaImagen1 = foto.getAbsolutePath();
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegTrabActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
@@ -218,7 +229,9 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
         if (intentCaptura.resolveActivity(getPackageManager()) != null) {
             File foto=null;
             try {
-                foto = new File(getApplication().getExternalFilesDir(null),"ft2.png");
+                nombreImagen2 = "app"+anio+mes+dia+nombre.getText().toString()+"-"+numero_aletorio2+".png";
+                foto = new File(getApplication().getExternalFilesDir(null),nombreImagen2);
+                rutaImagen2 = foto.getAbsolutePath();
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegTrabActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
@@ -249,8 +262,9 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
             if (requestCode == 0) {
 
 
-                Bitmap bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/ft1.png");
-
+                Matrix matrix = new Matrix();
+                matrix.postRotate(90.0F);
+                Bitmap bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/"+nombreImagen1);
 
                 Foto1View.setVisibility(View.VISIBLE);
                 view1.setVisibility(View.VISIBLE);
@@ -264,7 +278,7 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
             }
             if (requestCode == 1) {
 
-                Bitmap bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/ft2.png");
+                Bitmap bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/"+nombreImagen2);
 
                 Foto2View.setVisibility(View.VISIBLE);
                 view2.setVisibility(View.VISIBLE);
@@ -415,7 +429,8 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
                 .setMessage("¿ Desea registrar al trabajador ?")
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        traeDepartamento2();
+                        pd.show();
+                    traeDepartamento2();
                     }
                 })
                 .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
@@ -432,6 +447,8 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
     public void traeDepartamento2() {
 
         if (Tipo.getSelectedItem().toString().equals("Seleccionar...") || Departamento.getSelectedItem().toString().equals("Seleccionar...")) {
+            pd.dismiss();
+
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegTrabActivity.this);
             alertDialogBuilder.setTitle("Alerta");
             alertDialogBuilder
@@ -442,6 +459,8 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
                         }
                     }).create().show();
         } else if(nombre.getText().toString().equals("") || nombre.getText().toString().equals(" ")){
+            pd.dismiss();
+
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegTrabActivity.this);
             alertDialogBuilder.setTitle("Alerta");
             alertDialogBuilder
@@ -503,6 +522,8 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
 
                 if(response.equals("error")){
 
+                    pd.dismiss();
+
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegTrabActivity.this);
                     alertDialogBuilder.setTitle("Alerta");
                     alertDialogBuilder
@@ -519,10 +540,20 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
                 }else {
 
                     if(foto==1){
-                        upload1();
-                    }else if(foto==2){
-                        upload1();
-                        upload2();
+                        ContentValues val_img1 = ValuesImagen(nombreImagen1, Conf.getPin() + "/trabajadores/" + nombreImagen1.trim(), rutaImagen1);
+                        Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+                        //upload1();
+                    }
+
+                    if(foto==2){
+
+                        ContentValues val_img1 = ValuesImagen(nombreImagen1, Conf.getPin() + "/trabajadores/" + nombreImagen1.trim(), rutaImagen1);
+                        Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+                        //upload1();
+
+                        ContentValues val_img2 = ValuesImagen(nombreImagen2, Conf.getPin() + "/trabajadores/" + nombreImagen2.trim(), rutaImagen2);
+                        Uri uri2 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img2);
+                        //upload2();
                     }
 
                    Finalizar();
@@ -570,6 +601,15 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
         requestQueue.add(stringRequest);
 
     }
+
+    public ContentValues ValuesImagen(String nombre, String rutaFirebase, String rutaDispositivo) {
+        ContentValues values = new ContentValues();
+        values.put("titulo", nombre);
+        values.put("direccionFirebase", rutaFirebase);
+        values.put("rutaDispositivo", rutaDispositivo);
+        return values;
+    }
+
 
     public void upload1(){
 
@@ -647,17 +687,40 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
     }
 
     public void Finalizar(){
+
+        pd.dismiss();
+
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegTrabActivity.this);
         alertDialogBuilder.setTitle("Alerta");
         alertDialogBuilder
                 .setMessage("Registro Exitoso")
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+
+                        //Solo ejecutar si el servicio no se esta ejecutando
+                        if (!servicioFotos()) {
+                            Intent cargarFotos = new Intent(RegTrabActivity.this, subirFotos.class);
+                            startService(cargarFotos);
+                        }
+
                         Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.RegTrab2Activity.class);
                         startActivity(i);
                         finish();
                     }
                 }).create().show();
+    }
+
+    //Método para saber si es que el servicio ya se esta ejecutando
+    public boolean servicioFotos() {
+        //Obtiene los servicios que se estan ejecutando
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        //Se recorren todos los servicios obtnidos para saber si el servicio creado ya se esta ejecutando
+        for (ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if (subirFotos.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

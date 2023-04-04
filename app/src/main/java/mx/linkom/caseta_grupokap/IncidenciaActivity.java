@@ -1,7 +1,10 @@
 package mx.linkom.caseta_grupokap;
 
 
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -45,6 +48,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
+import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
+
 
 public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
 
@@ -63,6 +69,8 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
     mx.linkom.caseta_grupokap.Configuracion Conf;
     EditText Comentarios,Accion;
     Uri uri_img,uri_img2,uri_img3;
+
+    String rutaImagen1, rutaImagen2, rutaImagen3, nombreImagen1, nombreImagen2, nombreImagen3;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,7 +122,13 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
             @Override
             public void onClick(View v) {
                 foto=1;
-                imgFoto();
+                imgFotoOffline();
+                /*if (Offline){
+                    imgFotoOffline();
+
+                }else {
+                    imgFoto();
+                }*/
             }
         });
 
@@ -123,7 +137,12 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
             @Override
             public void onClick(View v) {
                 foto=2;
-                imgFoto2();
+                imgFoto2Offline();
+                /*if (Offline){
+                    imgFoto2Offline();
+                }else {
+                    imgFoto2();
+                }*/
             }
         });
 
@@ -131,7 +150,12 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
             @Override
             public void onClick(View v) {
                 foto=3;
-                imgFoto3();
+                imgFoto3Offline();
+                /*if (Offline){
+                    imgFoto3Offline();
+                }else {
+                    imgFoto3();
+                }*/
             }
         });
 
@@ -146,7 +170,12 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
             @Override
             public void onClick(View v) {
                 foto=2;
-                imgFoto2();
+                imgFoto2Offline();
+                /*if (Offline){
+                    imgFoto2Offline();
+                }else {
+                    imgFoto2();
+                }*/
                 registrar2.setVisibility(View.GONE);
                 foto2.setVisibility(View.VISIBLE);
             }
@@ -163,7 +192,12 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
             @Override
             public void onClick(View v) {
                 foto=3;
-                imgFoto3();
+                imgFoto3Offline();
+                /*if (Offline){
+                    imgFoto3Offline();
+                }else {
+                    imgFoto3();
+                }*/
                 registrar3.setVisibility(View.GONE);
                 foto3.setVisibility(View.VISIBLE);
             }
@@ -184,7 +218,7 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
         });
 
         pd= new ProgressDialog(this);
-        pd.setMessage("Subiendo Foto 1...");
+        pd.setMessage("Registrando...");
 
         pd2= new ProgressDialog(this);
         pd2.setMessage("Subiendo Foto 2...");
@@ -270,6 +304,36 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
     //IMAGEN FOTO
 
 
+    public void imgFotoOffline(){
+        Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+
+            File foto=null;
+            try {
+                nombreImagen1 = "app"+numero_aletorio+numero_aletorio3+".png";
+                foto= new File(getApplication().getExternalFilesDir(null),nombreImagen1);
+                rutaImagen1 = foto.getAbsolutePath();
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(IncidenciaActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+
+                uri_img= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img);
+                startActivityForResult(intentCaptura, 0);
+            }
+        }
+    }
 
     public void imgFoto(){
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -300,6 +364,34 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
         }
     }
 
+    public void imgFoto2Offline(){
+        Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+            File foto=null;
+            try {
+                nombreImagen2 = "app"+numero_aletorio2+numero_aletorio+".png";
+                foto = new File(getApplication().getExternalFilesDir(null),nombreImagen2);
+                rutaImagen2 = foto.getAbsolutePath();
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(IncidenciaActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+                uri_img2= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img2);
+                startActivityForResult( intentCaptura, 1);
+            }
+        }
+    }
 
     public void imgFoto2(){
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -328,6 +420,35 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
         }
     }
 
+    public void imgFoto3Offline(){
+        Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+
+            File foto=null;
+            try {
+                nombreImagen3 = "app"+numero_aletorio3+numero_aletorio2+".png";
+                foto = new File(getApplication().getExternalFilesDir(null),nombreImagen3);
+                rutaImagen3 = foto.getAbsolutePath();
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(IncidenciaActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+                uri_img3= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img3);
+                startActivityForResult( intentCaptura, 2);
+            }
+        }
+    }
 
     public void imgFoto3(){
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -369,8 +490,7 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
             if (requestCode == 0) {
 
 
-                Bitmap bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/incidencia1.png");
-
+                Bitmap bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/"+nombreImagen1);
 
                 registrar1.setVisibility(View.GONE);
                 Viewfoto1.setVisibility(View.VISIBLE);
@@ -385,7 +505,7 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
             if (requestCode == 1) {
 
 
-                Bitmap bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/incidencia2.png");
+                Bitmap bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/"+nombreImagen2);
 
                 Viewfoto2.setVisibility(View.VISIBLE);
                 view_foto2.setVisibility(View.VISIBLE);
@@ -400,7 +520,7 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
             if (requestCode == 2) {
 
 
-                Bitmap bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/incidencia3.png");
+                Bitmap bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/"+nombreImagen3);
 
 
                 Viewfoto3.setVisibility(View.VISIBLE);
@@ -434,6 +554,7 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
                 .setMessage("¿ Desea registrar la incidencia ?")
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        pd.show();
                         Registrar(Ids);
                         btnContinuar.setEnabled(false);
                         btnContinuar3.setEnabled(false);
@@ -464,6 +585,7 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
 
 
                 if(response.equals("error")){
+                    pd.dismiss();
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(IncidenciaActivity.this);
                     alertDialogBuilder.setTitle("Alerta");
                     alertDialogBuilder
@@ -478,6 +600,7 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
                 }else {
 
                     if(Id==1){
+                        pd.dismiss();
 
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(IncidenciaActivity.this);
                         alertDialogBuilder.setTitle("Alerta");
@@ -492,16 +615,29 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
                                 }).create().show();
 
                     }else if(Id==2){
-                        upload1();
+                        ContentValues val_img4 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/incidencias/"+nombreImagen1.trim(), rutaImagen1);
+                        Uri uri4 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img4);
+
                         terminar();
                     }else if(Id==3){
-                        upload1();
-                        upload2();
+                        ContentValues val_img4 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/incidencias/"+nombreImagen1.trim(), rutaImagen1);
+                        Uri uri4 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img4);
+
+                        ContentValues val_img5 =  ValuesImagen(nombreImagen2, Conf.getPin()+"/incidencias/"+nombreImagen2.trim(), rutaImagen2);
+                        Uri uri5 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img5);
+
                         terminar();
                     }else if(Id==4){
-                        upload1();
-                        upload2();
-                        upload3();
+
+                        ContentValues val_img4 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/incidencias/"+nombreImagen1.trim(), rutaImagen1);
+                        Uri uri4 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img4);
+
+                        ContentValues val_img5 =  ValuesImagen(nombreImagen2, Conf.getPin()+"/incidencias/"+nombreImagen2.trim(), rutaImagen2);
+                        Uri uri5 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img5);
+
+                        ContentValues val_img6 =  ValuesImagen(nombreImagen3, Conf.getPin()+"/incidencias/"+nombreImagen3.trim(), rutaImagen3);
+                        Uri uri6 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img6);
+
                         terminar();
                     }
                 }
@@ -548,6 +684,14 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
             }
         };
         requestQueue.add(stringRequest);
+    }
+
+    public ContentValues ValuesImagen(String nombre, String rutaFirebase, String rutaDispositivo){
+        ContentValues values = new ContentValues();
+        values.put("titulo", nombre);
+        values.put("direccionFirebase", rutaFirebase);
+        values.put("rutaDispositivo", rutaDispositivo);
+        return values;
     }
 
     public void upload1() {
@@ -657,17 +801,40 @@ public class IncidenciaActivity  extends mx.linkom.caseta_grupokap.Menu{
     }
 
     private void terminar() {
+
+        pd.dismiss();
+
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(IncidenciaActivity.this);
         alertDialogBuilder.setTitle("Alerta");
         alertDialogBuilder
                 .setMessage("Registro de Incidencia Exitosa")
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+
+                        //Solo ejecutar si el servicio no se esta ejecutando
+                        if (!servicioFotos()){
+                            Intent cargarFotos = new Intent(IncidenciaActivity.this, subirFotos.class);
+                            startService(cargarFotos);
+                        }
+
                         Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.ReportesActivity.class);
                         startActivity(i);
                         finish();
                     }
                 }).create().show();
+    }
+
+    //Método para saber si es que el servicio ya se esta ejecutando
+    public boolean servicioFotos(){
+        //Obtiene los servicios que se estan ejecutando
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        //Se recorren todos los servicios obtnidos para saber si el servicio creado ya se esta ejecutando
+        for(ActivityManager.RunningServiceInfo service: activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if(subirFotos.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

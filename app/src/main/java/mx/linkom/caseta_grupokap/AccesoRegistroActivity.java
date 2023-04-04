@@ -1,7 +1,9 @@
 package mx.linkom.caseta_grupokap;
 
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -62,6 +64,7 @@ import java.util.Random;
 
 import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
 import mx.linkom.caseta_grupokap.offline.Global_info;
+import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
 
 
 public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
@@ -94,7 +97,8 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
 
     ImageView iconoInternet;
     boolean Offline = false;
-    String rutaImagen1, rutaImagen2, rutaImagen3;
+    String rutaImagen1, rutaImagen2, rutaImagen3, rutaImagenPlaca="", nombreImagen1, nombreImagen2, nombreImagen3, nombreImagenPlaca="";
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -211,7 +215,7 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
         }
 
         pd= new ProgressDialog(this);
-        pd.setMessage("Subiendo Imagen 1...");
+        pd.setMessage("Registrando...");
 
         pd2= new ProgressDialog(this);
         pd2.setMessage("Subiendo Imagen 2...");
@@ -253,11 +257,12 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
             @Override
             public void onClick(View v) {
                 foto=1;
-                if (Offline){
+                imgFotoOffline();
+                /*if (Offline){
                     imgFotoOffline();
                 }else {
                     imgFoto();
-                }
+                }*/
             }
         });
 
@@ -265,11 +270,12 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
             @Override
             public void onClick(View v) {
                 foto=2;
-                if (Offline){
+                imgFoto2Offline();
+                /*if (Offline){
                     imgFoto2Offline();
                 }else {
                     imgFoto2();
-                }
+                }*/
             }
         });
 
@@ -277,11 +283,12 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
             @Override
             public void onClick(View v) {
                 foto=3;
-                if (Offline){
+                imgFoto3Offline();
+                /*if (Offline){
                     imgFoto3Offline();
                 }else {
                     imgFoto3();
-                }
+                }*/
             }
         });
         Placas.setText(Conf.getPlacas().trim());
@@ -436,7 +443,8 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
 
             File foto=null;
             try {
-                foto= new File(getApplication().getExternalFilesDir(null),"app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png");
+                nombreImagen1 = "app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png";
+                foto= new File(getApplication().getExternalFilesDir(null),nombreImagen1);
                 rutaImagen1 = foto.getAbsolutePath();
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesoRegistroActivity.this);
@@ -495,7 +503,8 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
         if (intentCaptura.resolveActivity(getPackageManager()) != null) {
             File foto=null;
             try {
-                foto = new File(getApplication().getExternalFilesDir(null),"app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png");
+                nombreImagen2 = "app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png";
+                foto = new File(getApplication().getExternalFilesDir(null),nombreImagen2);
                 rutaImagen2 = foto.getAbsolutePath();
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesoRegistroActivity.this);
@@ -551,7 +560,8 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
 
             File foto=null;
             try {
-                foto = new File(getApplication().getExternalFilesDir(null),"app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png");
+                nombreImagen3 = "app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png";
+                foto = new File(getApplication().getExternalFilesDir(null),nombreImagen3);
                 rutaImagen3 = foto.getAbsolutePath();
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesoRegistroActivity.this);
@@ -612,12 +622,13 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
 
                 Bitmap bitmap;
 
-                if (Offline){
+                bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/"+nombreImagen1);
+
+                /*if (Offline){
                     bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png");
                 }else {
                     bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosRegistro1.png");
-                }
-
+                }*/
 
                 Foto1View.setVisibility(View.VISIBLE);
                 view1.setVisibility(View.VISIBLE);
@@ -656,11 +667,13 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
 
 
                 Bitmap bitmap2;
-                if (Offline){
+                bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/"+nombreImagen2);
+
+                /*if (Offline){
                     bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png");
                 }else {
                     bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosRegistro2.png");
-                }
+                }*/
 
                 Foto2View.setVisibility(View.VISIBLE);
                 view2.setVisibility(View.VISIBLE);
@@ -693,11 +706,12 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
 
 
                 Bitmap bitmap3;
-                if (Offline){
+                bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/"+nombreImagen3);
+                /*if (Offline){
                     bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png");
                 }else {
                     bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesosRegistro3.png");
-                }
+                }*/
 
                 Foto3View.setVisibility(View.VISIBLE);
                 view3.setVisibility(View.VISIBLE);
@@ -1084,6 +1098,7 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
                         if (Offline){
                             busquedaOffline();
                         }else {
+                            pd.show();
                             busqueda();
                         }
                     }
@@ -1291,6 +1306,7 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
     public void busqueda(){
 
         if(Calle.getSelectedItem().equals("Seleccionar..") || Calle.getSelectedItem().equals("Seleccionar...") || Numero.getSelectedItem().equals("Seleccionar...")){
+            pd.dismiss();
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesoRegistroActivity.this);
             alertDialogBuilder.setTitle("Alerta");
             alertDialogBuilder
@@ -1310,7 +1326,7 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
                 public void onResponse(String response) {
 
                     if (response.equals("error")) {
-
+                        pd.dismiss();
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesoRegistroActivity.this);
                         alertDialogBuilder.setTitle("Alerta");
                         alertDialogBuilder
@@ -1334,6 +1350,7 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    pd.dismiss();
                     Log.e("TAG", "Error: " + error.toString());
                 }
             }) {
@@ -1599,10 +1616,13 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
 
 
         if(Placas.getText().toString().equals("") && si.isChecked()){
+            pd.dismiss();
             Toast.makeText(getApplicationContext(),"Campo de placas", Toast.LENGTH_SHORT).show();
         }else if(Placas.getText().toString().equals(" ") && si.isChecked()){
+            pd.dismiss();
             Toast.makeText(getApplicationContext(),"Campo de placas ", Toast.LENGTH_SHORT).show();
         }else if( Placas.getText().toString().equals("N/A") && si.isChecked() ){
+            pd.dismiss();
             Toast.makeText(getApplicationContext(),"Campo de placas", Toast.LENGTH_SHORT).show();
         }else{
 
@@ -1614,6 +1634,7 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
                 public void onResponse(String response){
 
                     if(response.equals("error")){
+                        pd.dismiss();
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesoRegistroActivity.this);
                         alertDialogBuilder.setTitle("Alerta");
                         alertDialogBuilder
@@ -1630,23 +1651,42 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
                         Conf.setQR(response);
                         try {
                             if(ja3.getString(0).equals("0") || ja3.getString(3).equals("0")) {
-                                Terminar();
+                                //Terminar();
                             }else if(ja3.getString(3).equals("1") && ja3.getString(5).equals("0") && ja3.getString(7).equals("0")){
-                                upload1();
-                                Terminar();
+
+                                ContentValues val_img1 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/caseta/"+nombreImagen1.trim(), rutaImagen1);
+                                Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
+                                //Terminar();
                             }else if(ja3.getString(3).equals("1") && ja3.getString(5).equals("1") && ja3.getString(7).equals("0")){
-                                upload1();
-                                upload2();
-                                Terminar();
+
+                                ContentValues val_img1 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/caseta/"+nombreImagen1.trim(), rutaImagen1);
+                                Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
+                                ContentValues val_img2 =  ValuesImagen(nombreImagen2, Conf.getPin()+"/caseta/"+nombreImagen2.trim(), rutaImagen2);
+                                Uri uri2 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img2);
+
+                                //Terminar();
                             }else if(ja3.getString(3).equals("1") && ja3.getString(5).equals("1") && ja3.getString(7).equals("1")){
-                                upload1();
-                                upload2();
-                                upload3();
-                                Terminar();
+
+                                ContentValues val_img1 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/caseta/"+nombreImagen1.trim(), rutaImagen1);
+                                Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
+                                ContentValues val_img2 =  ValuesImagen(nombreImagen2, Conf.getPin()+"/caseta/"+nombreImagen2.trim(), rutaImagen2);
+                                Uri uri2 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img2);
+
+                                ContentValues val_img3 =  ValuesImagen(nombreImagen3, Conf.getPin()+"/caseta/"+nombreImagen3.trim(), rutaImagen3);
+                                Uri uri3 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img3);
+
+
                             }
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+
+                        pd.dismiss();
+                        Terminar();
 
                     }
                 }
@@ -1839,13 +1879,22 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
 
     public void Terminar() {
 
-
+        pd.dismiss();
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(AccesoRegistroActivity.this);
         alertDialogBuilder.setTitle("Alerta");
         alertDialogBuilder
                 .setMessage("Entrada de Visita Exitosa")
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+
+                        if (!Offline){
+                            //Solo ejecutar si el servicio no se esta ejecutando
+                            if (!servicioFotos()){
+                                Intent cargarFotos = new Intent(AccesoRegistroActivity.this, subirFotos.class);
+                                startService(cargarFotos);
+                            }
+                        }
+
                         if(Integer.parseInt(Conf.getTicketE())==1){
                             Imprimir();
                         }else {
@@ -1882,6 +1931,19 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
                     }
                 }).create().show();
 
+    }
+
+    //Método para saber si es que el servicio ya se esta ejecutando
+    public boolean servicioFotos(){
+        //Obtiene los servicios que se estan ejecutando
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        //Se recorren todos los servicios obtnidos para saber si el servicio creado ya se esta ejecutando
+        for(ActivityManager.RunningServiceInfo service: activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if(subirFotos.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

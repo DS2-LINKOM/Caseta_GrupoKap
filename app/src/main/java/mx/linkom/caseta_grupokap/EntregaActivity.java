@@ -1,6 +1,9 @@
 package mx.linkom.caseta_grupokap;
 
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -45,6 +48,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
+import mx.linkom.caseta_grupokap.offline.Global_info;
+import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
+
 public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
 
     TextView setNumero,setComent,setPara;
@@ -59,6 +66,9 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
     Bitmap bitmap;
     String fotos;
     Uri uri_img;
+
+    TextView txtFoto;
+    String rutaImagen1, nombreImagen1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +94,12 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
         espacio2 = (LinearLayout) findViewById(R.id.espacio2);
         BtnReg = (LinearLayout) findViewById(R.id.BtnReg);
 
+        txtFoto = (TextView) findViewById(R.id.txtFotoEntrega);
+
+        txtFoto.setText(Global_info.getTexto1Imagenes());
+
         pd= new ProgressDialog(this);
-        pd.setMessage("Subiendo Imagen ...");
+        pd.setMessage("Registrando...");
 
         check();
 
@@ -229,12 +243,17 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
                             .error(R.drawable.log)
                             .centerInside()
                             .into(foto_recep);
+
+                    txtFoto.setVisibility(android.view.View.GONE);
+                    foto_recep.setVisibility(android.view.View.VISIBLE);
+
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
                     Log.e("TAG","Error123: " + exception);
 
+                    txtFoto.setText(Global_info.getTexto2Imagenes());
                 }
             });
 
@@ -258,7 +277,9 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
 
             File foto=null;
             try {
-                foto= new File(getApplication().getExternalFilesDir(null),"entrega.png");
+                nombreImagen1 = "app"+ja1.getString(2)+"-"+numero_aletorio+".png";
+                foto= new File(getApplication().getExternalFilesDir(null),nombreImagen1);
+                rutaImagen1 = foto.getAbsolutePath();
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EntregaActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
@@ -289,8 +310,7 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
             if (requestCode == 0) {
 
 
-                Bitmap bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/entrega.png");
-
+                Bitmap bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/"+nombreImagen1);
 
                 View.setVisibility(android.view.View.VISIBLE);
                 viewFoto.setVisibility(android.view.View.VISIBLE);
@@ -313,6 +333,7 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
+                        pd.show();
                         Registrar();
                     }
                 })
@@ -339,6 +360,8 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
 
 
                 if(response.equals("error")){
+                    pd.dismiss();
+
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EntregaActivity.this);
                     alertDialogBuilder.setTitle("Alerta");
                     alertDialogBuilder
@@ -352,13 +375,20 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
                             }).create().show();
                 }else {
 
-                        upload1();
+                    //Registrar fotos en SQLite
+                    ContentValues val_img1 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/correspondencia/"+nombreImagen1.trim(), rutaImagen1);
+                    Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
+                    pd.dismiss();
+                    terminar();
+                        //upload1();
 
                 }
             }
         }, new Response.ErrorListener(){
             @Override
             public void onErrorResponse(VolleyError error) {
+                pd.dismiss();
                 Log.e("TAG","Error: " + error.toString());
             }
         }){
@@ -391,6 +421,13 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
 
     }
 
+    public ContentValues ValuesImagen(String nombre, String rutaFirebase, String rutaDispositivo){
+        ContentValues values = new ContentValues();
+        values.put("titulo", nombre);
+        values.put("direccionFirebase", rutaFirebase);
+        values.put("rutaDispositivo", rutaDispositivo);
+        return values;
+    }
 
 
     public void upload1(){
@@ -439,6 +476,13 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
                 .setMessage("Entrega Exitosa")
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+
+                        //Solo ejecutar si el servicio no se esta ejecutando
+                        if (!servicioFotos()){
+                            Intent cargarFotos = new Intent(EntregaActivity.this, subirFotos.class);
+                            startService(cargarFotos);
+                        }
+
                         Intent i = new Intent(getApplicationContext(), CorrespondenciaActivity.class);
                         startActivity(i);
                         finish();
@@ -446,6 +490,19 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
                 }).create().show();
     }
 
+
+    //Método para saber si es que el servicio ya se esta ejecutando
+    public boolean servicioFotos(){
+        //Obtiene los servicios que se estan ejecutando
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        //Se recorren todos los servicios obtnidos para saber si el servicio creado ya se esta ejecutando
+        for(ActivityManager.RunningServiceInfo service: activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if(subirFotos.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     @Override

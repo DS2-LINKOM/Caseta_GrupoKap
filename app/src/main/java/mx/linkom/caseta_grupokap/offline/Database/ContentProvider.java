@@ -112,7 +112,11 @@ public class ContentProvider extends android.content.ContentProvider {
                 cursor = bd.rawQuery("SELECT * FROM incidencias WHERE sqliteEstatus = 1",null);
                 break;
             case FOTOS_OFFLINE:
-                cursor = bd.rawQuery("SELECT titulo, direccionFirebase, rutaDispositivo FROM fotosOffline WHERE rutaDispositivo != '' ",null);
+                if (selection.trim().equals("todos")){
+                    cursor = bd.rawQuery("SELECT titulo, direccionFirebase, rutaDispositivo FROM fotosOffline WHERE rutaDispositivo != '' ",null);
+                }else if (selection.trim().equals("uno")){
+                    cursor = bd.rawQuery("SELECT titulo, direccionFirebase, rutaDispositivo FROM fotosOffline WHERE titulo = "+"'"+selectionArgs[0]+"'"+" ",null);
+                }
                 break;
             case RONDINES_UBICACIONES:
                 String usuario = selectionArgs[0];

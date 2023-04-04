@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="mx.linkom.caseta_grupokap">
 
-
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -16,13 +15,12 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="true"></uses-feature>
+        android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -36,13 +34,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        android:windowSoftInputMode="stateVisible|adjustResize"
-        >
-
+        android:windowSoftInputMode="stateVisible|adjustResize">
+        <activity
+            android:name=".fotosPendientes"
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBzwyxjKlYJnnIlkML4bfsDmuQId-zP4oI" />
+
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
@@ -64,7 +64,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".EntradasSalidasActivity"
             android:label="@string/app_name"
@@ -76,7 +75,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ReportesActivity"
             android:label="@string/app_name"
@@ -88,7 +86,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".IncidenciaActivity"
             android:label="@string/app_name"
@@ -100,7 +97,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".PlacasActivity"
             android:label="@string/app_name"
@@ -112,8 +108,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".EscaneoTrabajadorActivity"
             android:label="@string/app_name"
@@ -136,7 +130,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".EscaneoVisitaActivity"
             android:label="@string/app_name"
@@ -148,7 +141,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".EscaneoVisitaSalidaActivity"
             android:label="@string/app_name"
@@ -160,7 +152,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".EscaneoTrabajadorEntradaActivity"
             android:label="@string/app_name"
@@ -172,7 +163,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".EscaneoTrabajadorSalidaActivity"
             android:label="@string/app_name"
@@ -184,7 +174,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".AccesosActivity"
             android:label="@string/app_name"
@@ -196,7 +185,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".AccesosSalidasActivity"
             android:label="@string/app_name"
@@ -230,7 +218,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".AccesosTrabajadorSalidaActivity"
             android:label="@string/app_name"
@@ -242,7 +229,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".BitacoraTrabajadorActivity"
             android:label="@string/app_name"
@@ -254,7 +240,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".RecepcionActivity"
             android:label="@string/app_name"
@@ -266,7 +251,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".EntregaFolio"
             android:label="@string/app_name"
@@ -278,7 +262,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".EntregaActivity"
             android:label="@string/app_name"
@@ -290,7 +273,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".AccesoRegistroActivity"
             android:label="@string/app_name"
@@ -302,8 +284,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".PreEntradasActivity"
             android:label="@string/app_name"
@@ -315,7 +295,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".AccesosMultiplesActivity"
             android:label="@string/app_name"
@@ -327,7 +306,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".AccesosMultiplesSalidasActivity"
             android:label="@string/app_name"
@@ -350,8 +328,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".RondinInfoActivity"
             android:label="@string/app_name"
@@ -363,7 +339,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ListaRondinesActivity"
             android:label="@string/app_name"
@@ -375,7 +350,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ListaRondinesUbicacionesActivity"
             android:label="@string/app_name"
@@ -387,7 +361,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".RondinIncidencias"
             android:label="@string/app_name"
@@ -399,7 +372,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ListaGrupalEntradaActivity"
             android:label="@string/app_name"
@@ -411,7 +383,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".AccesosGrupalActivity"
             android:label="@string/app_name"
@@ -423,7 +394,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ListaGrupalSalidaActivity"
             android:label="@string/app_name"
@@ -435,7 +405,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".AccesosSalidasGrupalActivity"
             android:label="@string/app_name"
@@ -447,7 +416,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".Rondines"
             android:label="@string/app_name"
@@ -459,8 +427,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".ListaRondinesUbicacionesQrActivity"
             android:label="@string/app_name"
@@ -472,7 +438,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".RondinInfoQrActivity"
             android:label="@string/app_name"
@@ -484,7 +449,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".RondinIncidenciasQr"
             android:label="@string/app_name"
@@ -496,7 +460,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".EntradasQrActivity"
             android:label="@string/app_name"
@@ -508,7 +471,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".PreEntradasQrActivity"
             android:label="@string/app_name"
@@ -520,7 +482,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".PreEntradasMultiplesQrActivity"
             android:label="@string/app_name"
@@ -532,8 +493,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".PreEntradasGrupalActivity"
             android:label="@string/app_name"
@@ -545,7 +504,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".TicketImprimirActivity"
             android:label="@string/app_name"
@@ -557,8 +515,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".RecepcionVisitasActivity"
             android:label="@string/app_name"
@@ -570,8 +526,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".VisitasRecepEntradasDetalle"
             android:label="@string/app_name"
@@ -583,7 +537,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".VisitasRecepSalidasDetalle"
             android:label="@string/app_name"
@@ -595,8 +548,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".RegTrabActivity"
             android:label="@string/app_name"
@@ -608,8 +559,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-
         <activity
             android:name=".RegTrab2Activity"
             android:label="@string/app_name"
@@ -619,10 +568,8 @@
                 <action android:name="VisitasRecepSalidasDetalle" />
 
                 <category android:name="android.intent.category.DEFAULT" />
-
             </intent-filter>
         </activity>
-
         <activity
             android:name=".RegTrab3Activity"
             android:label="@string/app_name"
@@ -634,7 +581,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/AppThemes" />
@@ -649,9 +595,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service android:name=".offline.Servicios.testInternet" />
-
         <service android:name=".offline.Servicios.subirFotos" />
 
         <uses-library
@@ -659,19 +603,18 @@
             android:required="false" />
 
         <provider
-            android:authorities="mx.linkom.caseta_grupokap.provider"
             android:name="androidx.core.content.FileProvider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:authorities="mx.linkom.caseta_grupokap.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"/>
+                android:resource="@xml/file_paths" />
         </provider>
-
         <provider
-            android:authorities="mx.linkom.caseta_grupokap"
             android:name=".offline.Database.ContentProvider"
-            android:exported="false"/>
+            android:authorities="mx.linkom.caseta_grupokap"
+            android:exported="false" />
     </application>
 
 </manifest>

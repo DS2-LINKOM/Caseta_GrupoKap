@@ -443,13 +443,26 @@
                     android:paddingBottom="12dp"
                     android:visibility="visible">
 
+                    <TextView
+                        android:id="@+id/txtFotoAccesosGrupalesSalidas1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/negrita"
+                        android:paddingTop="50dp"
+                        android:paddingBottom="50dp"
+                        android:text="Cargando fotografía"
+                        android:textAlignment="center"
+                        android:textColor="@color/fontColorGris"
+                        android:textSize="@dimen/fontSize" />
+
                     <ImageView
                         android:id="@+id/view1"
                         android:layout_width="match_parent"
                         android:layout_height="161dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
-                        />
+                        android:visibility="gone" />
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/espacio3"
@@ -516,13 +529,26 @@
                     android:paddingBottom="12dp"
                     android:visibility="visible">
 
+                    <TextView
+                        android:id="@+id/txtFotoAccesosGrupalesSalidas2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/negrita"
+                        android:paddingTop="50dp"
+                        android:paddingBottom="50dp"
+                        android:text="Cargando fotografía"
+                        android:textAlignment="center"
+                        android:textColor="@color/fontColorGris"
+                        android:textSize="@dimen/fontSize" />
+
                     <ImageView
                         android:id="@+id/view2"
                         android:layout_width="match_parent"
                         android:layout_height="161dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
-                        />
+                        android:visibility="gone" />
 
                 </LinearLayout>
                 <LinearLayout
@@ -590,13 +616,26 @@
                     android:paddingBottom="12dp"
                     android:visibility="visible">
 
+                    <TextView
+                        android:id="@+id/txtFotoAccesosGrupalesSalidas3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/negrita"
+                        android:paddingTop="50dp"
+                        android:paddingBottom="50dp"
+                        android:text="Cargando fotografía"
+                        android:textAlignment="center"
+                        android:textColor="@color/fontColorGris"
+                        android:textSize="@dimen/fontSize" />
+
                     <ImageView
                         android:id="@+id/view3"
                         android:layout_width="match_parent"
                         android:layout_height="161dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
-                        />
+                        android:visibility="gone" />
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/espacio9"

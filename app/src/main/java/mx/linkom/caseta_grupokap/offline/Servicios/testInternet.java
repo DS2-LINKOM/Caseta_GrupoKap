@@ -212,35 +212,24 @@ public class testInternet extends Service {
                         //Solo ejecutar si el servicio no se esta ejecutando
                         if (!servicioFotos()){
                             Cursor cursoFotos = null;
+                            Boolean subir = false;
 
-                            cursoFotos = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE,null,null,null);
-
-                            ArrayList<String> titulos = new ArrayList<String>();
-                            ArrayList<String> direccionesFirebase = new ArrayList<String>();
-                            ArrayList<String> rutasDispositivo = new ArrayList<String>();
+                            cursoFotos = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE,null,"todos", null,null);
 
                             if (cursoFotos.moveToFirst()){
                                 do {
-                                    titulos.add(cursoFotos.getString(0));
-                                    direccionesFirebase.add(cursoFotos.getString(1));
-                                    rutasDispositivo.add(cursoFotos.getString(2));
-
+                                    subir = true;
                                 } while (cursoFotos.moveToNext());
-                            }
+                            }else subir=false;
 
                             cursoFotos.close();
 
-
-                            //Si hay fotos sin subir iniciar servicio para subir fotos a firebase
-
-                            if (titulos.size() > 0 && direccionesFirebase.size() > 0){
+                            if (subir){
                                 System.out.println("Si hay fotos para subir");
                                 Intent cargarFotos = new Intent(testInternet.this, subirFotos.class);
-                                cargarFotos.putExtra("nombres", titulos);
-                                cargarFotos.putExtra("direccionesFirebase", direccionesFirebase);
-                                cargarFotos.putExtra("rutasDispositivo", rutasDispositivo);
                                 startService(cargarFotos);
                             }
+
                         }
 
 

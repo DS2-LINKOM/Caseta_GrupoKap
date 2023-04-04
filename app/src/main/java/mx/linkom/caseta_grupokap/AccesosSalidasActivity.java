@@ -71,6 +71,9 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
     ImageView iconoInternet;
     boolean Offline = false;
 
+    TextView txtFoto1, txtFoto2, txtFoto3, txtFotoPlaca;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +116,14 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
         view1 = (ImageView) findViewById(R.id.view1);
         view2 = (ImageView) findViewById(R.id.view2);
         view3 = (ImageView) findViewById(R.id.view3);
+
+        txtFoto1 = (TextView) findViewById(R.id.txtFotoAccesosSalidas1);
+        txtFoto2 = (TextView) findViewById(R.id.txtFotoAccesosSalidas2);
+        txtFoto3 = (TextView) findViewById(R.id.txtFotoAccesosSalidas3);
+
+        txtFoto1.setText(Global_info.getTexto1Imagenes());
+        txtFoto2.setText(Global_info.getTexto1Imagenes());
+        txtFoto3.setText(Global_info.getTexto1Imagenes());
 
         rlVista = (LinearLayout) findViewById(R.id.rlVista);
         rlPermitido = (LinearLayout) findViewById(R.id.rlPermitido);
@@ -709,6 +720,7 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                     espacio2.setVisibility(View.GONE);
                     Foto1View.setVisibility(View.GONE);
                     espacio3.setVisibility(View.GONE);
+                    txtFoto1.setVisibility(View.GONE);
 
                 }else{
                     nombre_foto1.setText(ja6.getString(4)+":");
@@ -725,14 +737,17 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                                                .error(R.drawable.log)
                                                .centerInside()
                                                .into(view1);
+                                       txtFoto1.setVisibility(android.view.View.GONE);
+                                       view1.setVisibility(android.view.View.VISIBLE);
                                    }
                                }).addOnFailureListener(new OnFailureListener() {
                                    @Override
                                    public void onFailure(@NonNull Exception exception) {
                                        // Handle any errors
+                                       txtFoto1.setText(Global_info.getTexto2Imagenes());
                                    }
                                });
-                   }
+                   }else txtFoto1.setText(Global_info.getTexto3Imagenes());
                 }
 
                 //FOTO2
@@ -741,6 +756,7 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                     espacio5.setVisibility(View.GONE);
                     Foto2View.setVisibility(View.GONE);
                     espacio6.setVisibility(View.GONE);
+                    txtFoto2.setVisibility(View.GONE);
                 }else{
                     nombre_foto2.setText(ja6.getString(6)+":");
 
@@ -756,14 +772,17 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                                                .error(R.drawable.log)
                                                .centerInside()
                                                .into(view2);
+                                       txtFoto2.setVisibility(android.view.View.GONE);
+                                       view2.setVisibility(android.view.View.VISIBLE);
                                    }
                                }).addOnFailureListener(new OnFailureListener() {
                                    @Override
                                    public void onFailure(@NonNull Exception exception) {
                                        // Handle any errors
+                                       txtFoto2.setVisibility(View.GONE);
                                    }
                                });
-                   }
+                   }else txtFoto2.setText(Global_info.getTexto3Imagenes());
                 }
                 //FOTO3
                 if(ja4.getString(5).equals("")){
@@ -771,6 +790,7 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                     espacio8.setVisibility(View.GONE);
                     Foto3View.setVisibility(View.GONE);
                     espacio9.setVisibility(View.GONE);
+                    txtFoto3.setVisibility(View.GONE);
                 }else{
                     nombre_foto3.setText(ja6.getString(8)+":");
 
@@ -786,14 +806,19 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                                                .error(R.drawable.log)
                                                .centerInside()
                                                .into(view3);
+
+                                       txtFoto3.setVisibility(android.view.View.GONE);
+                                       view3.setVisibility(android.view.View.VISIBLE);
                                    }
                                }).addOnFailureListener(new OnFailureListener() {
                                    @Override
                                    public void onFailure(@NonNull Exception exception) {
                                        // Handle any errors
+                                       txtFoto3.setText(Global_info.getTexto2Imagenes());
+
                                    }
                                });
-                   }
+                   }else txtFoto3.setText(Global_info.getTexto3Imagenes());
                 }
 
             }else{
@@ -850,6 +875,7 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                                 espacio2.setVisibility(View.GONE);
                                 Foto1View.setVisibility(View.GONE);
                                 espacio3.setVisibility(View.GONE);
+                                txtFoto1.setVisibility(View.GONE);
 
                             }else{
                                 nombre_foto1.setText(ja6.getString(4)+":");
@@ -866,14 +892,19 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                                                            .error(R.drawable.log)
                                                            .centerInside()
                                                            .into(view1);
+
+                                                   txtFoto1.setVisibility(android.view.View.GONE);
+                                                   view1.setVisibility(android.view.View.VISIBLE);
                                                }
                                            }).addOnFailureListener(new OnFailureListener() {
                                                @Override
                                                public void onFailure(@NonNull Exception exception) {
                                                    // Handle any errors
+                                                   txtFoto1.setText(Global_info.getTexto2Imagenes());
+
                                                }
                                            });
-                               }
+                               }else txtFoto1.setText(Global_info.getTexto3Imagenes());
                             }
 
                             //FOTO2
@@ -882,6 +913,7 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                                 espacio5.setVisibility(View.GONE);
                                 Foto2View.setVisibility(View.GONE);
                                 espacio6.setVisibility(View.GONE);
+                                txtFoto2.setVisibility(View.GONE);
                             }else{
                                 nombre_foto2.setText(ja6.getString(6)+":");
 
@@ -897,14 +929,18 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                                                            .error(R.drawable.log)
                                                            .centerInside()
                                                            .into(view2);
+
+                                                   txtFoto2.setVisibility(android.view.View.GONE);
+                                                   view2.setVisibility(android.view.View.VISIBLE);
                                                }
                                            }).addOnFailureListener(new OnFailureListener() {
                                                @Override
                                                public void onFailure(@NonNull Exception exception) {
                                                    // Handle any errors
+                                                   txtFoto2.setText(Global_info.getTexto2Imagenes());
                                                }
                                            });
-                               }
+                               }else txtFoto2.setText(Global_info.getTexto3Imagenes());
                             }
                             //FOTO3
                             if(ja4.getString(5).equals("")){
@@ -912,6 +948,7 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                                 espacio8.setVisibility(View.GONE);
                                 Foto3View.setVisibility(View.GONE);
                                 espacio9.setVisibility(View.GONE);
+                                txtFoto3.setVisibility(View.GONE);
                             }else{
                                 nombre_foto3.setText(ja6.getString(8)+":");
 
@@ -927,14 +964,18 @@ public class AccesosSalidasActivity extends mx.linkom.caseta_grupokap.Menu {
                                                            .error(R.drawable.log)
                                                            .centerInside()
                                                            .into(view3);
+
+                                                   txtFoto3.setVisibility(android.view.View.GONE);
+                                                   view3.setVisibility(android.view.View.VISIBLE);
                                                }
                                            }).addOnFailureListener(new OnFailureListener() {
                                                @Override
                                                public void onFailure(@NonNull Exception exception) {
                                                    // Handle any errors
+                                                   txtFoto3.setText(Global_info.getTexto2Imagenes());
                                                }
                                            });
-                               }
+                               }else txtFoto3.setText(Global_info.getTexto3Imagenes());
                             }
 
                         }else if(ja4.getString(2).equals("2")){ //SALIO Y ENTRO PERO QUIERE VOLVER A SALIR

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:fontFamily="@font/fontNegritaC"
 
     >
@@ -19,6 +20,15 @@
                 app:showAsAction="ifRoom"
 
                 />
+
+    <item
+        android:id="@+id/subirFotos"
+        android:title="Fotos pendientes"
+        android:visibility="visible"
+        android:icon="@drawable/subir_fotos_icon"
+        app:actionLayout="@id/Inicio"
+        app:showAsAction="always"
+        tools:visibility="visible" />
 
     <item
         android:id="@+id/Cerrar"

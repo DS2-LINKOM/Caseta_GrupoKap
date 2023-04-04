@@ -39,6 +39,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import mx.linkom.caseta_grupokap.offline.Global_info;
+
 public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu {
     Configuracion Conf;
     FirebaseStorage storage;
@@ -59,6 +61,8 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
     LinearLayout Foto1, Foto2,Foto3,Foto1View,Foto2View,Foto3View,espacio2,espacio3,espacio4,espacio5,espacio6,espacio8,espacio9,espacio10;
     LinearLayout PlacasL;
     EditText Comentarios;
+
+    TextView txtFoto1, txtFoto2, txtFoto3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +106,14 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
         view1 = (ImageView) findViewById(R.id.view1);
         view2 = (ImageView) findViewById(R.id.view2);
         view3 = (ImageView) findViewById(R.id.view3);
+
+        txtFoto1 = (TextView) findViewById(R.id.txtFotoVisitasRecepEntradasDetalle1);
+        txtFoto2 = (TextView) findViewById(R.id.txtFotoVisitasRecepEntradasDetalle2);
+        txtFoto3 = (TextView) findViewById(R.id.txtFotoVisitasRecepEntradasDetalle3);
+
+        txtFoto1.setText(Global_info.getTexto1Imagenes());
+        txtFoto2.setText(Global_info.getTexto1Imagenes());
+        txtFoto3.setText(Global_info.getTexto1Imagenes());
 
         rlVista = (LinearLayout) findViewById(R.id.rlVista);
         rlPermitido = (LinearLayout) findViewById(R.id.rlPermitido);
@@ -449,6 +461,7 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                     espacio2.setVisibility(View.GONE);
                     Foto1View.setVisibility(View.GONE);
                     espacio3.setVisibility(View.GONE);
+                    txtFoto1.setVisibility(View.GONE);
 
                 }else{
                     nombre_foto1.setText(ja6.getString(4)+":");
@@ -464,11 +477,15 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                                     .error(R.drawable.log)
                                     .centerInside()
                                     .into(view1);
+
+                            txtFoto1.setVisibility(android.view.View.GONE);
+                            view1.setVisibility(android.view.View.VISIBLE);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
                             // Handle any errors
+                            txtFoto1.setText(Global_info.getTexto2Imagenes());
                         }
                     });
                 }
@@ -479,6 +496,7 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                     espacio5.setVisibility(View.GONE);
                     Foto2View.setVisibility(View.GONE);
                     espacio6.setVisibility(View.GONE);
+                    txtFoto2.setVisibility(View.GONE);
                 }else{
                     nombre_foto2.setText(ja6.getString(6)+":");
 
@@ -493,11 +511,15 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                                     .error(R.drawable.log)
                                     .centerInside()
                                     .into(view2);
+
+                            txtFoto2.setVisibility(android.view.View.GONE);
+                            view2.setVisibility(android.view.View.VISIBLE);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
                             // Handle any errors
+                            txtFoto2.setText(Global_info.getTexto2Imagenes());
                         }
                     });
                 }
@@ -507,6 +529,7 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                     espacio8.setVisibility(View.GONE);
                     Foto3View.setVisibility(View.GONE);
                     espacio9.setVisibility(View.GONE);
+                    txtFoto3.setVisibility(View.GONE);
                 }else{
                     nombre_foto3.setText(ja6.getString(8)+":");
 
@@ -521,11 +544,15 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                                     .error(R.drawable.log)
                                     .centerInside()
                                     .into(view3);
+
+                            txtFoto3.setVisibility(android.view.View.GONE);
+                            view3.setVisibility(android.view.View.VISIBLE);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
                             // Handle any errors
+                            txtFoto3.setText(Global_info.getTexto2Imagenes());
                         }
                     });
                 }
@@ -570,6 +597,7 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                             espacio2.setVisibility(View.GONE);
                             Foto1View.setVisibility(View.GONE);
                             espacio3.setVisibility(View.GONE);
+                            txtFoto1.setVisibility(View.GONE);
 
                         }else{
                             nombre_foto1.setText(ja6.getString(4)+":");
@@ -585,11 +613,15 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                                             .error(R.drawable.log)
                                             .centerInside()
                                             .into(view1);
+
+                                    txtFoto1.setVisibility(android.view.View.GONE);
+                                    view1.setVisibility(android.view.View.VISIBLE);
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception exception) {
                                     // Handle any errors
+                                    txtFoto1.setText(Global_info.getTexto2Imagenes());
                                 }
                             });
                         }
@@ -600,6 +632,7 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                             espacio5.setVisibility(View.GONE);
                             Foto2View.setVisibility(View.GONE);
                             espacio6.setVisibility(View.GONE);
+                            txtFoto2.setVisibility(View.GONE);
                         }else{
                             nombre_foto2.setText(ja6.getString(6)+":");
 
@@ -614,11 +647,15 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                                             .error(R.drawable.log)
                                             .centerInside()
                                             .into(view2);
+
+                                    txtFoto2.setVisibility(android.view.View.GONE);
+                                    view2.setVisibility(android.view.View.VISIBLE);
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception exception) {
                                     // Handle any errors
+                                    txtFoto2.setText(Global_info.getTexto2Imagenes());
                                 }
                             });
                         }
@@ -628,6 +665,7 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                             espacio8.setVisibility(View.GONE);
                             Foto3View.setVisibility(View.GONE);
                             espacio9.setVisibility(View.GONE);
+                            txtFoto3.setVisibility(View.GONE);
                         }else{
                             nombre_foto3.setText(ja6.getString(8)+":");
 
@@ -642,11 +680,15 @@ public class VisitasRecepEntradasDetalle extends mx.linkom.caseta_grupokap.Menu 
                                             .error(R.drawable.log)
                                             .centerInside()
                                             .into(view3);
+
+                                    txtFoto3.setVisibility(android.view.View.GONE);
+                                    view3.setVisibility(android.view.View.VISIBLE);
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception exception) {
                                     // Handle any errors
+                                    txtFoto3.setText(Global_info.getTexto2Imagenes());
                                 }
                             });
                         }

@@ -10,8 +10,23 @@ public class Global_info extends Application {
     private static String MODO_ONLINE = "Equipo conectado a internet \n" + "Actualizando datos";
     private static String TITULO_AVISO = "Aviso";
     private static String INTERNET = "Si";
+    private static String TEXTO1_IMAGENES = "Cargando fotografía";
+    private static String TEXTO2_IMAGENES = "Fotografía pendiente por subir";
+    private static String TEXTO3_IMAGENES = "Fotografía no disponible en offline";
     //private static String URL = "http://192.168.0.110/android/demoCaseta/";
     private static String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/off-line/";
+
+    public static String getTexto3Imagenes() {
+        return TEXTO3_IMAGENES;
+    }
+
+    public static String getTexto1Imagenes() {
+        return TEXTO1_IMAGENES;
+    }
+
+    public static String getTexto2Imagenes() {
+        return TEXTO2_IMAGENES;
+    }
 
     public static String getModoOffline() {
         return MODO_OFFLINE;

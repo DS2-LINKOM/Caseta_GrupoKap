@@ -1,6 +1,9 @@
 package mx.linkom.caseta_grupokap;
 
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -49,6 +52,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
+import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
+
 public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
 
     private Configuracion Conf;
@@ -69,6 +75,8 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
     Bitmap bitmap;
     String usuario,nombre,correo,token,notificacion;
     Uri uri_img;
+
+    String rutaImagen1, nombreImagen1;
 
 
     @Override
@@ -106,7 +114,7 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
         });
 
         pd= new ProgressDialog(this);
-        pd.setMessage("Subiendo Foto...");
+        pd.setMessage("Registrando...");
 
         Registrar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,7 +160,9 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
 
             File foto=null;
             try {
-                foto= new File(getApplication().getExternalFilesDir(null),"recepcion.png");
+                nombreImagen1 = "app"+dia+mes+anio+"-"+numero_aletorio+".png";
+                foto= new File(getApplication().getExternalFilesDir(null),nombreImagen1);
+                rutaImagen1 = foto.getAbsolutePath();
             } catch (Exception ex) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RecepcionActivity.this);
                 alertDialogBuilder.setTitle("Alerta");
@@ -182,7 +192,7 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
         if (requestCode == 0 && resultCode == RESULT_OK) {
 
 
-            Bitmap bitmap= BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null)+"/recepcion.png");
+            Bitmap bitmap= BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null)+"/"+nombreImagen1);
 
             ViewFoto.setVisibility(View.VISIBLE);
             ViewFoto.setImageBitmap(bitmap);
@@ -204,6 +214,7 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
+                        pd.show();
                         Datos();
                     }
                 })
@@ -365,6 +376,8 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
         public void Datos () {
 
         if(Calle.getSelectedItem().equals("Seleccionar..") || Calle.getSelectedItem().equals("Seleccionar...") || Numero.getSelectedItem().equals("Seleccionar...")){
+            pd.dismiss();
+
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RecepcionActivity.this);
             alertDialogBuilder.setTitle("Alerta");
             alertDialogBuilder
@@ -384,6 +397,9 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
                 public void onResponse(String response){
 
                     if(response.equals("error")){
+
+                        pd.dismiss();
+
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RecepcionActivity.this);
                         alertDialogBuilder.setTitle("Alerta");
                         alertDialogBuilder
@@ -411,6 +427,7 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
             }, new Response.ErrorListener(){
                 @Override
                 public void onErrorResponse(VolleyError error) {
+                    pd.dismiss();
                     Log.e("TAG","Error: " + error.toString());
                 }
             }){
@@ -443,6 +460,7 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
             public void onResponse(String response){
 
                 if(response.equals("error")){
+                    pd.dismiss();
 
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RecepcionActivity.this);
                     alertDialogBuilder.setTitle("Alerta");
@@ -457,7 +475,13 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
                             }).create().show();
                 }else {
 
-                    upload1(response);
+                    //Registrar fotos en SQLite
+                    ContentValues val_img1 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/correspondencia/"+nombreImagen1.trim(), rutaImagen1);
+                    Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
+                    pd.dismiss();
+                    terminar(response);
+                    //upload1(response);
                 }
             }
         }, new Response.ErrorListener(){
@@ -498,6 +522,14 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
         requestQueue.add(stringRequest);
 
 
+    }
+
+    public ContentValues ValuesImagen(String nombre, String rutaFirebase, String rutaDispositivo){
+        ContentValues values = new ContentValues();
+        values.put("titulo", nombre);
+        values.put("direccionFirebase", rutaFirebase);
+        values.put("rutaDispositivo", rutaDispositivo);
+        return values;
     }
 
 
@@ -548,6 +580,40 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
     }
 
 
+    public void terminar(String resp){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RecepcionActivity.this);
+        alertDialogBuilder.setTitle("Alerta");
+        alertDialogBuilder
+                .setMessage("Registro de Correspondencia  Exitoso FOLIO:"+resp)
+                .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //Solo ejecutar si el servicio no se esta ejecutando
+                        if (!servicioFotos()){
+                            Intent cargarFotos = new Intent(RecepcionActivity.this, subirFotos.class);
+                            startService(cargarFotos);
+                        }
+
+                        Intent i = new Intent(getApplicationContext(), CorrespondenciaActivity.class);
+                        startActivity(i);
+                        finish();
+                    }
+                }).create().show();
+    }
+
+
+
+    //Método para saber si es que el servicio ya se esta ejecutando
+    public boolean servicioFotos(){
+        //Obtiene los servicios que se estan ejecutando
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        //Se recorren todos los servicios obtnidos para saber si el servicio creado ya se esta ejecutando
+        for(ActivityManager.RunningServiceInfo service: activityManager.getRunningServices(Integer.MAX_VALUE)) {
+            if(subirFotos.class.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     @Override

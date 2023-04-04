@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -58,11 +59,28 @@ public class subirFotos extends Service {
                         storage = FirebaseStorage.getInstance();
                         storageReference = storage.getReference();
 
-                        System.out.println("Servicio de fotos");
+                        nombres = new ArrayList<String>();
+                        rutasFirebase = new ArrayList<String>();
+                        rutasDispositivo = new ArrayList<String>();
 
-                        nombres = (ArrayList<String>) intent.getExtras().getSerializable("nombres");
-                        rutasFirebase = (ArrayList<String>) intent.getExtras().getSerializable("direccionesFirebase");
-                        rutasDispositivo = (ArrayList<String>) intent.getExtras().getSerializable("rutasDispositivo");
+                        Log.e("subirFotos", "Servicio de fotos");
+
+                        Cursor cursoFotos = null;
+
+                        cursoFotos = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, null, "todos", null, null);
+
+                        if (cursoFotos.moveToFirst()) {
+                            do {
+                                nombres.add(cursoFotos.getString(0));
+                                rutasFirebase.add(cursoFotos.getString(1));
+                                rutasDispositivo.add(cursoFotos.getString(2));
+
+                            } while (cursoFotos.moveToNext());
+                        }else {
+                            onDestroy();
+                        }
+
+                        cursoFotos.close();
 
                         //Si los array son vacios terminar el servicio
                         if (nombres.isEmpty() || rutasDispositivo.isEmpty() || rutasFirebase.isEmpty()){
@@ -70,7 +88,12 @@ public class subirFotos extends Service {
                             onDestroy();
                         }
 
-                        promedio = (int) 100/rutasDispositivo.size();
+                        if (rutasDispositivo.size() <= 0){
+                            stopSelf();
+                            onDestroy();
+                        }else {
+                            promedio = (int) 100/rutasDispositivo.size();
+                        }
 
                         final String CHANNELID = "Foreground Service ID";
                         NotificationChannel channel = new NotificationChannel(
@@ -82,7 +105,7 @@ public class subirFotos extends Service {
                         notificationManager = NotificationManagerCompat.from(getApplicationContext());
                         builder = new NotificationCompat.Builder(getApplicationContext(), CHANNELID);
                         builder.setContentTitle("Cargando...")
-                                .setContentText("Subiendo imagenes capturadas en Offline")
+                                .setContentText("Subiendo imagenes")
                                 .setSmallIcon(R.drawable.ic_subir)
                                 .setPriority(NotificationCompat.PRIORITY_LOW);
 
@@ -91,6 +114,7 @@ public class subirFotos extends Service {
                         notificationManager.notify(10045, builder.build());
 
 
+                        //limpiarCarpeta();
                         subirImagenes();
                     }
                 }
@@ -147,8 +171,8 @@ public class subirFotos extends Service {
                                     .setProgress(0,0,false);
                             notificationManager.notify(10045, builder.build());
 
-                            stopSelf();
-                            onDestroy();
+                            limpiarCarpeta();
+
                         }
                         subirImagenes();
                     }
@@ -169,8 +193,63 @@ public class subirFotos extends Service {
             stopSelf();
             onDestroy();
         }
+    }
 
+    public void limpiarCarpeta(){
+        String tempfilepath ="";
+        File externalFilesDir = getExternalFilesDir(null);
+        if (externalFilesDir != null) {
+            tempfilepath = externalFilesDir.getAbsolutePath();
+            Log.e(TAG, tempfilepath);
+            try {
+                File grTempFiles = new File(tempfilepath);
+                if (grTempFiles.exists()) {
+                    File[] files = grTempFiles.listFiles();
+                    if (grTempFiles.isDirectory() && files != null) {
+                        int numofFiles = files.length;
+                        Log.e(TAG, "Longitud: " + numofFiles);
 
+                        for (int i = 0; i < numofFiles; i++) {
+                            try {
+                                File path = new File(files[i].getAbsolutePath());
+                                if (!path.isDirectory()) {
+                                    System.out.println(path.getName());
+                                    Cursor foto = null;
+
+                                    String parametros[] = {path.getName()};
+
+                                    foto = getContentResolver().query(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, null, "uno", parametros, null);
+
+                                    if (foto.moveToFirst()) {
+                                        //Log.e("Prueba", "La foto: "+path.getName()+" si exixte en la bd");
+                                    }else {
+                                        //Log.e("Prueba", "La foto: "+path.getName()+" sera eliminada");
+                                        path.delete();
+                                    }
+
+                                    foto.close();
+                                }
+                            }catch (Exception e){
+                                Log.e(TAG, e.toString());
+                                stopSelf();
+                                onDestroy();
+                            }
+                        }
+                        stopSelf();
+                        onDestroy();
+                    }
+                }
+                stopSelf();
+                onDestroy();
+            } catch (Exception e) {
+                Log.e("ErrorFile", "deleteDirectory: Failed to onCreate directory  " + tempfilepath + " for an unknown reason.");
+                stopSelf();
+                onDestroy();
+            }
+
+        }else {
+            stopSelf();
+            onDestroy();
+        }
     }
 }
-
