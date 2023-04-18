@@ -35,6 +35,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.opencv.android.OpenCVLoader;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,11 +54,22 @@ public class MainActivity extends AppCompatActivity {
     private static final int MULTIPLE_PERMISSIONS_REQUEST_CODE = 3;
     private String[] permissions = new String[]{android.Manifest.permission.CAMERA};
 
+    static {
+        if (OpenCVLoader.initDebug()){
+            Log.e("MainActivity", "OpenCV funcionando");
+        }else {
+            Log.e("MainActivity", "OpenCV no funciona");
+        }
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (OpenCVLoader.initDebug()) Log.e("openCV", "Ya funciona :D");
+        else Log.e("openCV", "NO funciona :D");
 
         Conf = new mx.linkom.caseta_grupokap.Configuracion(this);
 

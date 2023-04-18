@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 
@@ -46,12 +48,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import mx.linkom.caseta_grupokap.detectPlaca.DetectarPlaca;
 import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
 import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
 
@@ -184,6 +189,7 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -193,6 +199,19 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
 
 
             Bitmap bitmap= BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null)+"/"+nombreImagen1);
+
+            bitmap = DetectarPlaca.fechaHoraFoto(bitmap);
+
+            FileOutputStream fos = null;
+
+            try {
+                fos = new FileOutputStream(rutaImagen1);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos); // compress and save as JPEG
+                fos.flush();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             ViewFoto.setVisibility(View.VISIBLE);
             ViewFoto.setImageBitmap(bitmap);

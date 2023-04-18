@@ -35,6 +35,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.opencv.android.OpenCVLoader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,10 +62,23 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
     ImageView iconoInternet;
     boolean Offline = false;
 
+    static {
+        if (OpenCVLoader.initDebug()){
+            Log.e("MainActivity", "OpenCV funcionando");
+        }else {
+            Log.e("MainActivity", "OpenCV no funciona");
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+        if (OpenCVLoader.initDebug()) Log.e("openCV", "Ya funciona :D");
+        else Log.e("openCV", "NO funciona :D");
+
         fAuth = FirebaseAuth.getInstance();
         Conf = new mx.linkom.caseta_grupokap.Configuracion(this);
         gridList = (GridView)findViewById(R.id.gridList);
@@ -94,10 +108,10 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
         }
 
         //Iniciar el servicio
-        if(!foregroundServiceRunning()) { //Solo se va a ejecutar el servicio si es que aún no se esta ejecutando aun
+        /*if(!foregroundServiceRunning()) { //Solo se va a ejecutar el servicio si es que aún no se esta ejecutando aun
             Intent serviceIntent = new Intent(this, testInternet.class);
             startForegroundService(serviceIntent);
-        }
+        }*/
 
         iconoInternet.setOnClickListener(new View.OnClickListener() {
             @Override

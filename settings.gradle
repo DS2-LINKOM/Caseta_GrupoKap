@@ -1,2 +1,3 @@
 rootProject.name = "Caseta_GrupoKap"
 include ':app'
+include ':OpenCV'

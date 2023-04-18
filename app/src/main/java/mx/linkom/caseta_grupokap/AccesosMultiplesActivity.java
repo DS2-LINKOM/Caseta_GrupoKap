@@ -53,6 +53,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -63,6 +65,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import mx.linkom.caseta_grupokap.detectPlaca.DetectarPlaca;
 import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
 import mx.linkom.caseta_grupokap.offline.Global_info;
 import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
@@ -848,6 +851,7 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -859,6 +863,20 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
 
                 Bitmap bitmap;
                 bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/" + nombreImagen1);
+
+                bitmap = DetectarPlaca.fechaHoraFoto(bitmap);
+
+                FileOutputStream fos = null;
+
+                try {
+                    fos = new FileOutputStream(rutaImagen1);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos); // compress and save as JPEG
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 /*if (Offline){
                     bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio+".png");
                 }else {
@@ -903,6 +921,20 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
 
                 Bitmap bitmap2;
                 bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/" + nombreImagen2);
+
+                bitmap2 = DetectarPlaca.fechaHoraFoto(bitmap2);
+
+                FileOutputStream fos = null;
+
+                try {
+                    fos = new FileOutputStream(rutaImagen2);
+                    bitmap2.compress(Bitmap.CompressFormat.JPEG, 100, fos); // compress and save as JPEG
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 /*if (Offline){
                     bitmap2 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio2+".png");
                 }else {
@@ -941,6 +973,20 @@ public class AccesosMultiplesActivity extends mx.linkom.caseta_grupokap.Menu {
 
                 Bitmap bitmap3;
                 bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/" + nombreImagen3);
+
+                bitmap3 = DetectarPlaca.fechaHoraFoto(bitmap3);
+
+                FileOutputStream fos = null;
+
+                try {
+                    fos = new FileOutputStream(rutaImagen3);
+                    bitmap3.compress(Bitmap.CompressFormat.JPEG, 100, fos); // compress and save as JPEG
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 /*if (Offline){
                     bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/app"+anio+mes+dia+Placas.getText().toString()+"-"+numero_aletorio3+".png");
                 }else {
