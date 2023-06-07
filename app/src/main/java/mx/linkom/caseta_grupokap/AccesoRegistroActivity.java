@@ -98,8 +98,8 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
     Uri uri_img,uri_img2,uri_img3;
     LinearLayout Numero_o;
 
-    ImageView iconoInternet;
-    boolean Offline = false;
+    /*ImageView iconoInternet;
+    boolean Offline = false;*/
     String rutaImagen1, rutaImagen2, rutaImagen3, rutaImagenPlaca="", nombreImagen1, nombreImagen2, nombreImagen3, nombreImagenPlaca="";
 
 
@@ -173,7 +173,7 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
         Calle = (Spinner)findViewById(R.id.setCalle);
         Pasajeros = (Spinner)findViewById(R.id.setPasajeros);
 
-        iconoInternet = (ImageView) findViewById(R.id.iconoInternetAccesosRegistro);
+        /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetAccesosRegistro);
 
         if (Global_info.getINTERNET().equals("Si")){
             iconoInternet.setImageResource(R.drawable.ic_online);
@@ -206,16 +206,19 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
                             }).create().show();
                 }
             }
-        });
+        });*/
 
         cargarSpinner2();
-        if (Offline){
+        calles();
+        menu();
+
+        /*if (Offline){
             callesOffline();
             menuOffline();
         }else {
             calles();
             menu();
-        }
+        }*/
 
         pd= new ProgressDialog(this);
         pd.setMessage("Registrando...");
@@ -882,11 +885,13 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
                     }
                     else{
                         numero.clear();
-                        if (Offline){
+                        numeros(Calle.getSelectedItem().toString());
+
+                        /*if (Offline){
                             numerosOffline(Calle.getSelectedItem().toString());
                         }else {
                             numeros(Calle.getSelectedItem().toString());
-                        }
+                        }*/
                     }
 
                 }
@@ -1140,12 +1145,15 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     public void onClick(DialogInterface dialog, int id) {
-                        if (Offline){
+                        pd.show();
+                        busqueda();
+
+                        /*if (Offline){
                             busquedaOffline();
                         }else {
                             pd.show();
                             busqueda();
-                        }
+                        }*/
                     }
                 }).create().show();
     }
@@ -1932,13 +1940,18 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
-                        if (!Offline){
+                        if (!servicioFotos()){
+                            Intent cargarFotos = new Intent(AccesoRegistroActivity.this, subirFotos.class);
+                            startService(cargarFotos);
+                        }
+
+                        /*if (!Offline){
                             //Solo ejecutar si el servicio no se esta ejecutando
                             if (!servicioFotos()){
                                 Intent cargarFotos = new Intent(AccesoRegistroActivity.this, subirFotos.class);
                                 startService(cargarFotos);
                             }
-                        }
+                        }*/
 
                         if(Integer.parseInt(Conf.getTicketE())==1){
                             Imprimir();

@@ -38,8 +38,8 @@ public class EntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
     EditText Placas;
     Button Registro,Registro2;
 
-    ImageView iconoInternet;
-    boolean Offline = false;
+    /*ImageView iconoInternet;
+    boolean Offline = false;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +52,7 @@ public class EntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
         Placas = (EditText) findViewById(R.id.editText1);
         Registro = (Button) findViewById(R.id.btnBuscar1);
 
-        iconoInternet = (ImageView) findViewById(R.id.iconoInternetEntradasQr);
+        /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetEntradasQr);
 
         if (Global_info.getINTERNET().equals("Si")){
             iconoInternet.setImageResource(R.drawable.ic_online);
@@ -85,16 +85,18 @@ public class EntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
                             }).create().show();
                 }
             }
-        });
+        });*/
 
         Registro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Offline){
+                placas();
+
+                /*if (Offline){
                     placasOffline();
                 }else {
                     placas();
-                }
+                }*/
             }
         });
         Placas.setFilters(new InputFilter[]{filter, new InputFilter.AllCaps() {
@@ -104,11 +106,14 @@ public class EntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
         Registro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Offline){
+
+                placas();
+
+                /*if (Offline){
                     placasOffline();
                 }else {
                     placas();
-                }
+                }*/
             }});
 
         Registro2.setOnClickListener(new View.OnClickListener() {

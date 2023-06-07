@@ -59,8 +59,8 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
 
     private GridView gridList,gridList2;
 
-    ImageView iconoInternet;
-    boolean Offline = false;
+    /*ImageView iconoInternet;
+    boolean Offline = false;*/
 
     static {
         if (OpenCVLoader.initDebug()){
@@ -97,7 +97,7 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
         rlTrabajadores = (LinearLayout)findViewById(R.id.rlTrabajadores);
         nombre.setText(Conf.getNomResi());
 
-        iconoInternet = (ImageView) findViewById(R.id.iconoInternetDashboard);
+        /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetDashboard);
 
         if (Global_info.getINTERNET().equals("Si")){
             iconoInternet.setImageResource(R.drawable.ic_online);
@@ -105,7 +105,7 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
         }else{
             iconoInternet.setImageResource(R.drawable.ic_offline);
             Offline = true;
-        }
+        }*/
 
         //Iniciar el servicio
         /*if(!foregroundServiceRunning()) { //Solo se va a ejecutar el servicio si es que aún no se esta ejecutando aun
@@ -113,7 +113,7 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
             startForegroundService(serviceIntent);
         }*/
 
-        iconoInternet.setOnClickListener(new View.OnClickListener() {
+        /*iconoInternet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (Offline){
@@ -136,7 +136,7 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
                             }).create().show();
                 }
             }
-        });
+        });*/
     }
 
 
@@ -147,11 +147,13 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
 
         Registro();
         Sesion();
-        if (Global_info.getINTERNET().equals("Si")){
+        menu();
+
+        /*if (Global_info.getINTERNET().equals("Si")){
             menu();
         }else {
             menuOffline();
-        }
+        }*/
 
     }
 

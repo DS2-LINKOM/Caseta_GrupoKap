@@ -65,8 +65,8 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
     Button Lector;
     LinearLayout Qr, Qr2;
 
-    ImageView iconoInternet;
-    boolean Offline = false;
+    /*ImageView iconoInternet;
+    boolean Offline = false;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +86,7 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
         Registro = (Button) findViewById(R.id.btnBuscar1);
         Registro2 = (Button) findViewById(R.id.btnBuscar2);
 
-        iconoInternet = (ImageView) findViewById(R.id.iconoInternetEscaneoVisita);
+        /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetEscaneoVisita);
 
         if (Global_info.getINTERNET().equals("Si")) {
             iconoInternet.setImageResource(R.drawable.ic_online);
@@ -119,16 +119,19 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
                             }).create().show();
                 }
             }
-        });
+        });*/
 
         Registro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Offline) {
+
+                placas();
+
+                /*if (Offline) {
                     placasOffline();
                 } else {
                     placas();
-                }
+                }*/
             }
         });
 
@@ -160,11 +163,14 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
         Buscar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Offline) {
+
+                QR_codigo();
+
+                /*if (Offline) {
                     QR_codigoOffline();
                 } else {
                     QR_codigo();
-                }
+                }*/
             }
         });
 
@@ -284,19 +290,23 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
                         if (URLUtil.isValidUrl(token)) {
 
                             Conf.setQR(token);
-                            if (Offline) {
+                            QR();
+
+                            /*if (Offline) {
                                 QROffline();
                             } else {
                                 QR();
-                            }
+                            }*/
 
                         } else {
                             Conf.setQR(token);
-                            if (Offline) {
+                            QR();
+
+                            /*if (Offline) {
                                 QROffline();
                             } else {
                                 QR();
-                            }
+                            }*/
 
                         }
 

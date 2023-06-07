@@ -42,8 +42,8 @@ public class ListaGrupalSalidaActivity extends mx.linkom.caseta_grupokap.Menu {
     JSONArray ja1;
     ArrayList<String> ubicacion;
 
-    ImageView iconoInternet;
-    boolean Offline = false;
+    /*ImageView iconoInternet;
+    boolean Offline = false;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +55,7 @@ public class ListaGrupalSalidaActivity extends mx.linkom.caseta_grupokap.Menu {
         evento = (TextView) findViewById(R.id.evento);
         gridList = (GridView) findViewById(R.id.gridList);
 
-        iconoInternet = (ImageView) findViewById(R.id.iconoInternetListaGrupalSalida);
+        /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetListaGrupalSalida);
 
         if (Global_info.getINTERNET().equals("Si")){
             iconoInternet.setImageResource(R.drawable.ic_online);
@@ -88,15 +88,17 @@ public class ListaGrupalSalidaActivity extends mx.linkom.caseta_grupokap.Menu {
                             }).create().show();
                 }
             }
-        });
+        });*/
 
 
         evento.setText(Conf.getEvento());
-        if (Offline){
+        invitados();
+
+        /*if (Offline){
             invitadosOffline();
         }else {
             invitados();
-        }
+        }*/
 
 
     }

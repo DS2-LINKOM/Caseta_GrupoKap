@@ -27,8 +27,8 @@ public class fotosPendientes extends  mx.linkom.caseta_grupokap.Menu {
     TextView txtCantidadFotos;
     int cantidadFotos = 0;
     Button btnActualizarCantidad, btnSubirFotos;
-    ImageView iconoInternet;
-    boolean Offline = false;
+    /*ImageView iconoInternet;
+    boolean Offline = false;*/
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -42,7 +42,7 @@ public class fotosPendientes extends  mx.linkom.caseta_grupokap.Menu {
 
         txtCantidadFotos.setText(""+cantidadFotosLocal());
 
-        iconoInternet = (ImageView) findViewById(R.id.iconoInternetFotosPendientes);
+        /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetFotosPendientes);
 
         if (Global_info.getINTERNET().equals("Si")){
             iconoInternet.setImageResource(R.drawable.ic_online);
@@ -75,7 +75,7 @@ public class fotosPendientes extends  mx.linkom.caseta_grupokap.Menu {
                             }).create().show();
                 }
             }
-        });
+        });*/
 
         btnSubirFotos.setOnClickListener(new View.OnClickListener() {
             @Override

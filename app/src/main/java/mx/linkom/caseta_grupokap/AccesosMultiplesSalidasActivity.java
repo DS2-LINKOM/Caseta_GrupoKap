@@ -68,8 +68,8 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
     LinearLayout PlacasL;
     EditText Comentarios;
 
-    ImageView iconoInternet;
-    boolean Offline = false;
+    /*ImageView iconoInternet;
+    boolean Offline = false;*/
 
     TextView txtFoto1, txtFoto2, txtFoto3, txtFotoPlaca;
 
@@ -129,7 +129,7 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
         rlDenegado = (LinearLayout) findViewById(R.id.rlDenegado);
         tvMensaje = (TextView)findViewById(R.id.setMensaje);
 
-        iconoInternet = (ImageView) findViewById(R.id.iconoInternetAccesosMultiplesSalidas);
+        /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetAccesosMultiplesSalidas);
 
         if (Global_info.getINTERNET().equals("Si")){
             iconoInternet.setImageResource(R.drawable.ic_online);
@@ -162,7 +162,7 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                             }).create().show();
                 }
             }
-        });
+        });*/
 
 
 
@@ -177,11 +177,14 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
             rlVista.setVisibility(View.VISIBLE);
             rlPermitido.setVisibility(View.GONE);
             rlDenegado.setVisibility(View.GONE);
-            if (Offline){
+
+            menu();
+
+            /*if (Offline){
                 menuOffline();
             }else {
                 menu();
-            }
+            }*/
         }else if(Conf.getST().equals("Denegado")){
             rlDenegado.setVisibility(View.VISIBLE);
             rlVista.setVisibility(View.GONE);
@@ -207,11 +210,13 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
             }
         });
 
-        if (Offline){
+        menu();
+
+        /*if (Offline){
             menuOffline();
         }else {
             menu();
-        }
+        }*/
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -757,7 +762,29 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                 }else{
                     nombre_foto1.setText(ja6.getString(4)+":");
 
-                   if (!Offline){
+                    storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(3))
+                            .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                @Override
+
+                                public void onSuccess(Uri uri) {
+                                    Glide.with(AccesosMultiplesSalidasActivity.this)
+                                            .load(uri)
+                                            .error(R.drawable.log)
+                                            .centerInside()
+                                            .into(view1);
+                                    txtFoto1.setVisibility(android.view.View.GONE);
+                                    view1.setVisibility(android.view.View.VISIBLE);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    // Handle any errors
+                                    txtFoto1.setText(Global_info.getTexto2Imagenes());
+                                }
+                            });
+
+                   /*if (!Offline){
                        storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(3))
                                .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
@@ -779,7 +806,7 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                                        txtFoto1.setText(Global_info.getTexto2Imagenes());
                                    }
                                });
-                   }else txtFoto1.setText(Global_info.getTexto3Imagenes());
+                   }else txtFoto1.setText(Global_info.getTexto3Imagenes());*/
                 }
 
                 //FOTO2
@@ -793,7 +820,29 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                 }else{
                     nombre_foto2.setText(ja6.getString(6)+":");
 
-                   if (!Offline){
+                    storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(4))
+                            .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                @Override
+
+                                public void onSuccess(Uri uri) {
+                                    Glide.with(AccesosMultiplesSalidasActivity.this)
+                                            .load(uri)
+                                            .error(R.drawable.log)
+                                            .centerInside()
+                                            .into(view2);
+                                    txtFoto2.setVisibility(android.view.View.GONE);
+                                    view2.setVisibility(android.view.View.VISIBLE);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    // Handle any errors
+                                    txtFoto2.setText(Global_info.getTexto2Imagenes());
+                                }
+                            });
+
+                   /*if (!Offline){
                        storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(4))
                                .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
@@ -815,7 +864,7 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                                        txtFoto2.setText(Global_info.getTexto2Imagenes());
                                    }
                                });
-                   }else txtFoto2.setText(Global_info.getTexto3Imagenes());
+                   }else txtFoto2.setText(Global_info.getTexto3Imagenes());*/
                 }
                 //FOTO3
                 if(ja4.getString(5).equals("")){
@@ -828,7 +877,30 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                 }else{
                     nombre_foto3.setText(ja6.getString(8)+":");
 
-                   if (!Offline){
+                    storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(5))
+                            .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                @Override
+
+                                public void onSuccess(Uri uri) {
+                                    Glide.with(AccesosMultiplesSalidasActivity.this)
+                                            .load(uri)
+                                            .error(R.drawable.log)
+                                            .centerInside()
+                                            .into(view3);
+
+                                    txtFoto3.setVisibility(android.view.View.GONE);
+                                    view3.setVisibility(android.view.View.VISIBLE);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    // Handle any errors
+                                    txtFoto3.setText(Global_info.getTexto2Imagenes());
+                                }
+                            });
+
+                   /*if (!Offline){
                        storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(5))
                                .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
@@ -851,7 +923,7 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                                        txtFoto3.setText(Global_info.getTexto2Imagenes());
                                    }
                                });
-                   }else txtFoto3.setText(Global_info.getTexto3Imagenes());
+                   }else txtFoto3.setText(Global_info.getTexto3Imagenes());*/
                 }
                
             } else if(c.getTime().before(dateentrada) && ja4.getString(2).equals("2")) { //SALIO Y ENTRO
@@ -904,7 +976,30 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                     }else{
                         nombre_foto1.setText(ja6.getString(4)+":");
 
-                       if (!Offline){
+                        storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(3))
+                                .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                    @Override
+
+                                    public void onSuccess(Uri uri) {
+                                        Glide.with(AccesosMultiplesSalidasActivity.this)
+                                                .load(uri)
+                                                .error(R.drawable.log)
+                                                .centerInside()
+                                                .into(view1);
+
+                                        txtFoto1.setVisibility(android.view.View.GONE);
+                                        view1.setVisibility(android.view.View.VISIBLE);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        // Handle any errors
+                                        txtFoto1.setText(Global_info.getTexto2Imagenes());
+                                    }
+                                });
+
+                       /*if (!Offline){
                            storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(3))
                                    .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
@@ -927,7 +1022,7 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                                            txtFoto1.setText(Global_info.getTexto2Imagenes());
                                        }
                                    });
-                       }else txtFoto1.setText(Global_info.getTexto3Imagenes());
+                       }else txtFoto1.setText(Global_info.getTexto3Imagenes());*/
                     }
 
                     //FOTO2
@@ -940,7 +1035,29 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                     }else{
                         nombre_foto2.setText(ja6.getString(6)+":");
 
-                       if (!Offline){
+                        storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(4))
+                                .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                    @Override
+
+                                    public void onSuccess(Uri uri) {
+                                        Glide.with(AccesosMultiplesSalidasActivity.this)
+                                                .load(uri)
+                                                .error(R.drawable.log)
+                                                .centerInside()
+                                                .into(view2);
+                                        txtFoto2.setVisibility(android.view.View.GONE);
+                                        view2.setVisibility(android.view.View.VISIBLE);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        // Handle any errors
+                                        txtFoto2.setText(Global_info.getTexto2Imagenes());
+                                    }
+                                });
+
+                       /*if (!Offline){
                            storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(4))
                                    .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
@@ -962,7 +1079,7 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                                            txtFoto2.setText(Global_info.getTexto2Imagenes());
                                        }
                                    });
-                       }else txtFoto1.setText(Global_info.getTexto3Imagenes());
+                       }else txtFoto1.setText(Global_info.getTexto3Imagenes());*/
                     }
                     //FOTO3
                     if(ja4.getString(5).equals("")){
@@ -975,7 +1092,29 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                     }else{
                         nombre_foto3.setText(ja6.getString(8)+":");
 
-                       if (!Offline){
+                        storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(5))
+                                .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                    @Override
+
+                                    public void onSuccess(Uri uri) {
+                                        Glide.with(AccesosMultiplesSalidasActivity.this)
+                                                .load(uri)
+                                                .error(R.drawable.log)
+                                                .centerInside()
+                                                .into(view3);
+                                        txtFoto3.setVisibility(android.view.View.GONE);
+                                        view3.setVisibility(android.view.View.VISIBLE);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        // Handle any errors
+                                        txtFoto3.setText(Global_info.getTexto2Imagenes());
+                                    }
+                                });
+
+                       /*if (!Offline){
                            storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(5))
                                    .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
@@ -997,7 +1136,7 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                                            txtFoto3.setText(Global_info.getTexto2Imagenes());
                                        }
                                    });
-                       }else txtFoto3.setText(Global_info.getTexto3Imagenes());
+                       }else txtFoto3.setText(Global_info.getTexto3Imagenes());*/
                     }
                     
 
@@ -1044,11 +1183,14 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     public void onClick(DialogInterface dialog, int id) {
-                        if (Offline){
+
+                        Registrar();
+
+                        /*if (Offline){
                             RegistrarOffline();
                         }else {
                             Registrar();
-                        }
+                        }*/
                     }
                 })
                 .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {

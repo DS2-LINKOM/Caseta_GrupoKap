@@ -100,8 +100,8 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
     int fotos1, fotos2, fotos3;
     EditText Comentarios;
 
-    ImageView iconoInternet;
-    boolean Offline = false;
+    /*ImageView iconoInternet;
+    boolean Offline = false;*/
 
     String rutaImagen1, rutaImagen2, rutaImagen3, rutaImagenPlaca = "", nombreImagen1, nombreImagen2, nombreImagen3, nombreImagenPlaca = "";
     TextView txtFoto1, txtFoto2, txtFoto3;
@@ -177,7 +177,7 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
         rlPermitido = (LinearLayout) findViewById(R.id.rlPermitido);
         rlDenegado = (LinearLayout) findViewById(R.id.rlDenegado);
 
-        iconoInternet = (ImageView) findViewById(R.id.iconoInternetPreentradasqr);
+        /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetPreentradasqr);
 
         if (Global_info.getINTERNET().equals("Si")) {
             iconoInternet.setImageResource(R.drawable.ic_online);
@@ -210,18 +210,21 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
                             }).create().show();
                 }
             }
-        });
+        });*/
 
         //SI ES ACEPTADO O DENEGAODO
         if (Conf.getST().equals("Aceptado")) {
             rlVista.setVisibility(View.VISIBLE);
             rlPermitido.setVisibility(View.GONE);
             rlDenegado.setVisibility(View.GONE);
-            if (Offline) {
+
+            menu();
+
+            /*if (Offline) {
                 menuOffline();
             } else {
                 menu();
-            }
+            }*/
         } else if (Conf.getST().equals("Denegado")) {
             rlDenegado.setVisibility(View.VISIBLE);
             rlVista.setVisibility(View.GONE);
@@ -912,6 +915,7 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
                     bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesos1.png");
                 }*/
 
+                txtFoto1.setVisibility(View.GONE);
                 Foto1View.setVisibility(View.VISIBLE);
 
                 view1.setVisibility(View.VISIBLE);
@@ -947,6 +951,7 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
                 }*/
 
 
+                txtFoto2.setVisibility(View.GONE);
                 Foto2View.setVisibility(View.VISIBLE);
                 view2.setVisibility(View.VISIBLE);
                 view2.setImageBitmap(bitmap2);
@@ -981,6 +986,7 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
                     bitmap3 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/accesos3.png");
                 }*/
 
+                txtFoto3.setVisibility(View.GONE);
                 Foto3View.setVisibility(View.VISIBLE);
                 view3.setVisibility(View.VISIBLE);
                 view3.setImageBitmap(bitmap3);
@@ -1403,7 +1409,76 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
                     Placas.setText(Conf.getPlacas());
                     Comentarios.setText(ja1.getString(9));
 
-                    if (!Offline) {
+                    storageReference.child(Conf.getPin() + "/caseta/" + ja7.getString(11))
+                            .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                @Override
+
+                                public void onSuccess(Uri uri) {
+                                    Glide.with(PreEntradasQrActivity.this)
+                                            .load(uri)
+                                            .error(R.drawable.log)
+                                            .centerInside()
+                                            .into(view1);
+
+                                    txtFoto1.setVisibility(android.view.View.GONE);
+                                    view1.setVisibility(android.view.View.VISIBLE);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    // Handle any errors
+                                    txtFoto1.setText(Global_info.getTexto2Imagenes());
+                                }
+                            });
+
+                    storageReference.child(Conf.getPin() + "/caseta/" + ja7.getString(12))
+                            .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                @Override
+
+                                public void onSuccess(Uri uri) {
+                                    Glide.with(PreEntradasQrActivity.this)
+                                            .load(uri)
+                                            .error(R.drawable.log)
+                                            .centerInside()
+                                            .into(view2);
+
+                                    txtFoto2.setVisibility(android.view.View.GONE);
+                                    view2.setVisibility(android.view.View.VISIBLE);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    // Handle any errors
+                                    txtFoto2.setText(Global_info.getTexto2Imagenes());
+                                }
+                            });
+
+                    storageReference.child(Conf.getPin() + "/caseta/" + ja7.getString(13))
+                            .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                @Override
+
+                                public void onSuccess(Uri uri) {
+                                    Glide.with(PreEntradasQrActivity.this)
+                                            .load(uri)
+                                            .error(R.drawable.log)
+                                            .centerInside()
+                                            .into(view3);
+
+                                    txtFoto3.setVisibility(android.view.View.GONE);
+                                    view3.setVisibility(android.view.View.VISIBLE);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    // Handle any errors
+                                    txtFoto3.setText(Global_info.getTexto2Imagenes());
+                                }
+                            });
+
+                    /*if (!Offline) {
                         storageReference.child(Conf.getPin() + "/caseta/" + ja7.getString(11))
                                 .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
@@ -1476,7 +1551,7 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
                         txtFoto1.setText(Global_info.getTexto3Imagenes());
                         txtFoto2.setText(Global_info.getTexto3Imagenes());
                         txtFoto3.setText(Global_info.getTexto3Imagenes());
-                    }
+                    }*/
 
 
                 } else if (ja4.getString(0).equals("1")) { //Entro y quiere volver a entrar
@@ -1525,12 +1600,15 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     public void onClick(DialogInterface dialog, int id) {
-                        if (Offline) {
+                        pd.show();
+                        Registrar();
+
+                        /*if (Offline) {
                             RegistrarOffline();
                         } else {
                             pd.show();
                             Registrar();
-                        }
+                        }*/
                     }
                 })
                 .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
@@ -1970,13 +2048,18 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
-                        if (!Offline) {
+                        if (!servicioFotos()) {
+                            Intent cargarFotos = new Intent(PreEntradasQrActivity.this, subirFotos.class);
+                            startService(cargarFotos);
+                        }
+
+                        /*if (!Offline) {
                             //Solo ejecutar si el servicio no se esta ejecutando
                             if (!servicioFotos()) {
                                 Intent cargarFotos = new Intent(PreEntradasQrActivity.this, subirFotos.class);
                                 startService(cargarFotos);
                             }
-                        }
+                        }*/
 
                         Intent i = new Intent(getApplicationContext(), EntradasSalidasActivity.class);
                         startActivity(i);

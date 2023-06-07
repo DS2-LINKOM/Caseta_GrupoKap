@@ -64,8 +64,8 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
     Button Lector;
     LinearLayout Qr, Qr2;
 
-    ImageView iconoInternet;
-    boolean Offline = false;
+    /*ImageView iconoInternet;
+    boolean Offline = false;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +86,7 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
         // qr.setFilters(new InputFilter[] { filter,new InputFilter.AllCaps() {
         //} });
 
-        iconoInternet = (ImageView) findViewById(R.id.iconoInternetEscaneoVisitaSalidas);
+        /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetEscaneoVisitaSalidas);
 
         if (Global_info.getINTERNET().equals("Si")) {
             iconoInternet.setImageResource(R.drawable.ic_online);
@@ -119,7 +119,7 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
                             }).create().show();
                 }
             }
-        });
+        });*/
 
         Lector.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,21 +133,25 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
         Buscar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Offline) {
+                QR_codigo();
+
+                /*if (Offline) {
                     QR_codigoOffline();
                 } else {
                     QR_codigo();
-                }
+                }*/
             }
         });
         Buscar1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (Offline) {
+                placas();
+
+                /*if (Offline) {
                     placasOffline();
                 } else {
                     placas();
-                }
+                }*/
             }
         });
 
@@ -256,18 +260,22 @@ public class EscaneoVisitaSalidaActivity extends mx.linkom.caseta_grupokap.Menu 
                         if (URLUtil.isValidUrl(token)) {
 
                             Conf.setQR(token);
-                            if (Offline) {
+                            QR();
+
+                            /*if (Offline) {
                                 QROffline();
                             } else {
                                 QR();
-                            }
+                            }*/
                         } else {
                             Conf.setQR(token);
-                            if (Offline) {
+                            QR();
+
+                            /*if (Offline) {
                                 QROffline();
                             } else {
                                 QR();
-                            }
+                            }*/
                         }
 
                         new Thread(new Runnable() {

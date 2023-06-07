@@ -1,11 +1,14 @@
 package mx.linkom.caseta_grupokap;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -241,6 +244,17 @@ public class MainActivity extends AppCompatActivity {
                             mx.linkom.caseta_grupokap.Global.PASS = ja3.getString(4);
                             mx.linkom.caseta_grupokap.Global.EMAIL = ja3.getString(5);
 
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                CharSequence channelName = "GRUPO KAP";
+                                String channelDescription = "Subir fotografías";
+                                int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                                NotificationChannel channel = new NotificationChannel("upload_photos_id", channelName, importance);
+                                channel.setDescription(channelDescription);
+                                channel.enableVibration(true); // Enable vibration for this channel
+
+                                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                                notificationManager.createNotificationChannel(channel);
+                            }
 
                             Intent i = new Intent(getApplication(), mx.linkom.caseta_grupokap.DashboardActivity.class);
                                 startActivity(i);
