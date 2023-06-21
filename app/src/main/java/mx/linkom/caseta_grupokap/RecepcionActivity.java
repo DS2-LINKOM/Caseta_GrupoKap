@@ -58,6 +58,7 @@ import java.util.Random;
 
 import mx.linkom.caseta_grupokap.detectPlaca.DetectarPlaca;
 import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
+import mx.linkom.caseta_grupokap.offline.Global_info;
 import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
 
 public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
@@ -75,13 +76,13 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
     ImageView ViewFoto;
     LinearLayout View,BtnReg,espacio,espacio2;
 
-    ProgressDialog pd;
+    ProgressDialog pd, pd2;
     int fotos;
     Bitmap bitmap;
     String usuario,nombre,correo,token,notificacion;
     Uri uri_img;
 
-    String rutaImagen1, nombreImagen1;
+    String rutaImagen1 = "", nombreImagen1 = "";
 
 
     @Override
@@ -118,8 +119,11 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
             }
         });
 
-        pd= new ProgressDialog(this);
+        pd = new ProgressDialog(this);
         pd.setMessage("Registrando...");
+
+        pd2 = new ProgressDialog(this);
+        pd2.setMessage("Subiendo Imagen.");
 
         Registrar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -494,9 +498,15 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
                             }).create().show();
                 }else {
 
-                    //Registrar fotos en SQLite
-                    ContentValues val_img1 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/correspondencia/"+nombreImagen1.trim(), rutaImagen1);
-                    Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+                    if (Global_info.getCantidadFotosEnEsperaEnSegundoPlano(RecepcionActivity.this) >= Global_info.getLimiteFotosSegundoPlano()){
+                        upload1();
+                    }else {
+                        //Registrar fotos en SQLite
+                        ContentValues val_img1 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/correspondencia/"+nombreImagen1.trim(), rutaImagen1);
+                        Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+
+                    }
+
 
                     pd.dismiss();
                     terminar(response);
@@ -526,7 +536,7 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
                 params.put("id_usuario", usuario);
                 params.put("guardia", Conf.getUsu().trim());
                 params.put("comen", comen.getText().toString().trim());
-                params.put("foto_recep", "app"+dia+mes+anio+"-"+numero_aletorio+".png");
+                params.put("foto_recep", nombreImagen1);
                 params.put("nombre", nombre);
                 params.put("correo", correo);
                 params.put("token", token);
@@ -552,18 +562,20 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
     }
 
 
-    public void upload1(final String resp){
-
+    public void upload1() {
         StorageReference mountainImagesRef = null;
-        mountainImagesRef = storageReference.child(Conf.getPin()+"/correspondencia/app"+dia+mes+anio+"-"+numero_aletorio+".png");
+        mountainImagesRef = storageReference.child(Conf.getPin() + "/correspondencia/" + nombreImagen1);
 
-        UploadTask uploadTask = mountainImagesRef.putFile(uri_img);
+        Uri uri  = Uri.fromFile(new File(rutaImagen1));
+        UploadTask uploadTask = mountainImagesRef.putFile(uri);
 
         // Listen for state changes, errors, and completion of the upload.
         uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                pd.show();
+                pd2.show(); // double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                //System.out.println("Upload is " + progress + "% done");
+                // Toast.makeText(getApplicationContext(),"Cargando Imagen INE " + progress + "%", Toast.LENGTH_SHORT).show();
 
             }
         }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
@@ -574,44 +586,70 @@ public class RecepcionActivity extends mx.linkom.caseta_grupokap.Menu{
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(RecepcionActivity.this,"Fallado", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RecepcionActivity.this, "Fallado", Toast.LENGTH_SHORT).show();
+                pd2.dismiss();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                pd.dismiss();
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RecepcionActivity.this);
-                alertDialogBuilder.setTitle("Alerta");
-                alertDialogBuilder
-                        .setMessage("Registro de Correspondencia  Exitoso FOLIO:"+resp)
-                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                Intent i = new Intent(getApplicationContext(), CorrespondenciaActivity.class);
-                                startActivity(i);
-                                finish();
-                            }
-                        }).create().show();
-
-
+                eliminarFotoDirectorioLocal(nombreImagen1);
+                pd2.dismiss();
 
             }
         });
     }
 
+    public void eliminarFotoDirectorioLocal(String nombreFoto){
+        String tempfilepath ="";
+        File externalFilesDir = getExternalFilesDir(null);
+        if (externalFilesDir != null) {
+            tempfilepath = externalFilesDir.getAbsolutePath();
+            try {
+                File grTempFiles = new File(tempfilepath);
+                if (grTempFiles.exists()) {
+                    File[] files = grTempFiles.listFiles();
+                    if (grTempFiles.isDirectory() && files != null) {
+                        int numofFiles = files.length;
+
+                        for (int i = 0; i < numofFiles; i++) {
+                            try {
+                                File path = new File(files[i].getAbsolutePath());
+                                if (!path.isDirectory() && path.getName().equals(nombreFoto)) {
+                                    Log.e("AccesosMultiples", path.getName() + "es igual a " + nombreFoto);
+                                    path.delete();
+                                }
+                            }catch (Exception e){
+                                Log.e("Eliminar Foto", e.toString());
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                Log.e("ErrorFile", "deleteDirectory: Failed to onCreate directory  " + tempfilepath + " for an unknown reason.");
+
+            }
+
+        }else {
+        }
+    }
+
 
     public void terminar(String resp){
+
+        if (Global_info.getCantidadFotosEnEsperaEnSegundoPlano(RecepcionActivity.this) > 0){
+            //Solo ejecutar si el servicio no se esta ejecutando
+            if (!servicioFotos()){
+                Intent cargarFotos = new Intent(RecepcionActivity.this, subirFotos.class);
+                startService(cargarFotos);
+            }
+        }
+
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RecepcionActivity.this);
         alertDialogBuilder.setTitle("Alerta");
         alertDialogBuilder
                 .setMessage("Registro de Correspondencia  Exitoso FOLIO:"+resp)
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        //Solo ejecutar si el servicio no se esta ejecutando
-                        if (!servicioFotos()){
-                            Intent cargarFotos = new Intent(RecepcionActivity.this, subirFotos.class);
-                            startService(cargarFotos);
-                        }
-
                         Intent i = new Intent(getApplicationContext(), CorrespondenciaActivity.class);
                         startActivity(i);
                         finish();

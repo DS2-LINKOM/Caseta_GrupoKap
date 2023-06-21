@@ -59,6 +59,7 @@ import java.util.Random;
 
 import mx.linkom.caseta_grupokap.detectPlaca.DetectarPlaca;
 import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
+import mx.linkom.caseta_grupokap.offline.Global_info;
 import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
 
 public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
@@ -77,9 +78,9 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
     Uri uri_img,uri_img2;
     int foto;
     String nfoto1,nfoto2;
-    ProgressDialog pd,pd2;
+    ProgressDialog pd, pd2, pd3;
 
-    String rutaImagen1, rutaImagen2, rutaImagen3, nombreImagen1, nombreImagen2, nombreImagen3;
+    String rutaImagen1="", rutaImagen2="", rutaImagen3="", rutaImagenPlaca="", nombreImagen1="", nombreImagen2="", nombreImagen3="", nombreImagenPlaca="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,11 +143,14 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
             }
         });
 
-        pd= new ProgressDialog(this);
+        pd = new ProgressDialog(this);
         pd.setMessage("Registrando...");
 
-        pd2= new ProgressDialog(this);
-        pd2.setMessage("Subiendo Imagen 2...");
+        pd2 = new ProgressDialog(this);
+        pd2.setMessage("Subiendo Imagenes.");
+
+        pd3 = new ProgressDialog(this);
+        pd3.setMessage("Subiendo Imagenes..");
 
 
     }
@@ -568,21 +572,32 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
 
                 }else {
 
-                    if(foto==1){
-                        ContentValues val_img1 = ValuesImagen(nombreImagen1, Conf.getPin() + "/trabajadores/" + nombreImagen1.trim(), rutaImagen1);
-                        Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
-                        //upload1();
-                    }
+                    if (Global_info.getCantidadFotosEnEsperaEnSegundoPlano(RegTrabActivity.this) > 0){
+                        if(foto==1){
+                            upload1();
+                        }
 
-                    if(foto==2){
+                        if(foto==2){
+                            upload1();
+                            upload2();
+                        }
+                    }else {
+                        if(foto==1){
+                            ContentValues val_img1 = ValuesImagen(nombreImagen1, Conf.getPin() + "/trabajadores/" + nombreImagen1.trim(), rutaImagen1);
+                            Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+                            //upload1();
+                        }
 
-                        ContentValues val_img1 = ValuesImagen(nombreImagen1, Conf.getPin() + "/trabajadores/" + nombreImagen1.trim(), rutaImagen1);
-                        Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
-                        //upload1();
+                        if(foto==2){
 
-                        ContentValues val_img2 = ValuesImagen(nombreImagen2, Conf.getPin() + "/trabajadores/" + nombreImagen2.trim(), rutaImagen2);
-                        Uri uri2 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img2);
-                        //upload2();
+                            ContentValues val_img1 = ValuesImagen(nombreImagen1, Conf.getPin() + "/trabajadores/" + nombreImagen1.trim(), rutaImagen1);
+                            Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+                            //upload1();
+
+                            ContentValues val_img2 = ValuesImagen(nombreImagen2, Conf.getPin() + "/trabajadores/" + nombreImagen2.trim(), rutaImagen2);
+                            Uri uri2 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img2);
+                            //upload2();
+                        }
                     }
 
                    Finalizar();
@@ -598,15 +613,6 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                if(foto==1){
-                          nfoto1="app"+anio+mes+dia+nombre.getText().toString()+"-"+numero_aletorio+".png";
-                          nfoto2="";
-                }else if(foto==2){
-                          nfoto1="app"+anio+mes+dia+nombre.getText().toString()+"-"+numero_aletorio+".png";
-                          nfoto2="app"+anio+mes+dia+nombre.getText().toString()+"-"+numero_aletorio2+".png";
-                }
-
-
 
                 params.put("id_residencial", Conf.getResid().trim());
                 try {
@@ -619,8 +625,8 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
                 params.put("telefono", telefono.getText().toString().trim());
                 params.put("correo", correo.getText().toString().trim());
                 params.put("comentarios", comentarios.getText().toString().trim());
-                params.put("foto1", nfoto1);
-                params.put("foto2", nfoto2);
+                params.put("foto1", nombreImagen1);
+                params.put("foto2", nombreImagen2);
 
 
                 return params;
@@ -640,20 +646,19 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
     }
 
 
-    public void upload1(){
+    public void upload1() {
 
         StorageReference mountainImagesRef = null;
-        mountainImagesRef = storageReference.child(Conf.getPin()+"/trabajadores/app"+anio+mes+dia+nombre.getText().toString()+"-"+numero_aletorio+".png");
+        mountainImagesRef = storageReference.child(Conf.getPin() + "/trabajadores/" + nombreImagen1);
 
-
-        UploadTask uploadTask = mountainImagesRef.putFile(uri_img);
-
+        Uri uri  = Uri.fromFile(new File(rutaImagen1));
+        UploadTask uploadTask = mountainImagesRef.putFile(uri);
 
         // Listen for state changes, errors, and completion of the upload.
         uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                pd.show(); // double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                pd2.show(); // double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                 //System.out.println("Upload is " + progress + "% done");
                 // Toast.makeText(getApplicationContext(),"Cargando Imagen INE " + progress + "%", Toast.LENGTH_SHORT).show();
 
@@ -666,25 +671,27 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(RegTrabActivity.this,"Fallado",Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegTrabActivity.this, "Fallado", Toast.LENGTH_SHORT).show();
+                pd2.dismiss();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                pd.dismiss();
+                eliminarFotoDirectorioLocal(nombreImagen1);
+                pd2.dismiss();
 
             }
         });
     }
 
-    public void upload2(){
-
+    public void upload2() {
 
         StorageReference mountainImagesRef2 = null;
-        mountainImagesRef2 = storageReference.child(Conf.getPin()+"/trabajadores/app"+anio+mes+dia+nombre.getText().toString()+"-"+numero_aletorio2+".png");
+        mountainImagesRef2 = storageReference.child(Conf.getPin() + "/trabajadores/" + nombreImagen2);
 
+        Uri uri  = Uri.fromFile(new File(rutaImagen2));
+        UploadTask uploadTask = mountainImagesRef2.putFile(uri);
 
-        final UploadTask uploadTask = mountainImagesRef2.putFile(uri_img2);
 
         // Listen for state changes, errors, and completion of the upload.
         uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -693,7 +700,7 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
                 // double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                 //System.out.println("Upload is " + progress + "% done");
                 //Toast.makeText(getApplicationContext(),"Cargando Imagen PLACA " + progress + "%", Toast.LENGTH_SHORT).show();
-                pd2.show();
+                pd3.show();
             }
         }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -703,19 +710,60 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(RegTrabActivity.this,"Fallado",Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegTrabActivity.this, "Fallado", Toast.LENGTH_SHORT).show();
+                pd3.dismiss();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                pd2.dismiss();
+                eliminarFotoDirectorioLocal(nombreImagen2);
+                pd3.dismiss();
             }
         });
+    }
 
+    public void eliminarFotoDirectorioLocal(String nombreFoto){
+        String tempfilepath ="";
+        File externalFilesDir = getExternalFilesDir(null);
+        if (externalFilesDir != null) {
+            tempfilepath = externalFilesDir.getAbsolutePath();
+            try {
+                File grTempFiles = new File(tempfilepath);
+                if (grTempFiles.exists()) {
+                    File[] files = grTempFiles.listFiles();
+                    if (grTempFiles.isDirectory() && files != null) {
+                        int numofFiles = files.length;
 
+                        for (int i = 0; i < numofFiles; i++) {
+                            try {
+                                File path = new File(files[i].getAbsolutePath());
+                                if (!path.isDirectory() && path.getName().equals(nombreFoto)) {
+                                    path.delete();
+                                }
+                            }catch (Exception e){
+                                Log.e("EliminarFoto", e.toString());
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                Log.e("ErrorFile", "deleteDirectory: Failed to onCreate directory  " + tempfilepath + " for an unknown reason.");
+
+            }
+
+        }else {
+        }
     }
 
     public void Finalizar(){
+
+        if (Global_info.getCantidadFotosEnEsperaEnSegundoPlano(RegTrabActivity.this) > 0){
+            //Solo ejecutar si el servicio no se esta ejecutando
+            if (!servicioFotos()) {
+                Intent cargarFotos = new Intent(RegTrabActivity.this, subirFotos.class);
+                startService(cargarFotos);
+            }
+        }
 
         pd.dismiss();
 
@@ -725,12 +773,6 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
                 .setMessage("Registro Exitoso")
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-
-                        //Solo ejecutar si el servicio no se esta ejecutando
-                        if (!servicioFotos()) {
-                            Intent cargarFotos = new Intent(RegTrabActivity.this, subirFotos.class);
-                            startService(cargarFotos);
-                        }
 
                         Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.RegTrab2Activity.class);
                         startActivity(i);

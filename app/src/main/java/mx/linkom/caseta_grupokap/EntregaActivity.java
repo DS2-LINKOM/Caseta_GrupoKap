@@ -63,7 +63,7 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
     ImageView foto_recep,viewFoto;
     Button foto,btnRegistrar;
     LinearLayout View,espacio,espacio2,BtnReg,rlVista,rlPermitido;
-    ProgressDialog pd;
+    ProgressDialog pd, pd2, pd3;
     JSONArray ja1,ja2;
     private Configuracion Conf;
     FirebaseStorage storage;
@@ -73,7 +73,7 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
     Uri uri_img;
 
     TextView txtFoto;
-    String rutaImagen1, nombreImagen1;
+    String rutaImagen1 = "", nombreImagen1 = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,8 +103,14 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
 
         txtFoto.setText(Global_info.getTexto1Imagenes());
 
-        pd= new ProgressDialog(this);
+        pd = new ProgressDialog(this);
         pd.setMessage("Registrando...");
+
+        pd2 = new ProgressDialog(this);
+        pd2.setMessage("Subiendo Imagen.");
+
+        pd3 = new ProgressDialog(this);
+        pd3.setMessage("Subiendo Imagen..");
 
         check();
 
@@ -394,9 +400,13 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
                             }).create().show();
                 }else {
 
-                    //Registrar fotos en SQLite
-                    ContentValues val_img1 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/correspondencia/"+nombreImagen1.trim(), rutaImagen1);
-                    Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+                    if (Global_info.getCantidadFotosEnEsperaEnSegundoPlano(EntregaActivity.this) >= Global_info.getLimiteFotosSegundoPlano()){
+                        upload1();
+                    }else {
+                        //Registrar fotos en SQLite
+                        ContentValues val_img1 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/correspondencia/"+nombreImagen1.trim(), rutaImagen1);
+                        Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img1);
+                    }
 
                     pd.dismiss();
                     terminar();
@@ -413,16 +423,10 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
         }){
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                try {
-                    fotos="app"+ja1.getString(2)+"-"+numero_aletorio+".png";
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
 
                 Map<String, String> params = new HashMap<>();
                 params.put("Folio",Conf.getPlacas());
-                params.put("Foto",fotos );
+                params.put("Foto",nombreImagen1 );
                 params.put("id_residencial", Conf.getResid().trim());
 
                 try {
@@ -449,23 +453,19 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
     }
 
 
-    public void upload1(){
+    public void upload1() {
 
         StorageReference mountainImagesRef = null;
-        try {
-            mountainImagesRef =storageReference.child(Conf.getPin()+"/correspondencia/app"+ja1.getString(2)+"-"+numero_aletorio+".png");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mountainImagesRef = storageReference.child(Conf.getPin() + "/correspondencia/" + nombreImagen1);
 
-        UploadTask uploadTask = mountainImagesRef.putFile(uri_img);
-
+        Uri uri  = Uri.fromFile(new File(rutaImagen1));
+        UploadTask uploadTask = mountainImagesRef.putFile(uri);
 
         // Listen for state changes, errors, and completion of the upload.
         uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                pd.show(); // double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                pd2.show(); // double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                 //System.out.println("Upload is " + progress + "% done");
                 // Toast.makeText(getApplicationContext(),"Cargando Imagen INE " + progress + "%", Toast.LENGTH_SHORT).show();
 
@@ -478,29 +478,68 @@ public class EntregaActivity extends mx.linkom.caseta_grupokap.Menu {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(EntregaActivity.this,"Fallado", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EntregaActivity.this, "Fallado", Toast.LENGTH_SHORT).show();
+                pd2.dismiss();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                pd.dismiss();
-                terminar();
+                eliminarFotoDirectorioLocal(nombreImagen1);
+                pd2.dismiss();
+
             }
         });
     }
+
+    public void eliminarFotoDirectorioLocal(String nombreFoto){
+        String tempfilepath ="";
+        File externalFilesDir = getExternalFilesDir(null);
+        if (externalFilesDir != null) {
+            tempfilepath = externalFilesDir.getAbsolutePath();
+            try {
+                File grTempFiles = new File(tempfilepath);
+                if (grTempFiles.exists()) {
+                    File[] files = grTempFiles.listFiles();
+                    if (grTempFiles.isDirectory() && files != null) {
+                        int numofFiles = files.length;
+
+                        for (int i = 0; i < numofFiles; i++) {
+                            try {
+                                File path = new File(files[i].getAbsolutePath());
+                                if (!path.isDirectory() && path.getName().equals(nombreFoto)) {
+                                    Log.e("AccesosMultiples", path.getName() + "es igual a " + nombreFoto);
+                                    path.delete();
+                                }
+                            }catch (Exception e){
+                                Log.e("EliminarFoto", e.toString());
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                Log.e("ErrorFile", "deleteDirectory: Failed to onCreate directory  " + tempfilepath + " for an unknown reason.");
+
+            }
+
+        }else {
+        }
+    }
+
     public void terminar() {
+
+        if (Global_info.getCantidadFotosEnEsperaEnSegundoPlano(EntregaActivity.this) > 0){
+            //Solo ejecutar si el servicio no se esta ejecutando
+            if (!servicioFotos()){
+                Intent cargarFotos = new Intent(EntregaActivity.this, subirFotos.class);
+                startService(cargarFotos);
+            }
+        }
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EntregaActivity.this);
         alertDialogBuilder.setTitle("Alerta");
         alertDialogBuilder
                 .setMessage("Entrega Exitosa")
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-
-                        //Solo ejecutar si el servicio no se esta ejecutando
-                        if (!servicioFotos()){
-                            Intent cargarFotos = new Intent(EntregaActivity.this, subirFotos.class);
-                            startService(cargarFotos);
-                        }
 
                         Intent i = new Intent(getApplicationContext(), CorrespondenciaActivity.class);
                         startActivity(i);

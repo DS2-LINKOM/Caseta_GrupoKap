@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -70,6 +71,8 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
         }
     }
 
+    ConstraintLayout constLayoutAnuncioFotosPendientes;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +99,17 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
         rlVistantes = (LinearLayout)findViewById(R.id.rlVistantes);
         rlTrabajadores = (LinearLayout)findViewById(R.id.rlTrabajadores);
         nombre.setText(Conf.getNomResi());
+
+        constLayoutAnuncioFotosPendientes = (ConstraintLayout) findViewById(R.id.constLayoutAnuncioFotosPendientes);
+
+        constLayoutAnuncioFotosPendientes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplication(), fotosPendientes.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetDashboard);
 
@@ -345,6 +359,8 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
                     try {
                         ja2 = new JSONArray(response);
 
+                        if (Global_info.getCantidadFotosEnEsperaEnSegundoPlano(DashboardActivity.this) >= Global_info.getLimiteFotosSegundoPlano()) constLayoutAnuncioFotosPendientes.setVisibility(View.VISIBLE);
+                        else constLayoutAnuncioFotosPendientes.setVisibility(View.GONE);
 
                         Info();
                         llenado();
