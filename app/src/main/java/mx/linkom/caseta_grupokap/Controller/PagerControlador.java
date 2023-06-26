@@ -19,9 +19,9 @@ public class PagerControlador extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position){
             case 0:
-                return new UbicacionGeo();
+                return new mx.linkom.caseta_grupokap.Controller.UbicacionGeo();
             case 1:
-                return new Qr();
+                return new mx.linkom.caseta_grupokap.Controller.Qr();
             default:
                 return null;
         }

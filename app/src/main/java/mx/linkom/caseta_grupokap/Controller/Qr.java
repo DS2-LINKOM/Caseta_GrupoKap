@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mx.linkom.caseta_grupokap.Configuracion;
-import mx.linkom.caseta_grupokap.ListaRondinesUbicacionesQrActivity;
 import mx.linkom.caseta_grupokap.R;
+import mx.linkom.caseta_grupokap.RondinInfoQrActivity;
 import mx.linkom.caseta_grupokap.adaptadores.ListasClassGrid;
 import mx.linkom.caseta_grupokap.adaptadores.adaptador_Modulo;
 
@@ -59,19 +59,18 @@ public class Qr extends Fragment {
 
 
     public void horarios() {
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_qr_1.php";
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_qr_1.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+       // String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_1.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
-
                 response = response.replace("][", ",");
                 if (response.length() > 0) {
                     try {
                         ja1 = new JSONArray(response);
-                      //  Conf.setRondin(ja1.getString(3));
-                       // Conf.setRondinNombre(ja1.getString(2));
+                        Log.e("Error ", "LINKOM ST: " + response);
 
                         llenado();
 
@@ -106,12 +105,12 @@ public class Qr extends Fragment {
         ArrayList<ListasClassGrid> ubicacion = new ArrayList<ListasClassGrid>();
 
 
-        for (int i = 0; i < ja1.length(); i += 4) {
+        for (int i = 0; i < ja1.length(); i += 7) {
             try {
-                String sCadena = ja1.getString(i + 1);
-                String hora = sCadena.substring(0,5);
+               // String sCadena = ja1.getString(i + 1);
+                //String hora = sCadena.substring(0,5);
 
-                ubicacion.add(new ListasClassGrid(hora+" - "+ja1.getString(i + 2), "ID:"+ja1.getString(i + 0)));
+                ubicacion.add(new ListasClassGrid(ja1.getString(i+1)+" - "+ja1.getString(i + 2), "ID:"+ja1.getString(i + 0)));
             }catch (JSONException e){
                 e.printStackTrace();
             }
@@ -135,15 +134,15 @@ public class Qr extends Fragment {
                         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
 
-                            int posicion=position*4;
+                            int posicion=position*7;
                             try {
                                 //RONDIN DIA
-                                Conf.setDia(ja1.getString(posicion));
+                                Conf.setRondin(ja1.getString(posicion));
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
 
-                            Intent i = new Intent(getActivity(), ListaRondinesUbicacionesQrActivity.class);
+                            Intent i = new Intent(getActivity(), RondinInfoQrActivity.class);
                             startActivity(i);
                         }
                     });

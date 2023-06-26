@@ -49,9 +49,10 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
     private mx.linkom.caseta_grupokap.Configuracion Conf;
     private GoogleMap mMap;
     JSONArray ja1,ja2;
-    TextView Nombre;
+    TextView Nombre,Hora,Ubicacion;
     Button Registrar;
     LinearLayout registrar1;
+    Button Incidencia;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +61,25 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
         Conf = new mx.linkom.caseta_grupokap.Configuracion(this);
         registrar1 = (LinearLayout) findViewById(R.id.registrar1);
         Nombre = (TextView) findViewById(R.id.nombre);
+        Hora = (TextView) findViewById(R.id.hora);
+        Ubicacion = (TextView) findViewById(R.id.ubicacion);
         Registrar = (Button) findViewById(R.id.btnRegistrar);
-        dtl_rondines();
-        Nombre.setText(Conf.getRondinNombre());
+        Incidencia = (Button) findViewById(R.id.btnIncidencia);
+       // dtl_rondines();
+        rondin();
+
+        Incidencia.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(), RondinIncidencias.class);
+                startActivity(i);
+                finish();
+            }
+        });
         Registrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               Validacion();
+                Validacion();
             }
         });
 
@@ -77,52 +90,13 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
 
             locationStart();
         }
-    }
+        Log.e("Error ", "LINKOM ST: " +  Conf.getRondin());
 
-    public void dtl_rondines (){
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_7.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
-
-
-            @Override
-            public void onResponse(String response) {
-                Log.e("TAG", "rondines1: " + response);
-
-                    if (response.trim().equals("error")){
-
-                        registrar1.setVisibility(View.VISIBLE);
-                        rondin();
-                    }else{
-                        response = response.replace("][",",");
-                        registrar1.setVisibility(View.GONE);
-                        rondin();
-
-                    }
-
-            }
-     }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("TAG", "Error: " + error.toString());
-            }
-        }){
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("id_rondin", Conf.getRondin());
-                params.put("id_dia", Conf.getDia());
-                params.put("id_ubicaciones", Conf.getUbicacion());
-
-                return params;
-            }
-        };
-        requestQueue.add(stringRequest);
     }
 
 
     public void rondin() {
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_5.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_2.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
@@ -132,9 +106,49 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
                 if (response.length() > 0) {
                     try {
                         ja1 = new JSONArray(response);
+                       ubicaciones();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("Error ", "Id: " + error.toString());
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
 
-                        Conf.setUsuLatitud(ja1.getString(4));
-                        Conf.setUsuLongitud(ja1.getString(3));
+
+                Map<String, String> params = new HashMap<>();
+                params.put("id", Conf.getRondin().trim());
+                params.put("guardia_de_entrada", Conf.getUsu().trim());
+                params.put("id_residencial", Conf.getResid().trim());
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void ubicaciones() {
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_3.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                response = response.replace("][", ",");
+                if (response.length() > 0) {
+                    try {
+                        ja2 = new JSONArray(response);
+
+                        Nombre.setText(ja1.getString(6));
+                        Hora.setText(ja1.getString(1));
+                        Ubicacion.setText(ja1.getString(2));
+                        Conf.setUsuLatitud(ja2.getString(2));
+                        Conf.setUsuLongitud(ja2.getString(1));
                         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                                 .findFragmentById(R.id.map);
                         mapFragment.getMapAsync(RondinInfoActivity.this);
@@ -155,12 +169,17 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
 
 
                 Map<String, String> params = new HashMap<>();
-                params.put("id", Conf.getUbicacion());
+                try {
+                    params.put("id", ja1.getString(0));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 return params;
             }
         };
         requestQueue.add(stringRequest);
     }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -246,7 +265,7 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
         @Override
         public void onProviderEnabled(String provider) {
             // Este metodo se ejecuta cuando el GPS es activado
-           // mensaje1.setText("GPS Activado");
+            // mensaje1.setText("GPS Activado");
             registrar1.setVisibility(View.VISIBLE);
 
         }
@@ -273,9 +292,8 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
                 .setMessage("¿ Desea realizar el registro ?")
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Ubicacion();
                         Registrar.setEnabled(false);
-
+                        Ubicacion();
                     }
                 })
                 .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
@@ -290,7 +308,7 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
     }
 
     public void Ubicacion(){
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_6.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_4.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
             @Override
@@ -304,7 +322,7 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
                             .setMessage("Registro de Asistencia No Exitoso")
                             .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.ListaRondinesUbicacionesActivity.class);
+                                    Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.Rondines.class);
                                     startActivity(i);
                                     finish();
                                 }
@@ -316,7 +334,7 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
                             .setMessage("Registro de Asistencia Exitoso")
                             .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.ListaRondinesUbicacionesActivity.class);
+                                    Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.Rondines.class);
                                     startActivity(i);
                                     finish();
                                 }
@@ -335,9 +353,15 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
 
 
                 Map<String, String> params = new HashMap<>();
-                params.put("id_rondin", Conf.getRondin());
-                params.put("id_dia", Conf.getDia());
-                params.put("id_ubicaciones", Conf.getUbicacion());
+                params.put("id_residencial", Conf.getResid().trim());
+                try {
+                    params.put("id_rondin", ja1.getString(5));
+                    params.put("id_dia", ja1.getString(3));
+                    params.put("id_ubicaciones",  ja1.getString(0));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 params.put("latitud", Conf.getUsuLatitud2());
                 params.put("longitud", Conf.getUsuLongitud2());
                 return params;
@@ -348,7 +372,7 @@ public class RondinInfoActivity extends mx.linkom.caseta_grupokap.Menu  implemen
     @Override
     public void onBackPressed(){
         super.onBackPressed();
-        Intent intent = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.ListaRondinesUbicacionesActivity.class);
+        Intent intent = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.Rondines.class);
         startActivity(intent);
         finish();
     }

@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mx.linkom.caseta_grupokap.Configuracion;
-import mx.linkom.caseta_grupokap.ListaRondinesUbicacionesActivity;
 import mx.linkom.caseta_grupokap.R;
+import mx.linkom.caseta_grupokap.RondinInfoActivity;
 import mx.linkom.caseta_grupokap.adaptadores.ListasClassGrid;
 import mx.linkom.caseta_grupokap.adaptadores.adaptador_Modulo;
 
@@ -59,7 +59,8 @@ public class UbicacionGeo extends Fragment {
 
 
     public void horarios() {
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_1.php";
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_1.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+       // String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_1.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
@@ -69,6 +70,7 @@ public class UbicacionGeo extends Fragment {
                 if (response.length() > 0) {
                     try {
                         ja1 = new JSONArray(response);
+                        Log.e("Error ", "LINKOM ST: " + response);
 
                         llenado();
 
@@ -103,12 +105,12 @@ public class UbicacionGeo extends Fragment {
         ArrayList<ListasClassGrid> ubicacion = new ArrayList<ListasClassGrid>();
 
 
-        for (int i = 0; i < ja1.length(); i += 3) {
+        for (int i = 0; i < ja1.length(); i += 7) {
             try {
-                String sCadena = ja1.getString(i + 1);
-                String hora = sCadena.substring(0,5);
+               // String sCadena = ja1.getString(i + 1);
+                //String hora = sCadena.substring(0,5);
 
-                ubicacion.add(new ListasClassGrid(hora+" - "+ja1.getString(i + 2), "ID:"+ja1.getString(i + 0)));
+                ubicacion.add(new ListasClassGrid(ja1.getString(i+1)+" - "+ja1.getString(i + 2), "ID:"+ja1.getString(i + 0)));
             }catch (JSONException e){
                 e.printStackTrace();
             }
@@ -132,15 +134,15 @@ public class UbicacionGeo extends Fragment {
                         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
 
-                            int posicion=position*3;
+                            int posicion=position*7;
                             try {
                                 //RONDIN DIA
-                                Conf.setDia(ja1.getString(posicion));
+                                Conf.setRondin(ja1.getString(posicion));
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
 
-                            Intent i = new Intent(getActivity(), ListaRondinesUbicacionesActivity.class);
+                            Intent i = new Intent(getActivity(), RondinInfoActivity.class);
                             startActivity(i);
                         }
                     });

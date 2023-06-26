@@ -44,6 +44,9 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -54,7 +57,6 @@ import java.util.Random;
 
 import mx.linkom.caseta_grupokap.detectPlaca.DetectarPlaca;
 import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
-import mx.linkom.caseta_grupokap.offline.Global_info;
 import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
 
 
@@ -69,14 +71,16 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
     LinearLayout registrar1,registrar2,registrar3,registrar4;
     LinearLayout foto2,foto3,espacio1,espacio2,espacio3,espacio4,espacio5,espacio6,espacio7;
     String ima1,ima2,ima3;
-    ProgressDialog pd, pd2, pd3, pd4, pd5;
+    ProgressDialog pd,pd2,pd3;
     FirebaseStorage storage;
     StorageReference storageReference;
     mx.linkom.caseta_grupokap.Configuracion Conf;
     EditText Comentarios,Accion;
     Uri uri_img,uri_img2,uri_img3;
+    JSONArray ja1;
 
-    String rutaImagen1="", rutaImagen2="", rutaImagen3="", rutaImagenPlaca="", nombreImagen1="", nombreImagen2="", nombreImagen3="", nombreImagenPlaca="";
+    String rutaImagen1, rutaImagen2, rutaImagen3, nombreImagen1, nombreImagen2, nombreImagen3;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -160,7 +164,7 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
             @Override
             public void onClick(View v) {
                 foto=2;
-                //CropImage.startPickImageActivity(RondinIncidencias.this);
+                imgFoto2();
                 registrar2.setVisibility(View.GONE);
                 foto2.setVisibility(View.VISIBLE);
             }
@@ -177,7 +181,7 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
             @Override
             public void onClick(View v) {
                 foto=3;
-               // CropImage.startPickImageActivity(RondinIncidencias.this);
+                imgFoto3();
                 registrar3.setVisibility(View.GONE);
                 foto3.setVisibility(View.VISIBLE);
             }
@@ -197,21 +201,15 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
             }
         });
 
-        pd = new ProgressDialog(this);
+        pd= new ProgressDialog(this);
         pd.setMessage("Registrando...");
 
-        pd2 = new ProgressDialog(this);
-        pd2.setMessage("Subiendo Imagenes.");
+        pd2= new ProgressDialog(this);
+        pd2.setMessage("Subiendo Foto 2...");
 
-        pd3 = new ProgressDialog(this);
-        pd3.setMessage("Subiendo Imagenes..");
-
-        pd4 = new ProgressDialog(this);
-        pd4.setMessage("Subiendo Imagenes...");
-
-        pd5 = new ProgressDialog(this);
-        pd5.setMessage("Subiendo Imagenes....");
-
+        pd3= new ProgressDialog(this);
+        pd3.setMessage("Subiendo Foto 3...");
+        rondin();
     }
 
     InputFilter filter = new InputFilter() {
@@ -285,6 +283,42 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
     int mes = fecha.get(Calendar.MONTH) + 1;
     int dia = fecha.get(Calendar.DAY_OF_MONTH);
 
+
+    public void rondin() {
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_2.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                response = response.replace("][", ",");
+                if (response.length() > 0) {
+                    try {
+                        ja1 = new JSONArray(response);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("Error ", "Id: " + error.toString());
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+
+                Map<String, String> params = new HashMap<>();
+                params.put("id", Conf.getRondin().trim());
+                params.put("guardia_de_entrada", Conf.getUsu().trim());
+                params.put("id_residencial", Conf.getResid().trim());
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
 
 
     //IMAGEN FOTO
@@ -384,6 +418,9 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
         }
     }
 
+
+
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -444,6 +481,8 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
                 espacio3.setVisibility(View.VISIBLE);
                 espacio4.setVisibility(View.VISIBLE);
 
+
+
             }
 
             if (requestCode == 2) {
@@ -492,12 +531,13 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
                 .setMessage("¿ Desea registrar la incidencia ?")
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        pd.show();
-                        Registrar(Ids);
+
                         btnContinuar.setEnabled(false);
                         btnContinuar3.setEnabled(false);
                         btnContinuar5.setEnabled(false);
                         btnContinuar6.setEnabled(false);
+                        pd.show();
+                        Registrar(Ids);
                     }
                 })
                 .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
@@ -512,7 +552,7 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
 
     public void Registrar(final int Id){
 
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_8.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/rondines_incidencias.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
@@ -523,61 +563,18 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
 
                 if(response.equals("error")){
                     pd.dismiss();
-
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RondinIncidencias.this);
                     alertDialogBuilder.setTitle("Alerta");
                     alertDialogBuilder
                             .setMessage("Registro de Incidencia No Exitoso")
                             .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.ListaRondinesUbicacionesActivity.class);
+                                    Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.Rondines.class);
                                     startActivity(i);
                                     finish();
                                 }
                             }).create().show();
                 }else {
-
-                    if (Global_info.getCantidadFotosEnEsperaEnSegundoPlano(RondinIncidencias.this) >= Global_info.getLimiteFotosSegundoPlano()){
-                        if(Id==2){
-                            upload1();
-                            terminar();
-                        }else if(Id==3){
-                            upload1();
-                            upload2();
-                            terminar();
-                        }else if(Id==4){
-                            upload1();
-                            upload2();
-                            upload3();
-                            terminar();
-                        }
-                    }else {
-                        if(Id==2){
-                            ContentValues val_img4 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/incidencias/"+nombreImagen1.trim(), rutaImagen1);
-                            Uri uri4 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img4);
-
-                            terminar();
-                        }else if(Id==3){
-                            ContentValues val_img4 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/incidencias/"+nombreImagen1.trim(), rutaImagen1);
-                            Uri uri4 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img4);
-
-                            ContentValues val_img5 =  ValuesImagen(nombreImagen2, Conf.getPin()+"/incidencias/"+nombreImagen2.trim(), rutaImagen2);
-                            Uri uri5 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img5);
-
-                            terminar();
-                        }else if(Id==4){
-                            ContentValues val_img4 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/incidencias/"+nombreImagen1.trim(), rutaImagen1);
-                            Uri uri4 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img4);
-
-                            ContentValues val_img5 =  ValuesImagen(nombreImagen2, Conf.getPin()+"/incidencias/"+nombreImagen2.trim(), rutaImagen2);
-                            Uri uri5 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img5);
-
-                            ContentValues val_img6 =  ValuesImagen(nombreImagen3, Conf.getPin()+"/incidencias/"+nombreImagen3.trim(), rutaImagen3);
-                            Uri uri6 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img6);
-
-                            terminar();
-                        }
-                    }
 
                     if(Id==1){
                         pd.dismiss();
@@ -588,11 +585,43 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
                                 .setMessage("Registro de Incidencia Exitosa")
                                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-                                        Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.ListaRondinesUbicacionesActivity.class);
+                                        Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.Rondines.class);
                                         startActivity(i);
                                         finish();
                                     }
                                 }).create().show();
+
+                    }else if(Id==2){
+                        ContentValues val_img4 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/incidencias/"+nombreImagen1.trim(), rutaImagen1);
+                        Uri uri4 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img4);
+
+                        //upload1();
+                        terminar();
+                    }else if(Id==3){
+                        ContentValues val_img4 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/incidencias/"+nombreImagen1.trim(), rutaImagen1);
+                        Uri uri4 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img4);
+
+                        ContentValues val_img5 =  ValuesImagen(nombreImagen2, Conf.getPin()+"/incidencias/"+nombreImagen2.trim(), rutaImagen2);
+                        Uri uri5 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img5);
+                        //upload1();
+                        //upload2();
+                        terminar();
+                    }else if(Id==4){
+                        ContentValues val_img4 =  ValuesImagen(nombreImagen1, Conf.getPin()+"/incidencias/"+nombreImagen1.trim(), rutaImagen1);
+                        Uri uri4 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img4);
+
+                        ContentValues val_img5 =  ValuesImagen(nombreImagen2, Conf.getPin()+"/incidencias/"+nombreImagen2.trim(), rutaImagen2);
+                        Uri uri5 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img5);
+
+                        ContentValues val_img6 =  ValuesImagen(nombreImagen3, Conf.getPin()+"/incidencias/"+nombreImagen3.trim(), rutaImagen3);
+                        Uri uri6 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img6);
+
+/*
+                        upload1();
+                        upload2();
+                        upload3();
+*/
+                        terminar();
                     }
                 }
             }
@@ -607,14 +636,40 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
 
                 Map<String, String> params = new HashMap<>();
 
+                if(Id==1){
+                    ima1="";
+                    ima2="";
+                    ima3="";
+                }else if(Id==2){
+                    ima1="app"+numero_aletorio+numero_aletorio3;
+                    ima2="";
+                    ima3="";
+                }else if(Id==3){
+                    ima1="app"+numero_aletorio+numero_aletorio3;
+                    ima2="app"+numero_aletorio2+numero_aletorio;
+                    ima3="";
+                }else if(Id==4){
+                    ima1="app"+numero_aletorio+numero_aletorio3;
+                    ima2="app"+numero_aletorio2+numero_aletorio;
+                    ima3="app"+numero_aletorio3+numero_aletorio2;
+                }
+
                 params.put("id_residencial", Conf.getResid().trim());
-                params.put("id", Conf.getUsu().trim());
+                params.put("id_usuario", Conf.getUsu().trim());
                 params.put("Comentario", Comentarios.getText().toString().trim());
                 params.put("Accion", Accion.getText().toString().trim());
-                params.put("foto1", nombreImagen1);
-                params.put("foto2", nombreImagen2);
-                params.put("foto3", nombreImagen3);
-                params.put("id_rondin", Conf.getRondin());
+                params.put("foto1", ima1);
+                params.put("foto2", ima2);
+                params.put("foto3", ima3);
+                params.put("foto3", ima3);
+                try {
+                    params.put("id_rondin", ja1.getString(5));
+                    params.put("id_ubicacion", ja1.getString(0));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                params.put("id_tipo","0");
 
 
                 return params;
@@ -633,16 +688,16 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
 
     public void upload1() {
         StorageReference mountainImagesRef = null;
-        mountainImagesRef = storageReference.child(Conf.getPin() + "/incidencias/" + nombreImagen1);
+        mountainImagesRef = storageReference.child(Conf.getPin()+"/incidencias/app"+numero_aletorio+numero_aletorio3);
 
-        Uri uri  = Uri.fromFile(new File(rutaImagen1));
-        UploadTask uploadTask = mountainImagesRef.putFile(uri);
+        final UploadTask uploadTask = mountainImagesRef.putFile(uri_img);
+
 
         // Listen for state changes, errors, and completion of the upload.
         uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                pd2.show(); // double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                pd.show(); // double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                 //System.out.println("Upload is " + progress + "% done");
                 // Toast.makeText(getApplicationContext(),"Cargando Imagen INE " + progress + "%", Toast.LENGTH_SHORT).show();
 
@@ -655,27 +710,58 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(RondinIncidencias.this, "Fallado", Toast.LENGTH_SHORT).show();
-                pd2.dismiss();
+                Toast.makeText(RondinIncidencias.this,"Fallado", Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                eliminarFotoDirectorioLocal(nombreImagen1);
-                pd2.dismiss();
+                pd.dismiss();
 
             }
         });
     }
-
     public void upload2() {
 
         StorageReference mountainImagesRef2 = null;
-        mountainImagesRef2 = storageReference.child(Conf.getPin() + "/incidencias/" + nombreImagen2);
+        mountainImagesRef2 = storageReference.child(Conf.getPin()+"/incidencias/app"+numero_aletorio2+numero_aletorio);
 
-        Uri uri  = Uri.fromFile(new File(rutaImagen2));
-        UploadTask uploadTask = mountainImagesRef2.putFile(uri);
+        final UploadTask uploadTask = mountainImagesRef2.putFile(uri_img2);
 
+        // Listen for state changes, errors, and completion of the upload.
+        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                // double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                //System.out.println("Upload is " + progress + "% done");
+                //Toast.makeText(getApplicationContext(),"Cargando Imagen PLACA " + progress + "%", Toast.LENGTH_SHORT).show();
+                pd2.show();
+            }
+        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                //Toast.makeText(AccesoActivity.this,"Pausado",Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Toast.makeText(RondinIncidencias.this,"Fallado", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                pd2.dismiss();
+
+
+
+
+            }
+        });
+    }
+    public void upload3() {
+        StorageReference mountainImagesRef3 = null;
+        mountainImagesRef3 = storageReference.child(Conf.getPin()+"/incidencias/app"+numero_aletorio3+numero_aletorio2);
+
+        final UploadTask uploadTask = mountainImagesRef3.putFile(uri_img3);
 
         // Listen for state changes, errors, and completion of the upload.
         uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -694,102 +780,18 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(RondinIncidencias.this, "Fallado", Toast.LENGTH_SHORT).show();
-                pd3.dismiss();
+                Toast.makeText(RondinIncidencias.this,"Fallado", Toast.LENGTH_SHORT).show();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                eliminarFotoDirectorioLocal(nombreImagen2);
                 pd3.dismiss();
-            }
-        });
-
-
-    }
-
-    public void upload3() {
-
-        StorageReference mountainImagesRef3 = null;
-        mountainImagesRef3 = storageReference.child(Conf.getPin() + "/incidencias/" + nombreImagen3);
-
-        Uri uri  = Uri.fromFile(new File(rutaImagen3));
-        UploadTask uploadTask = mountainImagesRef3.putFile(uri);
-
-        // Listen for state changes, errors, and completion of the upload.
-        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                // double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                //System.out.println("Upload is " + progress + "% done");
-                //Toast.makeText(getApplicationContext(),"Cargando Imagen PLACA " + progress + "%", Toast.LENGTH_SHORT).show();
-                pd4.show();
-            }
-        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                //Toast.makeText(AccesoActivity.this,"Pausado",Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Toast.makeText(RondinIncidencias.this, "Fallado", Toast.LENGTH_SHORT).show();
-                pd4.dismiss();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                eliminarFotoDirectorioLocal(nombreImagen3);
-                pd4.dismiss();
 
             }
         });
-    }
-
-    public void eliminarFotoDirectorioLocal(String nombreFoto){
-        String tempfilepath ="";
-        File externalFilesDir = getExternalFilesDir(null);
-        if (externalFilesDir != null) {
-            tempfilepath = externalFilesDir.getAbsolutePath();
-            try {
-                File grTempFiles = new File(tempfilepath);
-                if (grTempFiles.exists()) {
-                    File[] files = grTempFiles.listFiles();
-                    if (grTempFiles.isDirectory() && files != null) {
-                        int numofFiles = files.length;
-
-                        for (int i = 0; i < numofFiles; i++) {
-                            try {
-                                File path = new File(files[i].getAbsolutePath());
-                                if (!path.isDirectory() && path.getName().equals(nombreFoto)) {
-                                    path.delete();
-                                }
-                            }catch (Exception e){
-                                Log.e("EliminarFoto", e.toString());
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                Log.e("ErrorFile", "deleteDirectory: Failed to onCreate directory  " + tempfilepath + " for an unknown reason.");
-
-            }
-
-        }else {
-        }
     }
 
     private void terminar() {
-
-        if (Global_info.getCantidadFotosEnEsperaEnSegundoPlano(RondinIncidencias.this) > 0){
-            //Solo ejecutar si el servicio no se esta ejecutando
-            if (!servicioFotos()) {
-                Intent cargarFotos = new Intent(RondinIncidencias.this, subirFotos.class);
-                startService(cargarFotos);
-            }
-        }
-        pd.dismiss();
-
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RondinIncidencias.this);
         alertDialogBuilder.setTitle("Alerta");
         alertDialogBuilder
@@ -797,7 +799,13 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
                 .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
-                        Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.ListaRondinesUbicacionesActivity.class);
+                        //Solo ejecutar si el servicio no se esta ejecutando
+                        if (!servicioFotos()) {
+                            Intent cargarFotos = new Intent(RondinIncidencias.this, subirFotos.class);
+                            startService(cargarFotos);
+                        }
+
+                        Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.Rondines.class);
                         startActivity(i);
                         finish();
                     }
@@ -820,7 +828,7 @@ public class RondinIncidencias  extends mx.linkom.caseta_grupokap.Menu{
     @Override
     public void onBackPressed(){
         super.onBackPressed();
-        Intent intent = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.ListaRondinesUbicacionesActivity.class);
+        Intent intent = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.Rondines.class);
         startActivity(intent);
         finish();
     }
