@@ -1887,6 +1887,26 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
 
+                    try {
+                        if (fotos1 == 1) {
+                            f1 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio + ".png";
+                        } else {
+                            f1 = ja7.getString(11);
+                        }
+                        if (fotos2 == 1) {
+                            f2 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio2 + ".png";
+                        } else {
+                            f2 = ja7.getString(12);
+                        }
+                        if (fotos3 == 1) {
+                            f3 = "app" + anio + mes + dia + Placas.getText().toString() + "-" + numero_aletorio3 + ".png";
+                        } else {
+                            f3 = ja7.getString(13);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
                     Map<String, String> params = new HashMap<>();
                     try {
 
@@ -1895,9 +1915,9 @@ public class PreEntradasQrActivity extends mx.linkom.caseta_grupokap.Menu {
                         params.put("guardia_de_entrada", Conf.getUsu().trim());
                         params.put("pasajeros", Pasajeros.getSelectedItem().toString());
                         params.put("placas", Placas.getText().toString().trim());
-                        params.put("foto1", nombreImagen1);
-                        params.put("foto2", nombreImagen2);
-                        params.put("foto3", nombreImagen3);
+                        params.put("foto1", f1);
+                        params.put("foto2", f2);
+                        params.put("foto3", f3);
                         params.put("usuario", ja2.getString(1).trim() + " " + ja2.getString(2).trim() + " " + ja2.getString(3).trim());
                         params.put("token", ja2.getString(5).trim());
                         params.put("correo", ja2.getString(6).trim());
