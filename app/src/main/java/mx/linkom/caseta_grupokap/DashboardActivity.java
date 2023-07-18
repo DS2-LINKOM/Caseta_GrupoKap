@@ -359,8 +359,8 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
                     try {
                         ja2 = new JSONArray(response);
 
-                        if (Global_info.getCantidadFotosEnEsperaEnSegundoPlano(DashboardActivity.this) >= Global_info.getLimiteFotosSegundoPlano()) constLayoutAnuncioFotosPendientes.setVisibility(View.VISIBLE);
-                        else constLayoutAnuncioFotosPendientes.setVisibility(View.GONE);
+                        /*if (Global_info.getCantidadFotosEnEsperaEnSegundoPlano(DashboardActivity.this) >= Global_info.getLimiteFotosSegundoPlano()) constLayoutAnuncioFotosPendientes.setVisibility(View.VISIBLE);
+                        else constLayoutAnuncioFotosPendientes.setVisibility(View.GONE);*/
 
                         Info();
                         llenado();

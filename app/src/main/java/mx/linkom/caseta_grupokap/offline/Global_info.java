@@ -20,7 +20,7 @@ public class Global_info extends Application {
     //private static String URL = "http://192.168.0.110/android/demoCaseta/";
     private static String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/off-line/";
 
-    private static int LIMITE_FOTOS_SEGUNDO_PLANO = 60;
+    private static int LIMITE_FOTOS_SEGUNDO_PLANO = 0;
 
     public static int getLimiteFotosSegundoPlano() {
         return LIMITE_FOTOS_SEGUNDO_PLANO;
