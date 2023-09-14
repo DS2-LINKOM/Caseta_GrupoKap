@@ -75,6 +75,7 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
                         llenado4();
                         llenado5();
                         llenado6();
+                        llenadoReservaciones();
                     } catch (JSONException e) {
                         Toast.makeText(getApplicationContext(), "Usuario y/o Contraseña Incorrectos", Toast.LENGTH_LONG).show();
 
@@ -103,6 +104,58 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
         requestQueue.add(stringRequest);
     }
 
+    public void llenadoReservaciones(){
+        ArrayList<ModuloClassGrid> lista = new ArrayList<ModuloClassGrid>();
+
+        Log.e("llenado", "res");
+        lista.add(new ModuloClassGrid(R.drawable.ic_calendario_reservaciones,"Reservaciones","#FF4081"));
+
+        /*try {
+            if(ja1.getString(6).equals("1")  ){
+
+            }else{
+
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }*/
+
+
+        gridList.setAdapter(new adaptador_Modulo(this, R.layout.activity_modulo_lista, lista){
+            @Override
+            public void onEntrada(Object entrada, View view) {
+                if (entrada != null) {
+                    ImageView add = (ImageView) view.findViewById(R.id.imageView);
+                    if (add != null)
+                        add.setImageResource(((ModuloClassGrid) entrada).getImagen());
+
+                    final TextView title = (TextView) view.findViewById(R.id.title);
+                    if (title != null)
+                        title.setText(((ModuloClassGrid) entrada).getTitle());
+
+                    final LinearLayout line = (LinearLayout) view.findViewById(R.id.line);
+                    if (line != null)
+                        line.setBackgroundColor(Color.parseColor(((ModuloClassGrid) entrada).getColorCode()));
+
+                    gridList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+                            if(position==0) {
+                                Intent reservaciones = new Intent(getApplication(), mx.linkom.caseta_grupokap.ListaReservacionesActivity.class);
+                                startActivity(reservaciones);
+                                finish();
+                            }
+                        }
+                    });
+
+                }
+            }
+
+        });
+    }
 
 
     public void llenado(){
