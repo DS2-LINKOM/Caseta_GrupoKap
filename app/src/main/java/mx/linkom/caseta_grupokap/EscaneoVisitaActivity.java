@@ -5,8 +5,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
@@ -21,8 +26,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -39,10 +47,16 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
+import mx.linkom.caseta_grupokap.detectPlaca.DetectarPlaca;
+import mx.linkom.caseta_grupokap.detectPlaca.objectDetectorClass;
 import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
 import mx.linkom.caseta_grupokap.offline.Global_info;
 
@@ -68,6 +82,15 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
     /*ImageView iconoInternet;
     boolean Offline = false;*/
 
+    LinearLayout LayoutBtnPlaca, FotoPlacaView;
+    Button btnFotoPlaca;
+    ImageView viewPlaca;
+    private mx.linkom.caseta_grupokap.detectPlaca.objectDetectorClass objectDetectorClass;
+    String rutaImagenPlaca, nombreImagenPlaca;
+    Uri uri_img;
+    boolean modeloCargado=false;
+    JSONArray ja5,ja6;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +108,11 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
         Placas = (EditText) findViewById(R.id.editText1);
         Registro = (Button) findViewById(R.id.btnBuscar1);
         Registro2 = (Button) findViewById(R.id.btnBuscar2);
+
+        LayoutBtnPlaca = (LinearLayout) findViewById(R.id.LayoutBtnPlaca);
+        FotoPlacaView = (LinearLayout) findViewById(R.id.FotoPlacaView);
+        btnFotoPlaca = (Button) findViewById(R.id.btnFotoPlaca);
+        viewPlaca = (ImageView) findViewById(R.id.viewPlaca);
 
         /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetEscaneoVisita);
 
@@ -121,6 +149,17 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
             }
         });*/
 
+        try {
+            objectDetectorClass = new objectDetectorClass(getAssets(), "detectPlacaLKM.tflite", "labelmapTf.txt", 320);
+            Log.e("MainActivity", "Modelo cargado correctamente");
+            modeloCargado = true;
+        } catch (IOException e) {
+            modeloCargado = false;
+            Log.e("MainActivity", "Error al cargar modelo");
+        }
+
+        menu();
+
         Registro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,6 +195,12 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
             }
         });
 
+        btnFotoPlaca.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imgFotoPlacaOffline();
+            }
+        });
 
         qr = (EditText) findViewById(R.id.editText);
         Buscar = (Button) findViewById(R.id.btnBuscar);
@@ -197,6 +242,172 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
             return null;
         }
     };
+
+    //ALETORIO
+    Random primero = new Random();
+    int prime = primero.nextInt(9);
+
+    String[] segundo = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandonsegun = (int) Math.round(Math.random() * 25);
+
+    Random tercero = new Random();
+    int tercer = tercero.nextInt(9);
+
+    String[] cuarto = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandoncuart = (int) Math.round(Math.random() * 25);
+
+    String numero_aletorio = prime + segundo[numRandonsegun] + tercer + cuarto[numRandoncuart];
+
+
+    //ALETORIO2
+
+    Random primero2 = new Random();
+    int prime2 = primero2.nextInt(9);
+
+    String[] segundo2 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandonsegun2 = (int) Math.round(Math.random() * 25);
+
+    Random tercero2 = new Random();
+    int tercer2 = tercero2.nextInt(9);
+
+    String[] cuarto2 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandoncuart2 = (int) Math.round(Math.random() * 25);
+
+    String numero_aletorio2 = prime2 + segundo2[numRandonsegun2] + tercer2;
+
+
+    //ALETORIO3
+
+    Random primero3 = new Random();
+    int prime3 = primero3.nextInt(9);
+
+    String[] segundo3 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandonsegun3 = (int) Math.round(Math.random() * 25);
+
+    Random tercero3 = new Random();
+    int tercer3 = tercero3.nextInt(9);
+
+    String[] cuarto3 = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+    int numRandoncuart3 = (int) Math.round(Math.random() * 25);
+
+    String numero_aletorio3 = prime3 + segundo3[numRandonsegun3] + tercer3 + cuarto3[numRandoncuart3];
+
+    Calendar fecha = Calendar.getInstance();
+    int anio = fecha.get(Calendar.YEAR);
+    int mes = fecha.get(Calendar.MONTH) + 1;
+    int dia = fecha.get(Calendar.DAY_OF_MONTH);
+
+    public void menu() {
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/menu.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                response = response.replace("][", ",");
+                if (response.length() > 0) {
+                    try {
+                        ja5 = new JSONArray(response);
+                        submenu(ja5.getString(0));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("TAG", "Error: " + error.toString());
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("id_residencial", Conf.getResid());
+
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void submenu(final String id_app) {
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/menu_3.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+
+                Log.e("respuesta", response);
+                if (response.equals("error")) {
+                    int $arreglo[] = {0};
+                    try {
+                        ja6 = new JSONArray($arreglo);
+                        Global.setFotoPlaca(false);
+                        imagenes();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                } else {
+                    response = response.replace("][", ",");
+                    if (response.length() > 0) {
+                        try {
+                            ja6 = new JSONArray(response);
+                            Log.e("RESP2", ja6.getString(8));
+                            Log.e("RESP2", ja6.getString(9));
+                            Log.e("RESP2", ja6.getString(10));
+                            Log.e("RESP2", ja6.getString(11));
+                            if (ja6.getString(10).trim().equals("1")){
+                                LayoutBtnPlaca.setVisibility(View.VISIBLE);
+                                Global.setFotoPlaca(true);
+                            }else {
+                                Global.setFotoPlaca(false);
+                            }
+                            imagenes();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("TAG", "Error: " + error.toString());
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("id_app", id_app.trim());
+                params.put("id_residencial", Conf.getResid());
+
+                return params;
+            }
+        };
+        requestQueue.add(stringRequest);
+    }
+
+    public void imagenes(){
+
+        try {
+            if (ja6.getString(10).equals("1")) {
+                LayoutBtnPlaca.setVisibility(View.VISIBLE);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     public void Validacion() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EscaneoVisitaActivity.this);
@@ -1075,6 +1286,9 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
                         Conf.setPlacas(Placas.getText().toString().trim());
                         Conf.setTipoReg("Auto");
                         Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesoRegistroActivity.class);
+                        i.putExtra("rutaDispositivo", rutaImagenPlaca);
+                        i.putExtra("nombreFotoPlaca", nombreImagenPlaca);
+                        i.putExtra("btnPlacas", "1");
                         startActivity(i);
                         finish();
                     } else {
@@ -1088,10 +1302,16 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
 
                                 if (Integer.parseInt(Conf.getPreQr()) == 1) {
                                     Intent i = new Intent(getApplicationContext(), PreEntradasActivity.class);
+                                    i.putExtra("rutaDispositivo", rutaImagenPlaca);
+                                    i.putExtra("nombreFotoPlaca", nombreImagenPlaca);
+                                    i.putExtra("btnPlacas", "1");
                                     startActivity(i);
                                     finish();
                                 } else {
                                     Intent i = new Intent(getApplicationContext(), mx.linkom.caseta_grupokap.AccesoRegistroActivity.class);
+                                    i.putExtra("rutaDispositivo", rutaImagenPlaca);
+                                    i.putExtra("nombreFotoPlaca", nombreImagenPlaca);
+                                    i.putExtra("btnPlacas", "1");
                                     startActivity(i);
                                     finish();
                                 }
@@ -1118,6 +1338,84 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
             };
 
             requestQueue.add(stringRequest);
+        }
+    }
+
+    public void imgFotoPlacaOffline(){
+        Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+
+            File foto=null;
+            try {
+                nombreImagenPlaca = "appPlaca"+anio+mes+dia+"-"+numero_aletorio+numero_aletorio2+numero_aletorio3+".png";
+                foto= new File(getApplication().getExternalFilesDir(null),nombreImagenPlaca);
+                rutaImagenPlaca = foto.getAbsolutePath();
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(EscaneoVisitaActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+
+                uri_img= FileProvider.getUriForFile(getApplicationContext(),getApplicationContext().getPackageName()+".provider",foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT,uri_img);
+                startActivityForResult(intentCaptura, 3);
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+        if (resultCode == RESULT_OK) {
+
+            if (requestCode == 3) {
+
+                Bitmap bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/"+nombreImagenPlaca);
+                if (modeloCargado){
+                    String txtPlaca = DetectarPlaca.getTextFromImage(DetectarPlaca.reconocerPlaca(bitmap, objectDetectorClass, 1), EscaneoVisitaActivity.this);
+
+                    Log.e("PLACA", txtPlaca);
+                    if (!txtPlaca.isEmpty())  Placas.setText(txtPlaca);
+                }
+
+                Matrix matrix = new Matrix();
+                matrix.postRotate(90);
+
+                Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                bitmap = rotatedBitmap;
+
+                bitmap = DetectarPlaca.fechaHoraFoto(bitmap);
+
+                FileOutputStream fos = null;
+
+                try {
+                    fos = new FileOutputStream(rutaImagenPlaca);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos); // compress and save as JPEG
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+                FotoPlacaView.setVisibility(View.VISIBLE);
+                viewPlaca.setVisibility(View.VISIBLE);
+                viewPlaca.setImageBitmap(bitmap);
+
+            }
         }
     }
 

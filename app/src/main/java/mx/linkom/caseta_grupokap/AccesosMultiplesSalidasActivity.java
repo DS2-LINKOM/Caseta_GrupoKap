@@ -62,10 +62,10 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
     String FechaC;
 
     Button Registrar,Continuar;
-    ImageView view1,view2,view3;
-    TextView nombre_foto1,nombre_foto2,nombre_foto3;
+    ImageView view1,view2,view3,ImageViewPlaca;
+    TextView nombre_foto1,nombre_foto2,nombre_foto3, textViewNombreFotoPlaca, txtFotoCargandoPlacas;
     LinearLayout Foto1, Foto2,Foto3,Foto1View,Foto2View,Foto3View,espacio2,espacio3,espacio4,espacio5,espacio6,espacio8,espacio9,espacio10;
-    LinearLayout PlacasL;
+    LinearLayout PlacasL, LinLayEspacio1Placa, LinLayTituloPlaca, LinLayEspacio2Placa, LinLayFotoPlacaView, LinLayEspacio3Placa;
     EditText Comentarios;
 
     /*ImageView iconoInternet;
@@ -128,6 +128,16 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
         rlPermitido = (LinearLayout) findViewById(R.id.rlPermitido);
         rlDenegado = (LinearLayout) findViewById(R.id.rlDenegado);
         tvMensaje = (TextView)findViewById(R.id.setMensaje);
+
+        ImageViewPlaca = (ImageView) findViewById(R.id.ImageViewPlaca);
+        textViewNombreFotoPlaca = (TextView) findViewById(R.id.textViewNombreFotoPlaca);
+        txtFotoCargandoPlacas = (TextView) findViewById(R.id.txtFotoCargandoPlacas);
+        txtFotoCargandoPlacas.setText(Global_info.getTexto1Imagenes());
+        LinLayEspacio1Placa = (LinearLayout) findViewById(R.id.LinLayEspacio1Placa);
+        LinLayTituloPlaca = (LinearLayout) findViewById(R.id.LinLayTituloPlaca);
+        LinLayEspacio2Placa = (LinearLayout) findViewById(R.id.LinLayEspacio2Placa);
+        LinLayFotoPlacaView = (LinearLayout) findViewById(R.id.LinLayFotoPlacaView);
+        LinLayEspacio3Placa = (LinearLayout) findViewById(R.id.LinLayEspacio3Placa);
 
         /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetAccesosMultiplesSalidas);
 
@@ -335,7 +345,7 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
     }
 
     public void submenu(final String id_app) {
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/menu_2.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/menu_3.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
@@ -357,6 +367,11 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                     if (response.length() > 0) {
                         try {
                             ja6 = new JSONArray(response);
+                            if (ja6.getString(10).trim().equals("1")){
+                                Global.setFotoPlaca(true);
+                            }else {
+                                Global.setFotoPlaca(false);
+                            }
                             Visita();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -651,7 +666,7 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
 
 
     public void salidas (final String id_visitante){
-        String URLResidencial = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php6.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String URLResidencial = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php6_2.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URLResidencial, new Response.Listener<String>() {
             @Override
@@ -751,6 +766,48 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                     PlacasL.setVisibility(View.VISIBLE);
                     Placas.setText(ja4.getString(7));
                 }
+
+                //FOTO PLACA
+
+                if(ja4.getString(8).equals("")){
+                    LinLayEspacio1Placa.setVisibility(View.GONE);
+                    LinLayTituloPlaca.setVisibility(View.GONE);
+                    LinLayEspacio2Placa.setVisibility(View.GONE);
+                    LinLayFotoPlacaView.setVisibility(View.GONE);
+                    txtFotoCargandoPlacas.setVisibility(View.GONE);
+
+                }else{
+                    LinLayEspacio1Placa.setVisibility(View.VISIBLE);
+                    LinLayTituloPlaca.setVisibility(View.VISIBLE);
+                    LinLayEspacio2Placa.setVisibility(View.VISIBLE);
+                    LinLayFotoPlacaView.setVisibility(View.VISIBLE);
+                    txtFotoCargandoPlacas.setVisibility(View.VISIBLE);
+
+                    textViewNombreFotoPlaca.setText(ja6.getString(11)+":");
+
+                    storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(8))
+                            .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                @Override
+
+                                public void onSuccess(Uri uri) {
+                                    Glide.with(AccesosMultiplesSalidasActivity.this)
+                                            .load(uri)
+                                            .error(R.drawable.log)
+                                            .centerInside()
+                                            .into(ImageViewPlaca);
+                                    txtFotoCargandoPlacas.setVisibility(View.GONE);
+                                    ImageViewPlaca.setVisibility(View.VISIBLE);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    // Handle any errors
+                                    txtFotoCargandoPlacas.setText(Global_info.getTexto2Imagenes());
+                                }
+                            });
+                }
+
                 //FOTO1
                 if(ja4.getString(3).equals("")){
                     Foto1.setVisibility(View.GONE);
@@ -964,6 +1021,48 @@ public class AccesosMultiplesSalidasActivity extends mx.linkom.caseta_grupokap.M
                         PlacasL.setVisibility(View.VISIBLE);
                         Placas.setText(ja4.getString(7));
                     }
+
+                    //FOTO PLACA
+
+                    if(ja4.getString(8).equals("")){
+                        LinLayEspacio1Placa.setVisibility(View.GONE);
+                        LinLayTituloPlaca.setVisibility(View.GONE);
+                        LinLayEspacio2Placa.setVisibility(View.GONE);
+                        LinLayFotoPlacaView.setVisibility(View.GONE);
+                        txtFotoCargandoPlacas.setVisibility(View.GONE);
+
+                    }else{
+                        LinLayEspacio1Placa.setVisibility(View.VISIBLE);
+                        LinLayTituloPlaca.setVisibility(View.VISIBLE);
+                        LinLayEspacio2Placa.setVisibility(View.VISIBLE);
+                        LinLayFotoPlacaView.setVisibility(View.VISIBLE);
+                        txtFotoCargandoPlacas.setVisibility(View.VISIBLE);
+
+                        textViewNombreFotoPlaca.setText(ja6.getString(11)+":");
+
+                        storageReference.child(Conf.getPin()+"/caseta/"+ja4.getString(8))
+                                .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                    @Override
+
+                                    public void onSuccess(Uri uri) {
+                                        Glide.with(AccesosMultiplesSalidasActivity.this)
+                                                .load(uri)
+                                                .error(R.drawable.log)
+                                                .centerInside()
+                                                .into(ImageViewPlaca);
+                                        txtFotoCargandoPlacas.setVisibility(View.GONE);
+                                        ImageViewPlaca.setVisibility(View.VISIBLE);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        // Handle any errors
+                                        txtFotoCargandoPlacas.setText(Global_info.getTexto2Imagenes());
+                                    }
+                                });
+                    }
+
                     //FOTO1
                     if(ja4.getString(3).equals("")){
                         Foto1.setVisibility(View.GONE);

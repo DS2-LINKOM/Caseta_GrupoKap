@@ -123,6 +123,10 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:numColumns="1"
+        android:scrollbarSize="15dp"
+        android:scrollbarStyle="outsideOverlay"
+        android:fadeScrollbars="false"
+        android:scrollbarThumbVertical="@color/blue"
         ></GridView>
 
 </LinearLayout>

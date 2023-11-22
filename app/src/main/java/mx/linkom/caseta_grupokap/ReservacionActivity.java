@@ -25,7 +25,7 @@ import org.json.JSONException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ReservacionActivity extends AppCompatActivity {
+public class ReservacionActivity extends mx.linkom.caseta_grupokap.Menu {
 
     private Configuracion Conf;
     JSONArray ja1;

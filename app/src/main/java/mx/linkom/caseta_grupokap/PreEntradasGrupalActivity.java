@@ -2,6 +2,7 @@ package mx.linkom.caseta_grupokap;
 
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,10 +10,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.speech.RecognizerIntent;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
@@ -20,6 +23,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -61,10 +65,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
 import mx.linkom.caseta_grupokap.detectPlaca.DetectarPlaca;
+import mx.linkom.caseta_grupokap.detectPlaca.objectDetectorClass;
 import mx.linkom.caseta_grupokap.offline.Database.UrisContentProvider;
 import mx.linkom.caseta_grupokap.offline.Global_info;
 import mx.linkom.caseta_grupokap.offline.Servicios.subirFotos;
@@ -78,7 +84,7 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
     TextView tvMensaje;
     TextView Nombre, Dire, Visi, Tipo;
 
-    EditText Placas;
+    EditText Placas, editTextPlacasPorFoto;
     Spinner Pasajeros;
     LinearLayout Pasajeros1;
 
@@ -87,24 +93,36 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
     Bitmap bitmap, bitmap2, bitmap3;
     ProgressDialog pd, pd2, pd3, pd4, pd5;
     int foto;
-    String f1, f2, f3;
+    String f1, f2, f3, f4;
 
     LinearLayout espacio1, espacio2, espacio3, espacio4, espacio5, espacio6, espacio7, espacio8, espacio9, espacio10;
     LinearLayout registrar1, registrar2, registrar3, registrar4;
     Button reg1, reg2, reg3, reg4, btn_foto1, btn_foto2, btn_foto3;
     LinearLayout Foto1View, Foto2View, Foto3View;
-    LinearLayout Foto1, Foto2, Foto3;
+    LinearLayout Foto1, Foto2, Foto3, LinLayEspacioPlacasCono, LinLayPlacasTextoPorFoto, CPlacasTexto;
     ImageView view1, view2, view3;
     TextView nombre_foto1, nombre_foto2, nombre_foto3;
     Uri uri_img, uri_img2, uri_img3;
-    int fotos1, fotos2, fotos3;
+    int fotos1, fotos2, fotos3, fotos4;
     EditText Comentarios;
 
     /*ImageView iconoInternet;
     boolean Offline = false;*/
 
-    String rutaImagen1="", rutaImagen2="", rutaImagen3="", rutaImagenPlaca="", nombreImagen1="", nombreImagen2="", nombreImagen3="", nombreImagenPlaca="";
-    TextView txtFoto1, txtFoto2, txtFoto3;
+    String rutaImagen1 = "", rutaImagen2 = "", rutaImagen3 = "", rutaImagenPlaca = "", nombreImagen1 = "", nombreImagen2 = "", nombreImagen3 = "", nombreImagenPlaca = "";
+
+    LinearLayout espacio1Placa, FotoPlaca, espacioPlaca, FotoPlacaView, espacio2Placa;
+    TextView nombre_fotoPlaca;
+    Button btn_fotoPlaca;
+    ImageView viewPlaca;
+    TextView txtFoto1, txtFoto2, txtFoto3, txtFotoPlaca;
+
+    private mx.linkom.caseta_grupokap.detectPlaca.objectDetectorClass objectDetectorClass;
+    boolean modeloCargado = false;
+    private String btnFotoPlacaFuePresionado = "";
+
+    private ImageButton btnMicrofonoComentarios;
+    private static final int TXT_COMENTARIOS = 200;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -177,6 +195,25 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         rlPermitido = (LinearLayout) findViewById(R.id.rlPermitido);
         rlDenegado = (LinearLayout) findViewById(R.id.rlDenegado);
 
+        //Variables para placa
+        espacio1Placa = (LinearLayout) findViewById(R.id.espacio1Placa);
+        FotoPlaca = (LinearLayout) findViewById(R.id.FotoPlaca);
+        espacioPlaca = (LinearLayout) findViewById(R.id.espacioPlaca);
+        FotoPlacaView = (LinearLayout) findViewById(R.id.FotoPlacaView);
+        nombre_fotoPlaca = (TextView) findViewById(R.id.nombre_fotoPlaca);
+        btn_fotoPlaca = (Button) findViewById(R.id.btn_fotoPlaca);
+        viewPlaca = (ImageView) findViewById(R.id.viewPlaca);
+        espacio2Placa = (LinearLayout) findViewById(R.id.espacio2Placa);
+
+        btnMicrofonoComentarios = (ImageButton) findViewById(R.id.btnMicrofonoComentarios);
+        Comentarios.setFilters(new InputFilter[]{new InputFilter.AllCaps()});
+        btnMicrofonoComentarios.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iniciarEntradVoz("Diga los comentarios para esta visita", TXT_COMENTARIOS);
+            }
+        });
+
         /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetPreentradasGrupalQR);
 
         if (Global_info.getINTERNET().equals("Si")) {
@@ -212,6 +249,52 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
             }
         });*/
 
+        Intent intent = getIntent();
+        nombreImagenPlaca = intent.getStringExtra("nombreFotoPlaca");
+        rutaImagenPlaca = intent.getStringExtra("rutaDispositivo");
+        btnFotoPlacaFuePresionado = intent.getStringExtra("btnPlacas");
+
+        if (nombreImagenPlaca == null || rutaImagenPlaca == null) {
+            Log.e("INTENT", "No se enviaron los datos");
+            nombreImagenPlaca = "";
+            rutaImagenPlaca = "";
+        }
+
+        Log.e("ACTIVITY", "PreEntradasGrupalQr" + Global.getFotoPlaca() + " btn: " + btnFotoPlacaFuePresionado);
+
+        if (Global.getFotoPlaca() && btnFotoPlacaFuePresionado != null) { //Esta activa la opcion de foto placa y viene de buscar la placa
+            editTextPlacasPorFoto.setText(Conf.getPlacas().trim());
+            Placas.setText(Conf.getPlacas().trim());
+            editTextPlacasPorFoto.setFilters(new InputFilter[]{filter, new InputFilter.AllCaps() {
+            }});
+            Log.e("ruta", rutaImagenPlaca);
+            if (rutaImagenPlaca.isEmpty()) {
+                CPlacasTexto.setVisibility(View.VISIBLE);
+                LinLayEspacioPlacasCono.setVisibility(View.VISIBLE);
+            } else {
+                CPlacasTexto.setVisibility(View.GONE);
+                LinLayEspacioPlacasCono.setVisibility(View.GONE);
+            }
+        } else if (Global.getFotoPlaca() && btnFotoPlacaFuePresionado == null) { //Esta activa la opcion de foto placa y viene de codigo qr
+            editTextPlacasPorFoto.setFilters(new InputFilter[]{filter, new InputFilter.AllCaps() {
+            }});
+            CPlacasTexto.setVisibility(View.GONE);
+            LinLayEspacioPlacasCono.setVisibility(View.GONE);
+        } else {
+            Placas.setFilters(new InputFilter[]{filter, new InputFilter.AllCaps() {
+            }});
+            Placas.setText(Conf.getPlacas().trim());
+            CPlacasTexto.setVisibility(View.VISIBLE);
+        }
+
+        try {
+            objectDetectorClass = new objectDetectorClass(getAssets(), "detectPlacaLKM.tflite", "labelmapTf.txt", 320);
+            Log.e("PreEntradasGrupalQr", "Modelo cargado correctamente");
+            modeloCargado = true;
+        } catch (IOException e) {
+            modeloCargado = false;
+            Log.e("PreEntradasGrupalQr", "Error al cargar modelo");
+        }
 
         //SI ES ACEPTADO O DENEGAODO
         if (Conf.getST().equals("Aceptado")) {
@@ -274,6 +357,13 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
             @Override
             public void onClick(View v) {
                 Validacion();
+            }
+        });
+
+        btn_fotoPlaca.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imgFotoPlacaOffline();
             }
         });
 
@@ -528,7 +618,7 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
     }
 
     public void submenu(final String id_app) {
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/menu_2.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/menu_3.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
@@ -552,6 +642,34 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                         try {
                             ja6 = new JSONArray(response);
                             imagenes();
+
+                            if (ja6.getString(10).trim().equals("1")){
+                                Global.setFotoPlaca(true);
+                            }else {
+                                Global.setFotoPlaca(false);
+                            }
+
+                            //OCULTAR VIEW DE FOTO PLACA
+                            if (ja6.getString(3).equals("0") && (ja6.getString(10).trim().equals("1") && !Conf.getTipoReg().equals("Peatonal")) && rutaImagenPlaca != null){
+                                try {
+                                    if (ja6.getString(3).equals("1")){
+                                        Foto1.setVisibility(View.VISIBLE);
+                                        espacio2.setVisibility(View.VISIBLE);
+                                        nombre_foto1.setVisibility(View.VISIBLE);
+                                    }else {
+                                        if (!rutaImagenPlaca.isEmpty()){
+                                            registrar1.setVisibility(View.VISIBLE);
+                                            espacio1.setVisibility(View.VISIBLE);
+                                        }
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }else if ((!rutaImagenPlaca.isEmpty() && ja6.getString(3).equals("0")) || (Conf.getTipoReg().equals("Peatonal") && ja6.getString(3).equals("0"))){
+                                registrar1.setVisibility(View.VISIBLE);
+                                espacio1.setVisibility(View.VISIBLE);
+                            }
+
                             Visita();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -579,6 +697,50 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
     public void imagenes() {
         try {
+
+            if (ja6.getString(10).trim().equals("1") && !Conf.getTipoReg().equals("Peatonal")) {
+                Global.setFotoPlaca(true);
+                espacio1Placa.setVisibility(View.VISIBLE);
+                FotoPlaca.setVisibility(View.VISIBLE);
+                nombre_fotoPlaca.setVisibility(View.VISIBLE);
+                btn_fotoPlaca.setVisibility(View.VISIBLE);
+                viewPlaca.setVisibility(View.VISIBLE);
+                espacio2Placa.setVisibility(View.VISIBLE);
+
+                nombre_fotoPlaca.setText(ja6.getString(11) + ":");
+
+                if (!nombreImagenPlaca.isEmpty() && !rutaImagenPlaca.isEmpty()) {
+                    Bitmap bitmap;
+                    bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/" + nombreImagenPlaca);
+
+                    if (bitmap != null) {
+
+                        Matrix matrix = new Matrix();
+                        matrix.postRotate(90);
+
+                        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+                        bitmap = rotatedBitmap;
+
+                        espacioPlaca.setVisibility(View.VISIBLE);
+                        FotoPlacaView.setVisibility(View.VISIBLE);
+                        viewPlaca.setImageBitmap(bitmap);
+
+                        CPlacasTexto.setVisibility(View.GONE);
+                        LinLayPlacasTextoPorFoto.setVisibility(View.VISIBLE);
+                    } else {
+                        /*espacio1.setVisibility(View.VISIBLE);
+                        Foto1.setVisibility(View.VISIBLE);
+                        espacio2.setVisibility(View.VISIBLE);*/
+                    }
+                } else {
+                    espacio1.setVisibility(View.GONE);
+                    Foto1.setVisibility(View.GONE);
+                    espacio2.setVisibility(View.GONE);
+                }
+            } else {
+                Global.setFotoPlaca(false);
+            }
 
             if (ja6.getString(0).equals("0") || ja6.getString(3).equals("0")) {
 
@@ -609,9 +771,32 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                 registrar1.setVisibility(View.GONE);
                 espacio1.setVisibility(View.GONE);
 
-                Foto1.setVisibility(View.VISIBLE);
-                espacio2.setVisibility(View.VISIBLE);
-                nombre_foto1.setVisibility(View.VISIBLE);
+                if (ja6.getString(10).trim().equals("0") || (ja6.getString(10).trim().equals("1") && Conf.getTipoReg().equals("Peatonal"))) {
+                    Foto1.setVisibility(View.VISIBLE);
+                    espacio2.setVisibility(View.VISIBLE);
+                    nombre_foto1.setVisibility(View.VISIBLE);
+                } else if (ja6.getString(10).trim().equals("1")) {
+                    if (!nombreImagenPlaca.isEmpty() && !rutaImagenPlaca.isEmpty()) {
+
+                        Bitmap bitmap;
+                        bitmap = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/" + nombreImagenPlaca);
+
+                        if (bitmap != null) {
+                            Foto1.setVisibility(View.VISIBLE);
+                            espacio2.setVisibility(View.VISIBLE);
+                            nombre_foto1.setVisibility(View.VISIBLE);
+                        } else {
+                            espacio1.setVisibility(View.VISIBLE);
+                            Foto1.setVisibility(View.VISIBLE);
+                            espacio2.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        espacio1.setVisibility(View.VISIBLE);
+                        Foto1.setVisibility(View.VISIBLE);
+                        espacio2.setVisibility(View.VISIBLE);
+                    }
+                }
+
                 nombre_foto1.setText(ja6.getString(4) + ":");
 
                 Foto1View.setVisibility(View.VISIBLE);
@@ -712,7 +897,53 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
         }
     }
 
+    private void iniciarEntradVoz(String promt, int campo) {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, promt);
+
+        intent.putExtra("FIELD_EXTRA", campo);
+
+        try {
+            startActivityForResult(intent, campo);
+        } catch (ActivityNotFoundException e) {
+            Log.e("RECTETXT", e.toString());
+        }
+    }
+
     //FOTOS
+
+    public void imgFotoPlacaOffline() {
+        Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intentCaptura.addFlags(intentCaptura.FLAG_GRANT_READ_URI_PERMISSION);
+
+        if (intentCaptura.resolveActivity(getPackageManager()) != null) {
+
+            File foto = null;
+            try {
+                nombreImagenPlaca = "appPlaca" + anio + mes + dia + "-" + numero_aletorio + numero_aletorio2 + numero_aletorio3 + ".png";
+                foto = new File(getApplication().getExternalFilesDir(null), nombreImagenPlaca);
+                rutaImagenPlaca = foto.getAbsolutePath();
+            } catch (Exception ex) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PreEntradasGrupalActivity.this);
+                alertDialogBuilder.setTitle("Alerta");
+                alertDialogBuilder
+                        .setMessage("Error al capturar la foto")
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).create().show();
+            }
+            if (foto != null) {
+
+                uri_img = FileProvider.getUriForFile(getApplicationContext(), getApplicationContext().getPackageName() + ".provider", foto);
+                intentCaptura.putExtra(MediaStore.EXTRA_OUTPUT, uri_img);
+                startActivityForResult(intentCaptura, 3);
+            }
+        }
+    }
 
     public void imgFotoOffline() {
         Intent intentCaptura = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -990,6 +1221,75 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                 espacio10.setVisibility(View.VISIBLE);
                 fotos3 = 1;
 
+            }
+
+            if (requestCode == 3) {
+
+                Bitmap bitmap4 = BitmapFactory.decodeFile(getApplicationContext().getExternalFilesDir(null) + "/" + nombreImagenPlaca);
+
+                if (modeloCargado) {
+                    String txtPlaca = DetectarPlaca.getTextFromImage(DetectarPlaca.reconocerPlaca(bitmap4, objectDetectorClass, 1), PreEntradasGrupalActivity.this);
+                    Log.e("PLACA", txtPlaca);
+                    if (!txtPlaca.isEmpty()) {
+                        editTextPlacasPorFoto.setText(txtPlaca);
+                        Placas.setText(txtPlaca);
+
+                    }
+                }
+
+                Matrix matrix = new Matrix();
+                matrix.postRotate(90);
+
+                Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap4, 0, 0, bitmap4.getWidth(), bitmap4.getHeight(), matrix, true);
+
+                bitmap4 = rotatedBitmap;
+
+                bitmap4 = DetectarPlaca.fechaHoraFoto(bitmap4);
+
+                FileOutputStream fos = null;
+
+                try {
+                    fos = new FileOutputStream(rutaImagenPlaca);
+                    bitmap4.compress(Bitmap.CompressFormat.JPEG, 100, fos); // compress and save as JPEG
+                    fos.flush();
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+                FotoPlacaView.setVisibility(View.VISIBLE);
+                viewPlaca.setVisibility(View.VISIBLE);
+                viewPlaca.setImageBitmap(bitmap4);
+                espacio2Placa.setVisibility(View.VISIBLE);
+                espacioPlaca.setVisibility(View.VISIBLE);
+
+                try {
+                    if (ja6.getString(3).equals("1")) {
+                        Foto1.setVisibility(View.VISIBLE);
+                        espacio2.setVisibility(View.VISIBLE);
+                        nombre_foto1.setVisibility(View.VISIBLE);
+                    } else {
+                        registrar1.setVisibility(View.VISIBLE);
+                        espacio1.setVisibility(View.VISIBLE);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                if (Global.getFotoPlaca() && !Conf.getTipoReg().equals("Peatonal")) {
+                    CPlacasTexto.setVisibility(View.GONE);
+                    LinLayPlacasTextoPorFoto.setVisibility(View.VISIBLE);
+                    LinLayEspacioPlacasCono.setVisibility(View.GONE);
+                }
+
+                fotos4 = 1;
+            }
+
+            if (requestCode == TXT_COMENTARIOS && data != null) {
+                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                String txtAnterior = " " + Comentarios.getText() + " " + result.get(0);
+                Comentarios.setText(txtAnterior);
             }
         }
     }
@@ -1337,7 +1637,7 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
     public void Dtl_pre() {
 
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_reg_8.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
+        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_reg_8_2.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
@@ -1486,6 +1786,34 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                                     txtFoto3.setText(Global_info.getTexto2Imagenes());
                                 }
                             });
+
+                    //PLACA
+                    if (ja7.getString(16).isEmpty() || Global.getFotoPlaca()) {
+                        txtFotoPlaca.setVisibility(View.GONE);
+                    } else {
+                        storageReference.child(Conf.getPin() + "/caseta/" + ja7.getString(16))
+                                .getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                    @Override
+
+                                    public void onSuccess(Uri uri) {
+                                        Glide.with(PreEntradasGrupalActivity.this)
+                                                .load(uri)
+                                                .error(R.drawable.log)
+                                                .centerInside()
+                                                .into(viewPlaca);
+
+                                        txtFotoPlaca.setVisibility(View.GONE);
+                                        viewPlaca.setVisibility(View.VISIBLE);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        // Handle any errors
+                                        txtFotoPlaca.setText(Global_info.getTexto2Imagenes());
+                                    }
+                                });
+                    }
 
                     /*if (!Offline) {
                         storageReference.child(Conf.getPin() + "/caseta/" + ja7.getString(11))
@@ -1815,18 +2143,21 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
 
     public void Registrar() {
 
-        if (Placas.getText().toString().equals("")) {
+        if ((Placas.getText().toString().equals("") && !Global.getFotoPlaca()) || (Global.getFotoPlaca() && editTextPlacasPorFoto.getText().toString().equals(""))) {
             pd.dismiss();
+
             Toast.makeText(getApplicationContext(), "Campo de placas", Toast.LENGTH_SHORT).show();
-        } else if (Placas.getText().toString().equals(" ")) {
+        } else if ((Placas.getText().toString().equals(" ") && !Global.getFotoPlaca()) || (Global.getFotoPlaca() && editTextPlacasPorFoto.getText().toString().equals(" "))) {
             pd.dismiss();
+
             Toast.makeText(getApplicationContext(), "Campo de placas ", Toast.LENGTH_SHORT).show();
-        } else if (Placas.getText().toString().equals("N/A")) {
+        } else if ((Placas.getText().toString().equals("N/A") && !Global.getFotoPlaca()) || (Global.getFotoPlaca() && editTextPlacasPorFoto.getText().toString().equals("N/A"))) {
             pd.dismiss();
+
             Toast.makeText(getApplicationContext(), "Campo de placas", Toast.LENGTH_SHORT).show();
         } else {
 
-            String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php5.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
+            String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/vst_php5_2.php?bd_name=" + Conf.getBd() + "&bd_user=" + Conf.getBdUsu() + "&bd_pwd=" + Conf.getBdCon();
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
@@ -1863,6 +2194,9 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                             if (fotos3 == 1) {
                                 upload3();
                             }
+                            if (!nombreImagenPlaca.isEmpty()) {
+                                upload4();
+                            }
                         }else {
                             if (fotos1 == 1) {
                                 ContentValues val_img1 = ValuesImagen(nombreImagen1, Conf.getPin() + "/caseta/" + nombreImagen1, rutaImagen1);
@@ -1875,6 +2209,10 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                             if (fotos3 == 1) {
                                 ContentValues val_img3 = ValuesImagen(nombreImagen3, Conf.getPin() + "/caseta/" + nombreImagen3, rutaImagen3);
                                 Uri uri = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img3);
+                            }
+                            if (!nombreImagenPlaca.isEmpty()) {
+                                ContentValues val_img4 = ValuesImagen(nombreImagenPlaca, Conf.getPin() + "/caseta/" + nombreImagenPlaca.trim(), rutaImagenPlaca);
+                                Uri uri4 = getContentResolver().insert(UrisContentProvider.URI_CONTENIDO_FOTOS_OFFLINE, val_img4);
                             }
                         }
 
@@ -1911,6 +2249,11 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                         } else {
                             f3 = ja7.getString(13);
                         }
+                        if (fotos4 == 1) {
+                            f4 = nombreImagenPlaca;
+                        } else {
+                            f4 = ja7.getString(16);
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -1918,14 +2261,23 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
                     Map<String, String> params = new HashMap<>();
                     try {
 
+                        String placas = "";
+
+                        if (Global.getFotoPlaca()) {
+                            placas = editTextPlacasPorFoto.getText().toString().trim();
+                        } else {
+                            placas = Placas.getText().toString().trim();
+                        }
+
                         params.put("id_residencial", Conf.getResid().trim());
                         params.put("id_visita", ja1.getString(0).trim());
                         params.put("guardia_de_entrada", Conf.getUsu().trim());
                         params.put("pasajeros", Pasajeros.getSelectedItem().toString());
-                        params.put("placas", Placas.getText().toString().trim());
+                        params.put("placas", placas);
                         params.put("foto1", f1);
                         params.put("foto2", f2);
                         params.put("foto3", f3);
+                        params.put("foto4", nombreImagenPlaca);
                         params.put("usuario", ja2.getString(1).trim() + " " + ja2.getString(2).trim() + " " + ja2.getString(3).trim());
                         params.put("token", ja2.getString(5).trim());
                         params.put("correo", ja2.getString(6).trim());
@@ -2055,6 +2407,44 @@ public class PreEntradasGrupalActivity extends mx.linkom.caseta_grupokap.Menu {
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 eliminarFotoDirectorioLocal(nombreImagen3);
                 pd4.dismiss();
+
+            }
+        });
+    }
+
+    public void upload4() {
+
+        StorageReference mountainImagesRef3 = null;
+        mountainImagesRef3 = storageReference.child(Conf.getPin() + "/caseta/" + nombreImagenPlaca);
+
+        Uri uri = Uri.fromFile(new File(rutaImagenPlaca));
+        UploadTask uploadTask = mountainImagesRef3.putFile(uri);
+
+        // Listen for state changes, errors, and completion of the upload.
+        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                // double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                //System.out.println("Upload is " + progress + "% done");
+                //Toast.makeText(getApplicationContext(),"Cargando Imagen PLACA " + progress + "%", Toast.LENGTH_SHORT).show();
+                pd5.show();
+            }
+        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                //Toast.makeText(AccesoActivity.this,"Pausado",Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Toast.makeText(PreEntradasGrupalActivity.this, "Fallado", Toast.LENGTH_SHORT).show();
+                pd5.dismiss();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                eliminarFotoDirectorioLocal(nombreImagenPlaca);
+                pd5.dismiss();
 
             }
         });

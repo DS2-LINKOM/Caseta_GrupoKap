@@ -42,7 +42,7 @@ import mx.linkom.caseta_grupokap.adaptadores.ListasClassGrid;
 import mx.linkom.caseta_grupokap.adaptadores.ListasClassReservaciones;
 import mx.linkom.caseta_grupokap.adaptadores.adaptador_Modulo;
 
-public class ListaReservacionesActivity extends AppCompatActivity {
+public class ListaReservacionesActivity extends mx.linkom.caseta_grupokap.Menu {
 
     private Configuracion Conf;
     private GridView gridList;
@@ -70,7 +70,8 @@ public class ListaReservacionesActivity extends AppCompatActivity {
     }
 
     public void reservaciones() {
-        String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/reservaciones_mes.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        //String URL = "https://2210.kap-adm.mx/plataforma/casetaV2/controlador/grupokap_access/reservaciones_mes.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
+        String URL = "http://192.168.0.110/Android/reservaciones_mes.php?bd_name="+Conf.getBd()+"&bd_user="+Conf.getBdUsu()+"&bd_pwd="+Conf.getBdCon();
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
 
@@ -115,7 +116,7 @@ public class ListaReservacionesActivity extends AppCompatActivity {
 
         for (int i = 0; i < ja1.length(); i += 12) {
             try {
-                reservaciones.add(new ListasClassReservaciones(ja1.getString(i + 3), ja1.getString(i + 6), "UP: " + ja1.getString(i + 11), Integer.parseInt(ja1.getString(i + 0))));
+                reservaciones.add(new ListasClassReservaciones(ja1.getString(i + 3), ja1.getString(i + 6) + " " + ja1.getString(i + 7), "UP: " + ja1.getString(i + 11), Integer.parseInt(ja1.getString(i + 0))));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
