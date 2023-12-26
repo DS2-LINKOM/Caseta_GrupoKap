@@ -2095,7 +2095,7 @@ public class AccesoRegistroActivity extends mx.linkom.caseta_grupokap.Menu {
 
                         String placas = "";
 
-                        if (Global.getFotoPlaca()) {
+                        if (Global.getFotoPlaca() && !Conf.getTipoReg().equals("Peatonal")) {
                             placas = editTextPlacasPorFoto.getText().toString().trim();
                         } else {
                             placas = Placas.getText().toString().trim();
