@@ -14,6 +14,7 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.text.InputFilter;
@@ -122,6 +123,8 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
 
     private ImageButton btnMicrofonoComentarios;
     private static final int TXT_COMENTARIOS = 200;
+
+    private int btnRegistrarPresionado = 0;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -338,28 +341,65 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
         reg1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Verificar();
+                reg1.setEnabled(false);
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+
+                        btnRegistrarPresionado = 1;
+                        botonPresionado(0);
+                        Verificar();
+                    }
+                }, 300);
             }
         });
 
         reg2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Verificar();
+                reg2.setEnabled(false);
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        btnRegistrarPresionado = 2;
+                        botonPresionado(0);
+                        Verificar();
+                    }
+                }, 300);
             }
         });
 
         reg3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Verificar();
+                reg3.setEnabled(false);
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        btnRegistrarPresionado = 3;
+                        botonPresionado(0);
+                        Verificar();
+                    }
+                }, 300);
             }
         });
 
         reg4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Verificar();
+                reg4.setEnabled(false);
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        btnRegistrarPresionado = 4;
+                        botonPresionado(0);
+                        Verificar();
+                    }
+                }, 300);
             }
         });
 
@@ -1693,7 +1733,12 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
                             busqueda();
                         }*/
                     }
-                }).create().show();
+                }).setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        botonPresionado(1);
+                    }
+                }).setCancelable(false).create().show();
     }
 
     public void numerosOffline(final String IdUsu) {
@@ -1898,6 +1943,8 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
     public void busqueda() {
         if (Calle.getSelectedItem().equals("Seleccionar..") || Calle.getSelectedItem().equals("Seleccionar...") || Numero.getSelectedItem().equals("Seleccionar...")) {
             pd.dismiss();
+            botonPresionado(1);
+
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PreEntradasActivity.this);
             alertDialogBuilder.setTitle("Alerta");
             alertDialogBuilder
@@ -1917,6 +1964,8 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
                     if (response.equals("error")) {
 
                         pd.dismiss();
+                        botonPresionado(1);
+
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PreEntradasActivity.this);
                         alertDialogBuilder.setTitle("Alerta");
                         alertDialogBuilder
@@ -1941,6 +1990,8 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e("TAG", "Error: " + error.toString());
+                    botonPresionado(1);
+                    alertaErrorAlRegistrar("Error al registrar visita \n\nNo se ha podido establecer comunicación con el servidor, inténtelo de nuevo");
                 }
             }) {
                 @Override
@@ -2203,14 +2254,17 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
 
         if ((Placas.getText().toString().equals("") && !Global.getFotoPlaca()) || (Global.getFotoPlaca() && editTextPlacasPorFoto.getText().toString().equals(""))) {
             pd.dismiss();
+            botonPresionado(1);
 
             Toast.makeText(getApplicationContext(), "Campo de placas", Toast.LENGTH_SHORT).show();
         } else if ((Placas.getText().toString().equals(" ") && !Global.getFotoPlaca()) || (Global.getFotoPlaca() && editTextPlacasPorFoto.getText().toString().equals(" "))) {
             pd.dismiss();
+            botonPresionado(1);
 
             Toast.makeText(getApplicationContext(), "Campo de placas ", Toast.LENGTH_SHORT).show();
         } else if ((Placas.getText().toString().equals("N/A") && !Global.getFotoPlaca()) || (Global.getFotoPlaca() && editTextPlacasPorFoto.getText().toString().equals("N/A"))) {
             pd.dismiss();
+            botonPresionado(1);
 
             Toast.makeText(getApplicationContext(), "Campo de placas", Toast.LENGTH_SHORT).show();
         } else {
@@ -2223,6 +2277,8 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
                 public void onResponse(String response) {
                     if (response.equals("error")) {
                         pd.dismiss();
+                        botonPresionado(1);
+
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PreEntradasActivity.this);
                         alertDialogBuilder.setTitle("Alerta");
                         alertDialogBuilder
@@ -2291,6 +2347,8 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e("TAG", "Error: " + error.toString());
+                    botonPresionado(1);
+                    alertaErrorAlRegistrar("Error al registrar visita \n\nNo se ha podido establecer comunicación con el servidor, inténtelo de nuevo");
                 }
             }) {
                 @Override
@@ -2635,6 +2693,51 @@ public class PreEntradasActivity extends mx.linkom.caseta_grupokap.Menu {
             }
         }
         return false;
+    }
+
+    public void botonPresionado(int estado){
+        //estado --> 0=presionado   1=restablecer
+
+        Button button = reg1;
+
+        switch (btnRegistrarPresionado){
+            case 1:
+                button = reg1;
+                break;
+            case 2:
+                button = reg2;
+                break;
+            case 3:
+                button = reg3;
+                break;
+            case 4:
+                button = reg4;
+                break;
+            default:
+                break;
+        }
+
+        if (estado == 0){
+            button.setBackgroundResource(R.drawable.btn_presionado);
+            button.setTextColor(0xFF5A6C81);
+        }else if (estado == 1){
+            button.setBackgroundResource(R.drawable.ripple_effect);
+            button.setTextColor(0xFF27374A);
+            button.setEnabled(true);
+        }
+    }
+
+    public void alertaErrorAlRegistrar(String texto){
+        pd.dismiss();
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(PreEntradasActivity.this);
+        alertDialogBuilder.setTitle("Alerta");
+        alertDialogBuilder
+                .setMessage(texto)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                }).create().show();
     }
 
     @Override

@@ -12,6 +12,7 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -122,7 +123,15 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
         registrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Validacion();
+                registrar.setEnabled(false);
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        botonPresionado(0);
+                        Validacion();
+                    }
+                }, 300);
             }
         });
 
@@ -469,18 +478,21 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
                 .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
+                        botonPresionado(1);
+
                         //Intent i = new Intent(getApplicationContext(), RegTrabActivity.class);
                        // startActivity(i);
                        // finish();
 
                     }
-                }).create().show();
+                }).setCancelable(false).create().show();
     }
 
     public void traeDepartamento2() {
 
         if (Tipo.getSelectedItem().toString().equals("Seleccionar...") || Departamento.getSelectedItem().toString().equals("Seleccionar...")) {
             pd.dismiss();
+            botonPresionado(1);
 
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegTrabActivity.this);
             alertDialogBuilder.setTitle("Alerta");
@@ -493,6 +505,7 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
                     }).create().show();
         } else if(nombre.getText().toString().equals("") || nombre.getText().toString().equals(" ")){
             pd.dismiss();
+            botonPresionado(1);
 
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegTrabActivity.this);
             alertDialogBuilder.setTitle("Alerta");
@@ -526,6 +539,8 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e("TAG", "Error: " + error.toString());
+                    botonPresionado(1);
+                    alertaErrorAlRegistrar("Error al registrar \n\nNo se ha podido establecer comunicación con el servidor, inténtelo de nuevo");
                 }
             }) {
                 @Override
@@ -556,6 +571,7 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
                 if(response.equals("error")){
 
                     pd.dismiss();
+                    botonPresionado(1);
 
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegTrabActivity.this);
                     alertDialogBuilder.setTitle("Alerta");
@@ -608,6 +624,8 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("TAG", "Error: " + error.toString());
+                botonPresionado(1);
+                alertaErrorAlRegistrar("Error al registrar \n\nNo se ha podido establecer comunicación con el servidor, inténtelo de nuevo");
             }
         }) {
             @Override
@@ -792,6 +810,34 @@ public class RegTrabActivity extends mx.linkom.caseta_grupokap.Menu {
             }
         }
         return false;
+    }
+
+    public void botonPresionado(int estado){
+        //estado --> 0=presionado   1=restablecer
+
+        Button button = registrar;
+
+        if (estado == 0){
+            button.setBackgroundResource(R.drawable.btn_presionado);
+            button.setTextColor(0xFF5A6C81);
+        }else if (estado == 1){
+            button.setBackgroundResource(R.drawable.ripple_effect);
+            button.setTextColor(0xFF27374A);
+            button.setEnabled(true);
+        }
+    }
+
+    public void alertaErrorAlRegistrar(String texto){
+        pd.dismiss();
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(RegTrabActivity.this);
+        alertDialogBuilder.setTitle("Alerta");
+        alertDialogBuilder
+                .setMessage(texto)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                }).create().show();
     }
 
     @Override
