@@ -366,6 +366,8 @@ public class EscaneoVisitaActivity extends mx.linkom.caseta_grupokap.Menu {
                             Log.e("RESP2", ja6.getString(9));
                             Log.e("RESP2", ja6.getString(10));
                             Log.e("RESP2", ja6.getString(11));
+
+
                             if (ja6.getString(10).trim().equals("1")){
                                 LayoutBtnPlaca.setVisibility(View.VISIBLE);
                                 Global.setFotoPlaca(true);

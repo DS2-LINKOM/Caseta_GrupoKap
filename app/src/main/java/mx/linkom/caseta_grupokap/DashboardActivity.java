@@ -116,7 +116,7 @@ public class DashboardActivity extends  mx.linkom.caseta_grupokap.Menu {
         textViewVersionDisponible = (TextView)findViewById(R.id.textViewVersionDisponible);
         anuncioVersiones = (ConstraintLayout) findViewById(R.id.constLayoutAnuncioVersiones);
 
-
+        Global.setBuscarPorPlaca(false);
         /*iconoInternet = (ImageView) findViewById(R.id.iconoInternetDashboard);
 
         if (Global_info.getINTERNET().equals("Si")){

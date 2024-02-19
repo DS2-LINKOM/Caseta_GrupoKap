@@ -5,10 +5,10 @@
 5    android:versionName="3.4.13" >
 6
 7    <uses-sdk
-7-->C:\Users\likom\Documents\MIGUE\Desarrollo mobile\Android Studio\APPS OFFLINE\APP CASETA 2210 GK OFFLINE\Caseta_GrupoKap\OpenCV\java\AndroidManifest.xml:7:5-73
+7-->E:\APPS CASETA\GRUPO_KAP\Caseta_GrupoKap\OpenCV\java\AndroidManifest.xml:7:5-73
 8        android:minSdkVersion="21"
-8-->C:\Users\likom\Documents\MIGUE\Desarrollo mobile\Android Studio\APPS OFFLINE\APP CASETA 2210 GK OFFLINE\Caseta_GrupoKap\OpenCV\java\AndroidManifest.xml:7:15-40
+8-->E:\APPS CASETA\GRUPO_KAP\Caseta_GrupoKap\OpenCV\java\AndroidManifest.xml:7:15-40
 9        android:targetSdkVersion="29" />
-9-->C:\Users\likom\Documents\MIGUE\Desarrollo mobile\Android Studio\APPS OFFLINE\APP CASETA 2210 GK OFFLINE\Caseta_GrupoKap\OpenCV\java\AndroidManifest.xml:7:41-70
+9-->E:\APPS CASETA\GRUPO_KAP\Caseta_GrupoKap\OpenCV\java\AndroidManifest.xml:7:41-70
 10
 11</manifest>
