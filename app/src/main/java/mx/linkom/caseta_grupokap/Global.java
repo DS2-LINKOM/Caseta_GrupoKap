@@ -6,7 +6,7 @@ public class Global {
     public static String EMAIL = "";
     public static String USER = "";
     public static String PASS = "";
-    public static String VERSION_APP = "24.26.41";
+    public static String VERSION_APP = "24.26.42";
     public static boolean FOTO_PLACA = false;
 
     public static boolean BUSCAR_POR_PLACA = false;

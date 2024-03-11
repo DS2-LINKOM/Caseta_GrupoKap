@@ -34,7 +34,7 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
     private mx.linkom.caseta_grupokap.Configuracion Conf;
     JSONArray ja1;
 
-    private GridView gridList,gridList2,gridList3,gridList4,gridList5,gridList6;
+    private GridView gridList,gridList2,gridList3,gridList4,gridList5,gridList6,gridList0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +47,7 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
         gridList4 = (GridView)findViewById(R.id.gridList4);
         gridList5 = (GridView)findViewById(R.id.gridList5);
         gridList6 = (GridView)findViewById(R.id.gridList6);
+        gridList0 = (GridView)findViewById(R.id.gridList0);
 
     }
     @Override
@@ -123,7 +124,7 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
         }*/
 
 
-        gridList.setAdapter(new adaptador_Modulo(this, R.layout.activity_modulo_lista, lista){
+        gridList0.setAdapter(new adaptador_Modulo(this, R.layout.activity_modulo_lista, lista){
             @Override
             public void onEntrada(Object entrada, View view) {
                 if (entrada != null) {
@@ -139,7 +140,7 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
                     if (line != null)
                         line.setBackgroundColor(Color.parseColor(((ModuloClassGrid) entrada).getColorCode()));
 
-                    gridList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    gridList0.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
@@ -162,6 +163,9 @@ public class ReportesActivity extends mx.linkom.caseta_grupokap.Menu {
         ArrayList<ModuloClassGrid> lista = new ArrayList<ModuloClassGrid>();
 
         try {
+
+            Log.e("PLACAS", ja1.getString(6) );
+
             if(ja1.getString(6).equals("1")  ){
                 lista.add(new ModuloClassGrid(R.drawable.ic_baseline_directions_car_24,"Placas","#FF4081"));
             }else{

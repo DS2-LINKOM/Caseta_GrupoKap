@@ -66,12 +66,21 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <GridView
+                android:id="@+id/gridList0"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:numColumns="1"
+                ></GridView>
+
+            <GridView
                 android:id="@+id/gridList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/white"
                 android:numColumns="1"
                 ></GridView>
+
             <GridView
                 android:id="@+id/gridList2"
                 android:layout_width="match_parent"
