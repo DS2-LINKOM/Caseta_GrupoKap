@@ -60,6 +60,7 @@ public class EscaneoTrabajadorActivity extends mx.linkom.caseta_grupokap.Menu {
         cameraView = (SurfaceView) findViewById(R.id.camera_view);
         Codigo = (EditText) findViewById(R.id.editText);
         Buscar = (Button) findViewById(R.id.btnBuscar);
+        Lector = (Button) findViewById(R.id.btnLector);
         Qr = (LinearLayout) findViewById(R.id.qr);
         Qr2 = (LinearLayout) findViewById(R.id.qr2);
         Buscar.setOnClickListener(new View.OnClickListener() {

@@ -39,7 +39,7 @@
     <item
         android:id="@+id/Version"
         android:icon="@drawable/ic_info"
-        android:title="v. 24.26.42"
+        android:title="v. 24.26.43"
         app:showAsAction="ifRoom"
         />
 
